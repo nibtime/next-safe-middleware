@@ -1,5 +1,11 @@
 # @next-safe/middleware
 
+## 0.2.0
+
+### Minor Changes
+
+- [#3](https://github.com/nibtime/next-safe-middleware/pull/3) [`a1137ab`](https://github.com/nibtime/next-safe-middleware/commit/a1137aba24c534d43770442f3a5ee06f43bdb1de) Thanks [@nibtime](https://github.com/nibtime)! - bundle package with swc and rollup as cjs and esm
+
 ## 0.1.0
 
 ### Minor Changes

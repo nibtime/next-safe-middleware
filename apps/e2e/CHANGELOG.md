@@ -1,5 +1,12 @@
 # e2e
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`a1137ab`](https://github.com/nibtime/next-safe-middleware/commit/a1137aba24c534d43770442f3a5ee06f43bdb1de)]:
+  - @next-safe/middleware@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes
