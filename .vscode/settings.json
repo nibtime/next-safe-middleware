@@ -9,6 +9,7 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "conventionalCommits.scopes": [
     "changesets",
-    "github"
+    "github",
+    "ts"
   ]
 }

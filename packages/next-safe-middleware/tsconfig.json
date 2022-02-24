@@ -2,9 +2,9 @@
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
   "include": ["src"],
   "compilerOptions": {
-    "module": "esnext",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "target": "esnext",
+    "module": "es2020",
+    "lib": ["dom", "dom.iterable", "es2020"],
+    "target": "es2020",
     "noEmit": false,
     "outDir": "./dist",
     "importHelpers": true,
