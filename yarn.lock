@@ -986,6 +986,7 @@ __metadata:
     next-safe: ^3.2.1
     ramda: ^0.28.0
     react: 17.0.1
+    rollup: ^2.68.0
     rollup-plugin-dts: ^4.1.0
     rollup-plugin-swc3: ^0.2.0
     tslib: ^2.3.1
@@ -6047,6 +6048,20 @@ __metadata:
     "@swc/core": ">=1.2.118"
     rollup: ^2.0.0
   checksum: 48765dfb9f9b980dff7816531da06c3c77408255c1b868aab4a5ee846d62b7276815741b29300702484c979e5a0d2148d540f0b009a101205e3c6cccd48b0b9b
+  languageName: node
+  linkType: hard
+
+"rollup@npm:^2.68.0":
+  version: 2.68.0
+  resolution: "rollup@npm:2.68.0"
+  dependencies:
+    fsevents: ~2.3.2
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  bin:
+    rollup: dist/bin/rollup
+  checksum: c883f6fb2e10e1c79a32527da0c50ef47a7beb8ddacfdae4197ff2d1911fb8d10bb2704496cf878d3048fbf3524d613bc87f25c5be0afc667fe30b7d04fa8092
   languageName: node
   linkType: hard
 
