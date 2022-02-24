@@ -22,12 +22,14 @@ jobs:
           node-version: 14.x
 
       - name: Install Dependencies
-        run: yarn install --immutable --immutable-cache --check-cache
+        run: yarn install --immutable --immutable-cache
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
         uses: changesets/action@v1
         with:
+          # If you are using Yarn Plug'n'Play, you should use a custom version command so that the action can resolve the changeset CLI:
+          version: yarn changeset version
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
           publish: yarn release:changeset
         env:
