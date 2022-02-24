@@ -975,6 +975,7 @@ __metadata:
   dependencies:
     "@babel/runtime": ^7.17.2
     "@swc/core": ^1.2.144
+    "@swc/helpers": ^0.3.3
     "@types/jest": ^27.4.1
     "@types/node": 17.0.18
     "@types/ramda": 0.27.64
@@ -1301,6 +1302,13 @@ __metadata:
     "@swc/core-win32-x64-msvc":
       optional: true
   checksum: 1885d92b9f1243b2c1233711739a9f11fe698116669615c90acc1cdbcea0a43d1942a04fa20861342c0f1f2d2ade18d8dcb11a30eaad9e4d7b89d2b457f24994
+  languageName: node
+  linkType: hard
+
+"@swc/helpers@npm:^0.3.3":
+  version: 0.3.3
+  resolution: "@swc/helpers@npm:0.3.3"
+  checksum: 1e6d666172ac4fac0439861697fb506f1d2a2dddb4bc1b133fd4a22b399b8c688b9d936f64b005b8f7e2411ec6796f98bcf6dd55c094561503023f7430aca508
   languageName: node
   linkType: hard
 

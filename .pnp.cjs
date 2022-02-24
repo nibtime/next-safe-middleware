@@ -1619,6 +1619,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@next-safe/middleware", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#workspace:packages/next-safe-middleware"],\
             ["@babel/runtime", "npm:7.17.2"],\
             ["@swc/core", "npm:1.2.144"],\
+            ["@swc/helpers", "npm:0.3.3"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/next", null],\
             ["@types/node", "npm:17.0.18"],\
@@ -1651,6 +1652,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@next-safe/middleware", "workspace:packages/next-safe-middleware"],\
             ["@babel/runtime", "npm:7.17.2"],\
             ["@swc/core", "npm:1.2.144"],\
+            ["@swc/helpers", "npm:0.3.3"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/node", "npm:17.0.18"],\
             ["@types/ramda", "npm:0.27.64"],\
@@ -2020,6 +2022,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/unplugged/@swc-core-win32-x64-msvc-npm-1.2.144-49b7685d27/node_modules/@swc/core-win32-x64-msvc/",\
           "packageDependencies": [\
             ["@swc/core-win32-x64-msvc", "npm:1.2.144"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@swc/helpers", [\
+        ["npm:0.3.3", {\
+          "packageLocation": "./.yarn/cache/@swc-helpers-npm-0.3.3-623948ee91-1e6d666172.zip/node_modules/@swc/helpers/",\
+          "packageDependencies": [\
+            ["@swc/helpers", "npm:0.3.3"]\
           ],\
           "linkType": "HARD"\
         }]\
