@@ -1,0 +1,8 @@
+.github
+.devcontainer
+.gitpod.yml
+.changeset
+.husky
+docker
+README.md
+CHANGELOG.md

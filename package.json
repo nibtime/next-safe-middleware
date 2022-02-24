@@ -1,0 +1,30 @@
+{
+  "name": "root",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "clean-libs": "yarn workspaces foreach -p run clean",
+    "build-libs": "yarn workspaces foreach -ptiv --no-private run build",
+    "pack-libs": "yarn workspaces foreach -p --no-private run pack",
+    "test": "yarn workspaces foreach -p run test",
+    "vercel-build-e2e": "yarn clean-libs && yarn test && yarn build-libs && yarn pack-libs && yarn workspace e2e build",
+    "start": "yarn vercel-build-e2e && yarn workspace e2e start",
+    "dev": "yarn clean-libs && yarn build-libs && yarn workspaces foreach -piv run dev",
+    "release:changeset": "yarn clean-libs && yarn build-libs && yarn changeset publish",
+    "version:changeset": "yarn changeset version"
+  },
+  "packageManager": "yarn@3.2.0",
+  "devDependencies": {
+    "@changesets/changelog-github": "^0.4.3",
+    "@changesets/cli": "^2.21.0",
+    "@types/eslint": "^8",
+    "@types/prettier": "^2",
+    "eslint": "^8.9.0",
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.5"
+  }
+}

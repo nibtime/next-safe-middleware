@@ -1,0 +1,16 @@
+base-uri 'none';
+child-src 'none';
+connect-src 'self';
+default-src 'self';
+font-src 'self';
+form-action 'self';
+frame-ancestors 'none';
+frame-src 'none';
+img-src 'self';
+manifest-src 'self';
+media-src 'self';
+object-src 'none';
+prefetch-src 'self';
+script-src 'sha256-/YBoshFg0h4c8uChMOdoW9bj/DioQZjlW4VJlX63+4E=' 'sha384-WkFzsrcXKeJ3KlWNXojDiim8rplIj1RPsCbuv7dsLECoXY8C6Cx158CMgl+O+QKW' 'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=' 'sha256-48vBTNSKx3MPcra7hXdDxVSFgbZB/kH+5g89yygtcfU=' 'sha256-6s5GDWhvbPTyISOTjYqLU3hW13++yQKC4bWxARS7PUU=' 'sha256-I2A2cgiMVF+eemKo1WpvUqpl5X0jMtuqSXsuZYVbjtg=' 'sha256-GxAQq78mAjF33iP/VsX5gb7IgKPy6nxghC42rq3Uj24=' 'sha256-hGCX7mh8mrn9dQDW3l3V2jcYIP9WP8lg3FYbDihE0y0=' 'sha256-zrzsIBSDdO3VykEZvwqwSGT+TUMZ2ouGcQgfvIUr+aQ=' 'sha256-pEs4U74HG7xIYzcmOE+ViSn80SnbT+odrqZdVnVU798=' 'sha256-+BnGRelBuAh40Xx22mXMNbt8xUDSYxgXWvIBwHNp170=' 'sha256-/o7qH+/w/Pm4uUzlDiu/PDKjXuIbQ8SZfMqquNV7SJ8=' 'sha256-fLWoemwNBaqyJFy/aiatrYDNMiVA1fY2Dd5iG/kidD8=' 'strict-dynamic' https: 'unsafe-inline';
+style-src 'unsafe-inline';
+worker-src 'self';
