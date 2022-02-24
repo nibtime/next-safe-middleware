@@ -27,5 +27,5 @@ cd ../.. && yarn vercel-build-e2e
 ```
 **Install Command:** 
 ```
-yarn install --immutable
+yarn install --immutable --immutable-cache
 ```
