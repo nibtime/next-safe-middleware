@@ -2,6 +2,8 @@
 import { swc } from "rollup-plugin-swc3";
 import dts from "rollup-plugin-dts";
 
+const isCI = () => !!process.env.CI
+
 export default [
   {
     input: "src/index.ts",
@@ -10,7 +12,9 @@ export default [
       format: "cjs",
       name: "main",
     },
-    plugins: [swc({})],
+    plugins: [swc({
+      minify: isCI()
+    })],
   },
   {
     input: "src/index.ts",
@@ -19,7 +23,9 @@ export default [
       format: "es",
       name: "module",
     },
-    plugins: [swc({})],
+    plugins: [swc({
+      minify: isCI()
+    })],
   },
   {
     input: "src/document/index.tsx",
@@ -28,7 +34,9 @@ export default [
       format: "cjs",
       name: "document",
     },
-    plugins: [swc({})],
+    plugins: [swc({
+      minify: isCI()
+    })],
   },
   {
     input: "src/document/index.tsx",
@@ -37,7 +45,9 @@ export default [
       format: "es",
       name: "document-module",
     },
-    plugins: [swc({})],
+    plugins: [swc({
+      minify: isCI()
+    })],
   },
   {
     input: "src/index.ts",
