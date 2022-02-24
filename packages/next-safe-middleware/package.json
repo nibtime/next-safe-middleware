@@ -23,7 +23,7 @@
   "name": "@next-safe/middleware",
   "author": "nibtime",
   "main": "dist/index.js",
-  "module": "dist/index.js",
+  "module": "dist/index.mjs",
   "dependencies": {
     "@swc/helpers": "^0.3.3",
     "nanoid": "^3.2.0",

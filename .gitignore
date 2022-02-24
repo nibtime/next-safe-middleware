@@ -1,6 +1,7 @@
 # build output
 **/dist
 **/.next
+**/.swc
 
 # dependencies
 **/node_modules
