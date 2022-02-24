@@ -1635,7 +1635,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["rollup", "npm:2.68.0"],\
             ["rollup-plugin-dts", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:4.1.0"],\
             ["rollup-plugin-swc3", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.0"],\
-            ["tslib", "npm:2.3.1"],\
             ["typescript", "patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=bda367"]\
           ],\
           "packagePeers": [\
@@ -1667,7 +1666,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["rollup", "npm:2.68.0"],\
             ["rollup-plugin-dts", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:4.1.0"],\
             ["rollup-plugin-swc3", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.0"],\
-            ["tslib", "npm:2.3.1"],\
             ["typescript", "patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=bda367"]\
           ],\
           "linkType": "SOFT"\
@@ -8560,15 +8558,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/ts-toolbelt-npm-6.15.5-e42f89942f-24ad00cfd9.zip/node_modules/ts-toolbelt/",\
           "packageDependencies": [\
             ["ts-toolbelt", "npm:6.15.5"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["tslib", [\
-        ["npm:2.3.1", {\
-          "packageLocation": "./.yarn/cache/tslib-npm-2.3.1-0e21e18015-de17a98d46.zip/node_modules/tslib/",\
-          "packageDependencies": [\
-            ["tslib", "npm:2.3.1"]\
           ],\
           "linkType": "HARD"\
         }]\
