@@ -11,6 +11,10 @@
     "changesets",
     "github",
     "ts",
-    "swc"
+    "swc",
+    "types",
+    "deps",
+    "middleware",
+    "vsc"
   ]
 }
