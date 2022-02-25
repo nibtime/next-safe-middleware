@@ -8,7 +8,8 @@ const nextSafe = _nextSafe as unknown as typeof _nextSafe.nextSafe;
 
 export type NextSafeCfg = Parameters<typeof nextSafe>[0];
 export type NextSafeCfgInitializer = (
-  req: NextRequest
+  req: NextRequest,
+  res: Response
 ) => NextSafeCfg | Promise<NextSafeCfg>;
 
 export type CSPDirective = keyof Omit<
@@ -20,7 +21,7 @@ const nextSafeMiddleware: (
   init?: NextSafeCfg | NextSafeCfgInitializer
 ) => Middleware = (init) => async (req, evt, res, next) => {
   const response = res ?? NextResponse.next();
-  const cfg = typeof init === 'function' ? await init(req) : init;
+  const cfg = typeof init === 'function' ? await init(req, res) : init;
   nextSafe(cfg).forEach((header) =>
     response.headers.set(header.key, header.value)
   );
