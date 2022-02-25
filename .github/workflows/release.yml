@@ -29,7 +29,7 @@ jobs:
         uses: changesets/action@v1
         with:
           # If you are using Yarn Plug'n'Play, you should use a custom version command so that the action can resolve the changeset CLI:
-          version: yarn changeset version
+          version:  yarn version:changeset
           # This expects you to have a script called release which does a build for your packages and calls changeset publish
           publish: yarn release:changeset
         env:
