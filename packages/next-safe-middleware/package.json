@@ -12,7 +12,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "dev": "tsc --watch",
+    "dev": "rollup -c rollup.config.js --watch",
     "clean": "rm -rf dist tsconfig.tsbuildinfo package.tgz",
     "build": "rollup -c rollup.config.js",
     "test": "jest --runInBand",
