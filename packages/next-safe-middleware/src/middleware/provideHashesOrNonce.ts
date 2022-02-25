@@ -1,93 +1,109 @@
-import { nanoid } from 'nanoid';
-import { uniq } from 'ramda';
+import { nanoid } from "nanoid";
+import { uniq } from "ramda";
+import type { NextRequest } from "next/server";
+import type { CSP } from "../types";
 import {
   cspDirectiveHas,
-  fromCspContent,
-  toCspContent,
   extendCsp,
-} from '../utils';
-import type { Middleware } from './types';
+} from "../utils";
 import {
   CSP_LOCATION_MIDDLEWARE,
   SCRIPT_HASHES_FILENAME,
   CSP_HEADER,
   CSP_HEADER_REPORT_ONLY,
   CSP_NONCE_HEADER,
-} from '../constants';
+} from "../constants";
+import type { Middleware } from "./types";
+import { pullCspFromResponse, pushCspToResponse } from "./utils";
 
-const cspifyHash = (integrity: string) => `'${integrity}'`;
+const singleQuotify = (value: string) => `'${value}'`;
 
-// eslint-disable-next-line sonarjs/cognitive-complexity
+const fetchScriptSrcHashes = async (req: NextRequest) => {
+  // req.page.name is the name of the route, e.g. `/` or `/blog/[slug]`
+  const route = req.page.name;
+  const { origin, pathname } = req.nextUrl;
+  let resHashes: Response | undefined;
+  const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
+  // route seems to get confused when there's a dynamic route and a
+  // matching static route within the same folder. Attempt to fix that.
+  // TODO: This is a hack, and should be removed once we found a better way to handle this.
+  if (route !== pathname) {
+    const hashesUrl = encodeURI(
+      `${baseUrl}${pathname}/${SCRIPT_HASHES_FILENAME}`
+    );
+    resHashes = await fetch(hashesUrl);
+  }
+  if (!resHashes?.ok) {
+    const hashesUrl = encodeURI(`${baseUrl}${route}/${SCRIPT_HASHES_FILENAME}`);
+    resHashes = await fetch(hashesUrl);
+  }
+  if (!resHashes?.ok) {
+    return undefined;
+  }
+  const hashesText = await resHashes.text();
+  const hashes = hashesText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return uniq(hashes).map(singleQuotify);
+};
+
+const setNonceHeader = (res: Response, nonce: string) => {
+  if (!res.headers.get(CSP_NONCE_HEADER)) {
+    res.headers.set(CSP_NONCE_HEADER, nonce);
+  }
+};
+
+/**
+ * A middleware that provides hashes of scripts for static routes (getStaticProps - Hash-based strict CSP) 
+ * or a nonce (getServerSideProps - Nonce-based strict CSP) for dynamic routes.
+ * 
+ * Must be used together with the custom next/document component drop-ins of @next-safe/middleware
+ * that wire it up with page prerendering.
+ *   
+ * @requires \@next-safe/middleware/dist/document
+ */
 const provideHashesOrNonce: Middleware = async (req, evt, res) => {
   if (!req.page.name || !res) {
     return;
   }
-  const cspContentReportOnly = res.headers.get(CSP_HEADER_REPORT_ONLY);
-  const isReportOnly = !!cspContentReportOnly;
-  let cspContent = isReportOnly
-    ? cspContentReportOnly
-    : res.headers.get(CSP_HEADER);
-  if (cspContent) {
-    let csp = fromCspContent(cspContent);
-    if (cspDirectiveHas(csp, 'script-src', /strict-dynamic/)) {
-      // req.page.name is the name of the route, e.g. `/` or `/blog/[slug]`
-      const route = req.page.name;
-      const { origin, pathname } = req.nextUrl;
-      let resHashes: Response | undefined;
-
-      try {
-        const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
-        // route seems to get confused when there's a dynamic route and a
-        // matching static route within the same folder. Attempt to fix that.
-        // TODO: This is a hack, and should be removed once we found a better way to handle this.
-        if (route !== pathname) {
-          const hashesUrl = encodeURI(
-            `${baseUrl}${pathname}/${SCRIPT_HASHES_FILENAME}`
-          );
-          resHashes = await fetch(hashesUrl);
-        }
-        if (!resHashes?.ok) {
-          const hashesUrl = encodeURI(
-            `${baseUrl}${route}/${SCRIPT_HASHES_FILENAME}`
-          );
-          resHashes = await fetch(hashesUrl);
-        }
-      } catch (err) {
-        console.error(
-          'Internal error fetching script hashes, switching to report-only mode to not break your app.',
-          err
-        );
-        res.headers.delete(CSP_HEADER);
-        res.headers.set(CSP_HEADER_REPORT_ONLY, cspContent);
-        return;
-      }
-
-      // if we fetched hashes, it's a static page. Choose strict-dynamic + hash
-      if (resHashes?.ok) {
-        const hashesText = await resHashes.text();
-        const hashes = hashesText
-          .split('\n')
-          .map((line) => line.trim())
-          .filter(Boolean);
-
-        csp = extendCsp(csp, {
-          'script-src': uniq(hashes).map(cspifyHash),
+  const csp = pullCspFromResponse(res);
+  if (!csp) {
+    return;
+  }
+  try {
+    let extendedCsp: CSP | undefined;
+    const nonce = nanoid();
+    const getCsp = () => extendedCsp || csp;
+    if (cspDirectiveHas(csp, "script-src", /strict-dynamic/)) {
+      const scriptSrcHashes = await fetchScriptSrcHashes(req);
+      // if fetched hashes, it's a static page. Hash-based strict CSP
+      if (scriptSrcHashes) {
+        extendedCsp = extendCsp(getCsp(), {
+          "script-src": scriptSrcHashes,
         });
+
       }
-      // if not it's a dynamic page. Choose strict-dynamic + nonce
+      // if not it's a dynamic page. Nonce-based strict CSP 
       else {
-        const nonce = nanoid();
-        res.headers.set(CSP_NONCE_HEADER, nonce);
-        csp = extendCsp(csp, {
-          'script-src': [`'nonce-${nonce}'`],
+        extendedCsp = extendCsp(getCsp(), {
+          "script-src": `'nonce-${nonce}'`,
         });
+        setNonceHeader(res, nonce);
       }
-      cspContent = toCspContent(csp);
-      if (isReportOnly) {
-        res.headers.set(CSP_HEADER_REPORT_ONLY, cspContent);
-      } else {
-        res.headers.set(CSP_HEADER, cspContent);
-      }
+    }
+    if (extendedCsp) {
+      pushCspToResponse(extendedCsp, res);
+    }
+  } catch (err) {
+    console.error(
+      "provideHashesOrNonce: Internal error. Enforcing CSP report-only mode to not break the app for your users.",
+      err
+    );
+    const cspContent = res.headers.get(CSP_HEADER);
+    if (cspContent) {
+      res.headers.set(CSP_HEADER_REPORT_ONLY, cspContent);
+      res.headers.delete(CSP_HEADER);
     }
   }
 };
