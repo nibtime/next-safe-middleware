@@ -10,9 +10,9 @@ module.exports = {
     // setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
     testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/dist'],
     transform: {
-      // Use babel-jest to transpile tests with the next/babel preset
+      // Use @swc/jest to transpile tests
       // https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object
-      '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
+      '^.+\\.(js|jsx|ts|tsx)$': [ '@swc/jest' ],
     },
     transformIgnorePatterns: [
       '/node_modules/',
