@@ -12,10 +12,8 @@ export type NextSafeCfgInitializer = (
   res: Response
 ) => NextSafeCfg | Promise<NextSafeCfg>;
 
-export type CSPDirective = keyof Omit<
-  Exclude<NonNullable<NextSafeCfg>['contentSecurityPolicy'], false>,
-  'reportOnly'
->;
+type _NextSafeCSPCfg = NonNullable<NextSafeCfg>['contentSecurityPolicy']
+export type NextSafeCfgCSP = Exclude<_NextSafeCSPCfg, false>
 
 const nextSafeMiddleware: (
   init?: NextSafeCfg | NextSafeCfgInitializer
