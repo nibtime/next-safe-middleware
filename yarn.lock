@@ -987,16 +987,16 @@ __metadata:
     "@swc/helpers": ^0.3.3
     "@swc/jest": ^0.2.20
     "@types/jest": ^27.4.1
-    "@types/node": 17.0.18
-    "@types/ramda": 0.27.64
-    "@types/react": 17.0.39
+    "@types/node": ^17.0.18
+    "@types/ramda": ^0.27.64
+    "@types/react": ^17.0.39
     babel-jest: ^27.5.1
     jest: ^27.5.1
     nanoid: ^3.2.0
-    next: 12.1.0
+    next: ^12.1.0
     next-safe: ^3.2.1
     ramda: ^0.28.0
-    react: 17.0.1
+    react: ^17.0.1
     rollup: ^2.68.0
     rollup-plugin-dts: ^4.1.0
     rollup-plugin-swc3: ^0.2.0
@@ -1533,10 +1533,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 17.0.19
-  resolution: "@types/node@npm:17.0.19"
-  checksum: 6bbd35bfc23dd50d1aefd4ae49c31f7fd632be209dba67c0322bb4fe8b555f4bb6e894018963146ad7758ae596857d5cbecc2d46ddf90a54f6a4424811cf4351
+"@types/node@npm:*, @types/node@npm:^17.0.18":
+  version: 17.0.21
+  resolution: "@types/node@npm:17.0.21"
+  checksum: 89dcd2fe82f21d3634266f8384e9c865cf8af49685639fbdbd799bdd1040480fb1e8eeda2d3b9fce41edbe704d2a4be9f427118c4ae872e8d9bb7cbeb3c41a94
   languageName: node
   linkType: hard
 
@@ -1582,12 +1582,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ramda@npm:0.27.64":
-  version: 0.27.64
-  resolution: "@types/ramda@npm:0.27.64"
+"@types/ramda@npm:^0.27.64":
+  version: 0.27.66
+  resolution: "@types/ramda@npm:0.27.66"
   dependencies:
     ts-toolbelt: ^6.15.1
-  checksum: 8512be3bf220d63df398fe333aafb21a48e1967300afa629f21de5e35e757bdf37323bd59a67da025ab549520bc9c9119e6ca9702a95948eef5bd17ae9b319d2
+  checksum: eea577e4a0934849b4103c1452a7c8ddbc9bbf0e2aafb908467212654555145f846a16fe737563b582e8fb5bd6698481ebec1237537e5e662587c47f626e4c92
   languageName: node
   linkType: hard
 
@@ -1600,7 +1600,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:17.0.39":
+"@types/react@npm:*, @types/react@npm:^17.0.39":
   version: 17.0.39
   resolution: "@types/react@npm:17.0.39"
   dependencies:
@@ -1912,7 +1912,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:10.4.2, autoprefixer@npm:^10.2.5":
+"autoprefixer@npm:^10.2.5, autoprefixer@npm:^10.4.2":
   version: 10.4.2
   resolution: "autoprefixer@npm:10.4.2"
   dependencies:
@@ -2834,21 +2834,21 @@ __metadata:
     "@testing-library/jest-dom": ^5.16.2
     "@testing-library/react": ^12.1.3
     "@types/node": 17.0.18
-    "@types/ramda": 0.27.64
-    "@types/react": 17.0.39
+    "@types/ramda": ^0.27.64
+    "@types/react": ^17.0.39
     "@types/testing-library__jest-dom": ^5
-    autoprefixer: 10.4.2
+    autoprefixer: ^10.4.2
     babel-jest: ^27.5.1
     babel-plugin-macros: ^3.1.0
     identity-obj-proxy: ^3.0.0
     jest: ^27.5.1
-    ky: 0.29.0
-    ky-universal: 0.10.0
-    next: 12.1.0
-    next-safe: 3.2.1
-    ramda: 0.28.0
-    react: 17.0.1
-    react-dom: 17.0.1
+    ky: ^0.29.0
+    ky-universal: ^0.10.0
+    next: ^12.1.0
+    next-safe: ^3.2.1
+    ramda: ^0.28.0
+    react: ^17.0.1
+    react-dom: ^17.0.1
     tailwindcss: ^2
     twin.macro: ^2.8.2
     typescript: ^4.5.5
@@ -4633,7 +4633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ky-universal@npm:0.10.0":
+"ky-universal@npm:^0.10.0":
   version: 0.10.0
   resolution: "ky-universal@npm:0.10.0"
   dependencies:
@@ -4649,7 +4649,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ky@npm:0.29.0":
+"ky@npm:^0.29.0":
   version: 0.29.0
   resolution: "ky@npm:0.29.0"
   checksum: f54fcb4d6ab3783e4227f66a502514021d670e684d6e1d7853595af061429739ffbf144912e4149a9ed0f54bf3ccdffd49e895f2d0ef1ea6d35cf6612eff0b31
@@ -5124,7 +5124,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next-safe@npm:3.2.1, next-safe@npm:^3.2.1":
+"next-safe@npm:^3.2.1":
   version: 3.2.1
   resolution: "next-safe@npm:3.2.1"
   peerDependencies:
@@ -5133,7 +5133,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:12.1.0":
+"next@npm:^12.1.0":
   version: 12.1.0
   resolution: "next@npm:12.1.0"
   dependencies:
@@ -5804,23 +5804,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ramda@npm:0.28.0, ramda@npm:^0.28.0":
+"ramda@npm:^0.28.0":
   version: 0.28.0
   resolution: "ramda@npm:0.28.0"
   checksum: 44ea6e5010bba70151b6a92d8114a91915e8b5a16105cce65fae58c9d7386b812c429645e35f21141d7087568550ce383bc10ee1a65cdec951f4b69ea457e6a4
   languageName: node
   linkType: hard
 
-"react-dom@npm:17.0.1":
-  version: 17.0.1
-  resolution: "react-dom@npm:17.0.1"
+"react-dom@npm:^17.0.1":
+  version: 17.0.2
+  resolution: "react-dom@npm:17.0.2"
   dependencies:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
-    scheduler: ^0.20.1
+    scheduler: ^0.20.2
   peerDependencies:
-    react: 17.0.1
-  checksum: df2af300dd4f49a5daaccc38f5a307def2a9ae2b7ebffa3dce8fb9986129057696b86a2c94e5ae36133057c69428c500e4ee3bf5884eb44e5632ace8b7ace41f
+    react: 17.0.2
+  checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
   languageName: node
   linkType: hard
 
@@ -5831,13 +5831,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:17.0.1":
-  version: 17.0.1
-  resolution: "react@npm:17.0.1"
+"react@npm:^17.0.1":
+  version: 17.0.2
+  resolution: "react@npm:17.0.2"
   dependencies:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
-  checksum: 83b9df9529a2b489f00a4eaa608fc7d55518b258e046c100344ae068713e43ae64e477a140f87e38cfe75489bcfd26d27fce5818f89f4ec41bdbda7ead4bb426
+  checksum: b254cc17ce3011788330f7bbf383ab653c6848902d7936a87b09d835d091e3f295f7e9dd1597c6daac5dc80f90e778c8230218ba8ad599f74adcc11e33b9d61b
   languageName: node
   linkType: hard
 
@@ -6137,7 +6137,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.20.1":
+"scheduler@npm:^0.20.2":
   version: 0.20.2
   resolution: "scheduler@npm:0.20.2"
   dependencies:
