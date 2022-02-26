@@ -773,6 +773,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jest/create-cache-key-function@npm:^27.4.2":
+  version: 27.5.1
+  resolution: "@jest/create-cache-key-function@npm:27.5.1"
+  dependencies:
+    "@jest/types": ^27.5.1
+  checksum: a6c3a8c769aca6f66f5dc80f1c77e66980b4f213a6b2a15a92ba3595f032848a1261c06c9c798dcf2b672b1ffbefad5085af89d130548741c85ddbe0cf4284e7
+  languageName: node
+  linkType: hard
+
 "@jest/environment@npm:^27.5.1":
   version: 27.5.1
   resolution: "@jest/environment@npm:27.5.1"
@@ -976,6 +985,7 @@ __metadata:
     "@babel/runtime": ^7.17.2
     "@swc/core": ^1.2.144
     "@swc/helpers": ^0.3.3
+    "@swc/jest": ^0.2.20
     "@types/jest": ^27.4.1
     "@types/node": 17.0.18
     "@types/ramda": 0.27.64
@@ -1309,6 +1319,17 @@ __metadata:
   version: 0.3.3
   resolution: "@swc/helpers@npm:0.3.3"
   checksum: 1e6d666172ac4fac0439861697fb506f1d2a2dddb4bc1b133fd4a22b399b8c688b9d936f64b005b8f7e2411ec6796f98bcf6dd55c094561503023f7430aca508
+  languageName: node
+  linkType: hard
+
+"@swc/jest@npm:^0.2.20":
+  version: 0.2.20
+  resolution: "@swc/jest@npm:0.2.20"
+  dependencies:
+    "@jest/create-cache-key-function": ^27.4.2
+  peerDependencies:
+    "@swc/core": "*"
+  checksum: 160a2d0336c416ec38ad267892ba67696c853318b207cfc9924da09a3318345bc37ca255782764ef651399cb8c0e9976ebdf90284799acb6b0c45c5d8bc4edbc
   languageName: node
   linkType: hard
 
