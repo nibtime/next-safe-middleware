@@ -4,5 +4,5 @@ export type Middleware = (
   req: NextRequest,
   evt: NextFetchEvent,
   res?: Response,
-  ctn?: (res: Response) => void
+  next?: (res: Response) => void
 ) => Promise<Response | void> | Response | void;
