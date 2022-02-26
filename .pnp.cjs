@@ -1392,6 +1392,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@jest/create-cache-key-function", [\
+        ["npm:27.5.1", {\
+          "packageLocation": "./.yarn/cache/@jest-create-cache-key-function-npm-27.5.1-d4c8561229-a6c3a8c769.zip/node_modules/@jest/create-cache-key-function/",\
+          "packageDependencies": [\
+            ["@jest/create-cache-key-function", "npm:27.5.1"],\
+            ["@jest/types", "npm:27.5.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@jest/environment", [\
         ["npm:27.5.1", {\
           "packageLocation": "./.yarn/cache/@jest-environment-npm-27.5.1-375c740ca0-2a9e18c35a.zip/node_modules/@jest/environment/",\
@@ -1620,6 +1630,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/runtime", "npm:7.17.2"],\
             ["@swc/core", "npm:1.2.144"],\
             ["@swc/helpers", "npm:0.3.3"],\
+            ["@swc/jest", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/next", null],\
             ["@types/node", "npm:17.0.18"],\
@@ -1653,6 +1664,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/runtime", "npm:7.17.2"],\
             ["@swc/core", "npm:1.2.144"],\
             ["@swc/helpers", "npm:0.3.3"],\
+            ["@swc/jest", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/node", "npm:17.0.18"],\
             ["@types/ramda", "npm:0.27.64"],\
@@ -2031,6 +2043,29 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@swc-helpers-npm-0.3.3-623948ee91-1e6d666172.zip/node_modules/@swc/helpers/",\
           "packageDependencies": [\
             ["@swc/helpers", "npm:0.3.3"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@swc/jest", [\
+        ["npm:0.2.20", {\
+          "packageLocation": "./.yarn/cache/@swc-jest-npm-0.2.20-c46e1d4aa2-160a2d0336.zip/node_modules/@swc/jest/",\
+          "packageDependencies": [\
+            ["@swc/jest", "npm:0.2.20"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20", {\
+          "packageLocation": "./.yarn/__virtual__/@swc-jest-virtual-5c6ee553d2/0/cache/@swc-jest-npm-0.2.20-c46e1d4aa2-160a2d0336.zip/node_modules/@swc/jest/",\
+          "packageDependencies": [\
+            ["@swc/jest", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20"],\
+            ["@jest/create-cache-key-function", "npm:27.5.1"],\
+            ["@swc/core", "npm:1.2.144"],\
+            ["@types/swc__core", null]\
+          ],\
+          "packagePeers": [\
+            "@swc/core",\
+            "@types/swc__core"\
           ],\
           "linkType": "HARD"\
         }]\
