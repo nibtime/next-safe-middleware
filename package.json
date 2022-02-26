@@ -7,15 +7,16 @@
     "apps/*"
   ],
   "scripts": {
-    "clean-libs": "yarn workspaces foreach -p run clean",
-    "build-libs": "yarn workspaces foreach -ptiv --no-private run build",
-    "pack-libs": "yarn workspaces foreach -p --no-private run pack",
-    "test": "yarn workspaces foreach -p run test",
-    "vercel-build-e2e": "yarn clean-libs && yarn test && yarn build-libs && yarn pack-libs && yarn workspace e2e build",
-    "start": "yarn vercel-build-e2e && yarn workspace e2e start",
-    "dev": "yarn clean-libs && yarn build-libs && yarn workspaces foreach -piv run dev",
-    "release:changeset": "yarn clean-libs && yarn build-libs && yarn changeset publish",
-    "version:changeset": "yarn changeset version"
+    "dev": "yarn clean:libs && yarn build:libs && yarn workspaces foreach -pvi run dev",
+    "test": "yarn workspaces foreach -pv run test",
+    "start": "yarn start:e2e",
+    "clean:libs": "yarn workspaces foreach -p --no-private run clean",
+    "build:libs": "yarn workspaces foreach -pvit --no-private run build",
+    "build:e2e": "yarn workspaces foreach -pvitR --from e2e run build",
+    "build:e2e:vercel": "yarn test && yarn build:e2e",
+    "start:e2e": "yarn clean:libs && yarn build:e2e && yarn workspace e2e start",
+    "version:changeset": "yarn changeset version",
+    "release:changeset": "yarn build:libs && yarn changeset publish"
   },
   "packageManager": "yarn@3.2.0",
   "devDependencies": {
