@@ -38,7 +38,7 @@ and override the following commands:
 
 **Build Command:** 
 ```
-cd ../.. && yarn vercel-build-e2e
+cd ../.. && yarn build:e2e:vercel
 ```
 **Install Command:** 
 ```

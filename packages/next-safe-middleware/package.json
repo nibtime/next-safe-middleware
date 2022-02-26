@@ -13,10 +13,9 @@
   },
   "scripts": {
     "dev": "rollup -c rollup.config.js --watch",
-    "clean": "rm -rf dist tsconfig.tsbuildinfo package.tgz",
-    "build": "rollup -c rollup.config.js",
-    "test": "jest --runInBand",
-    "pack": "yarn pack"
+    "clean": "rm -rf dist package.tgz",
+    "build": "rollup -c rollup.config.js && yarn pack",
+    "test": "jest --runInBand"
   },
   "peerDependencies": {
     "next": "^12",
