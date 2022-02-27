@@ -990,6 +990,7 @@ __metadata:
     "@types/node": ^17.0.18
     "@types/ramda": ^0.27.64
     "@types/react": ^17.0.39
+    "@types/ua-parser-js": ^0.7.36
     babel-jest: ^27.5.1
     jest: ^27.5.1
     nanoid: ^3.2.0
@@ -1002,6 +1003,7 @@ __metadata:
     rollup-plugin-swc3: ^0.2.0
     tslib: ^2.3.1
     typescript: ^4.5.5
+    ua-parser-js: ^1.0.2
   peerDependencies:
     next: ^12
     react: ^17
@@ -1638,6 +1640,13 @@ __metadata:
   dependencies:
     "@types/jest": "*"
   checksum: e08715a565cc189112a6611485d779a0f1ceb546a9d4601b21aacff7596d7acf8b7c702e4c5f825677431ff601df3e635887dc8a5735da1a263cc857eb7c3833
+  languageName: node
+  linkType: hard
+
+"@types/ua-parser-js@npm:^0.7.36":
+  version: 0.7.36
+  resolution: "@types/ua-parser-js@npm:0.7.36"
+  checksum: 8c24d4dc12ed1b8b98195838093391c358c81bf75e9cae0ecec8f7824b441e069daaa17b974a3e257172caddb671439f0c0b44bf43bfcf409b7a574a25aab948
   languageName: node
   linkType: hard
 
@@ -6892,6 +6901,13 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 858c61fa63f7274ca4aaaffeced854d550bf416cff6e558c4884041b3311fb662f476f167cf5c9f8680c607239797e26a2ee0bcc6467fbc05bfcb218e1c6c671
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "ua-parser-js@npm:1.0.2"
+  checksum: ff7f6d79a9c1a38aa85a0e751040fc7e17a0b621bda876838d14ebe55aca4e50e68da0350f181e58801c2d8a35e7db4e12473776e558910c4b7cabcec96aa3bf
   languageName: node
   linkType: hard
 
