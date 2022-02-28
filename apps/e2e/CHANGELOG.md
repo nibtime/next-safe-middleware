@@ -1,5 +1,18 @@
 # e2e
 
+## 0.2.0
+
+### Minor Changes
+
+- [#8](https://github.com/nibtime/next-safe-middleware/pull/8) [`84944a4`](https://github.com/nibtime/next-safe-middleware/commit/84944a42dbd3ee8ce139fea01e62cc86ea123c8b) Thanks [@nibtime](https://github.com/nibtime)! - add reporting middleware to configure reporting according to Reporting API spec
+
+* [#10](https://github.com/nibtime/next-safe-middleware/pull/10) [`2b8a0bb`](https://github.com/nibtime/next-safe-middleware/commit/2b8a0bbd6e0e102e5f31db0c53d449573503c80b) Thanks [@nibtime](https://github.com/nibtime)! - `strictDynamic` middleware for easier strict-CSP configuration. With baked-in fallback logic for browser non-support.
+
+### Patch Changes
+
+- Updated dependencies [[`84944a4`](https://github.com/nibtime/next-safe-middleware/commit/84944a42dbd3ee8ce139fea01e62cc86ea123c8b), [`2b8a0bb`](https://github.com/nibtime/next-safe-middleware/commit/2b8a0bbd6e0e102e5f31db0c53d449573503c80b)]:
+  - @next-safe/middleware@0.3.0
+
 ## 0.1.1
 
 ### Patch Changes
