@@ -1,7 +1,16 @@
-import type { NextApiHandler } from 'next';
+import type { NextApiHandler } from "next";
+import { extractReportingData } from "types/reporting";
 
 const handler: NextApiHandler = (req, res) => {
-    console.log('Reporting API data', { body: req.body, method: req.method })
-    res.status(200).json({ message: 'logged reporting data'})
-}
+  const reportingData = extractReportingData(req.body);
+  if (reportingData) {
+    console.log(JSON.stringify(reportingData));
+    // Accepted: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/202
+    res.status(202).end();
+    return;
+  }
+  // Unprocessable Entity: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
+  res.status(422).end();
+};
+
 export default handler;

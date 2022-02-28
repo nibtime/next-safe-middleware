@@ -57,12 +57,12 @@ export type ReportingData = ReportToData | CspReportUriData;
 
 // TODO: find out what's required and what's optional
 export const isReportToItem = (x: any): x is ReportToItem => {
-  const requiredKeys = ["age", "type", "body"];
-  return (
-    typeof x === "object" &&
-    Object.keys(x).filter((key) => key in requiredKeys).length ===
-      requiredKeys.length
-  );
+  if (typeof x !== "object") {
+    return false;
+  }
+  const requiredKeys = ["type", "body"];
+  const itemKeys = Object.keys(x);
+  return requiredKeys.every((key) => itemKeys.includes(key));
 };
 
 export const isReportToPayload = (x: any): x is ReportToPayload => {
@@ -73,15 +73,30 @@ export const isCspReportUriPayload = (x: any): x is CspReportUriPayload => {
   return typeof x === "object" && !!x["csp-report"];
 };
 
-export const extractReportingData = (
-  data: unknown
-): ReportingData | undefined => {
-  if (isReportToPayload(data)) {
-    return {
-      kind: "report-to",
-      data,
-    };
+const maybeArr = (x: string) => x.startsWith("[");
+const maybeObj = (x: string) => x.startsWith("{");
+
+const deepJsonParse = (x: unknown) => {
+  if (typeof x === "string" && (maybeArr(x) || maybeObj(x))) {
+    try {
+      return JSON.parse(x);
+    } catch {
+      return x;
+    }
   }
+  if (typeof x === "object") {
+    return Object.fromEntries(
+      Object.entries(x).map(([k, v]) => [k, deepJsonParse(v)])
+    );
+  }
+  if (Array.isArray(x)) {
+    return x.map(deepJsonParse);
+  }
+  return x;
+};
+
+export const extractReportingData = (x: unknown): ReportingData | undefined => {
+  const data = deepJsonParse(x);
   if (isCspReportUriPayload(data)) {
     const kind = "csp-report";
     return {
@@ -89,5 +104,12 @@ export const extractReportingData = (
       data: data[kind],
     };
   }
+  if (isReportToPayload(data)) {
+    return {
+      kind: "report-to",
+      data,
+    };
+  }
+
   return undefined;
 };
