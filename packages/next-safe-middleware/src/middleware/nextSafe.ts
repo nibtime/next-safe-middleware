@@ -1,29 +1,20 @@
-import _nextSafe from 'next-safe';
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-import type { Middleware } from './types';
+import _nextSafe from "next-safe";
+import type { MiddlewareBuilder } from "./types";
+import { unpackConfig, withDefaultConfig, ensureChainContext } from "./builder";
 
 // because of type bug.
 const nextSafe = _nextSafe as unknown as typeof _nextSafe.nextSafe;
 
 export type NextSafeCfg = Parameters<typeof nextSafe>[0];
-export type NextSafeCfgInitializer = (
-  req: NextRequest,
-  res: Response
-) => NextSafeCfg | Promise<NextSafeCfg>;
+type _NextSafeCSPCfg = NonNullable<NextSafeCfg>["contentSecurityPolicy"];
+export type NextSafeCfgCSP = Exclude<_NextSafeCSPCfg, false>;
 
-type _NextSafeCSPCfg = NonNullable<NextSafeCfg>['contentSecurityPolicy']
-export type NextSafeCfgCSP = Exclude<_NextSafeCSPCfg, false>
+const nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
+  ensureChainContext(async (req, evt, res) => {
+    const unpackedCfg = await unpackConfig(req, res, cfg);
+    nextSafe(unpackedCfg).forEach((header) =>
+      res.headers.set(header.key, header.value)
+    );
+  });
 
-const nextSafeMiddleware: (
-  init?: NextSafeCfg | NextSafeCfgInitializer
-) => Middleware = (init) => async (req, evt, res, next) => {
-  const response = res ?? NextResponse.next();
-  const cfg = typeof init === 'function' ? await init(req, res) : init;
-  nextSafe(cfg).forEach((header) =>
-    response.headers.set(header.key, header.value)
-  );
-  return next ? next(response) : response;
-};
-
-export default nextSafeMiddleware;
+export default withDefaultConfig(nextSafeMiddleware, {});

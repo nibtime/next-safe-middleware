@@ -1,5 +1,6 @@
-import type { Middleware } from "./types";
+import type { Middleware, MiddlewareConfig } from "./types";
 import { extendCsp } from "../utils";
+import { ensureChainContext, unpackConfig } from "./builder";
 import { pullCspFromResponse, pushCspToResponse } from "./utils";
 
 /**
@@ -71,18 +72,15 @@ const stringifyReportTo = (reportTo: ReportTo) =>
 
 /**
  * @see https://developers.google.com/web/updates/2018/09/reportingapi
- * @param cfg a configuration object for the Reporting API
+ * @param cfg a configuration object/initializer for the Reporting API
  * @returns a middleware that extends a continued response of a middleware chain
  * with the configured reporting capabilites
  */
 const reporting: <Groups extends string = string>(
-  cfg: ReportingCfg<Groups>
-) => Middleware =
-  ({ reportTo = [], csp: cspCfg }) =>
-  (req, evt, res) => {
-    if (!res) {
-      return;
-    }
+  cfg: MiddlewareConfig<ReportingCfg<Groups>>
+) => Middleware = (cfg) =>
+  ensureChainContext(async (req, evt, res) => {
+    const { reportTo = [], csp: cspCfg } = await unpackConfig(req, res, cfg);
     const reportToHeaderValue = Array.isArray(reportTo)
       ? reportTo.map((r) => stringifyReportTo(r)).join(",")
       : stringifyReportTo(reportTo);
@@ -113,7 +111,7 @@ const reporting: <Groups extends string = string>(
       : groupMatches(reportTo.group);
 
     let csp = pullCspFromResponse(res);
-    if(!csp) {
+    if (!csp) {
       return;
     }
     if (cspCfg === true) {
@@ -142,8 +140,8 @@ const reporting: <Groups extends string = string>(
           csp = extendCsp(
             csp,
             {
-              "script-src": `'report-sample'`,
-              "style-src": `'report-sample'`,
+              ...(csp["script-src"] ? { "script-src": `'report-sample'` } : {}),
+              ...(csp["style-src"] ? { "style-src": `'report-sample'` } : {}),
             },
             "append"
           );
@@ -151,6 +149,6 @@ const reporting: <Groups extends string = string>(
       }
     }
     pushCspToResponse(csp, res);
-  };
+  });
 
 export default reporting;

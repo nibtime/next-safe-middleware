@@ -1,5 +1,5 @@
-import type { NextFetchEvent, NextRequest } from 'next/server';
-import type { Middleware } from './types';
+import type { NextFetchEvent, NextRequest } from "next/server";
+import type { Middleware } from "./types";
 
 // https://www.youtube.com/watch?v=tVCUAXOBF7w
 const weAreChained =
