@@ -67,7 +67,7 @@ export type StrictDynamicCfg = {
    * @see https://web.dev/strict-csp/#step-4:-add-fallbacks-to-support-safari-and-older-browsers
    *
    * It is also possible, that browsers support 'strict-dynamic', but don't support Hash-based (like Firefox).
-   * In those cases static routes will use the fallback value for static routes and a Nonce-based strict CSP for dynamic routes.
+   * In this case, static routes will use the fallback value for script-src and dynamic routes will use a Nonce-based strict CSP.
    *
    * @see  https://github.com/nibtime/next-safe-middleware/issues/5
    */
@@ -75,13 +75,14 @@ export type StrictDynamicCfg = {
 };
 
 /**
- * A middleware to define a strict Content Security Policy (CSP). It will ensure to include hashes of scripts for static routes (`getStaticProps` - Hash-based strict CSP)
- * or a nonce for dynamic routes (`getServerSideProps` - Nonce-based strict CSP).
- *
  * @see https://web.dev/strict-csp/
- *
- * @param cfg A configuration object for strict CSP
- *
+ * 
+ * @param cfg A configuration object for a strict Content Security Policy (CSP)
+ * 
+ * @returns
+ * a middleware that provides a strict CSP. It will ensure to include hashes of scripts for static routes (`getStaticProps` - Hash-based strict CSP)
+ * or a nonce for dynamic routes (`getServerSideProps` - Nonce-based strict CSP).
+ * 
  * Must be used together with custom `next/document` component drop-ins
  * that wire it up with page prerendering.
  *
