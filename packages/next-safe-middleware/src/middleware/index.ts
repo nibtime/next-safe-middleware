@@ -1,13 +1,19 @@
-export * from './types';
-export * from './utils';
-export { default as chain } from './chain';
-export { default as nextSafe } from './nextSafe';
-export * from './nextSafe';
-export { default as reporting } from './reporting';
-export * from './reporting';
-import strictDynamic from './strictDynamic';
-export { strictDynamic }
+export * from "./types";
+export * from "./utils";
+
+export { default as chain } from "./chain";
+
+export { default as nextSafe } from "./nextSafe";
+export type { NextSafeCfg } from "./nextSafe";
+
+export { default as reporting } from "./reporting";
+export type { ReportingCfg } from "./reporting";
+
+import { default as strictDynamic } from "./strictDynamic";
+export { strictDynamic };
+export type { StrictDynamicCfg } from "./strictDynamic";
+
 /**
  * @deprecated use the `strictDynamic` middleware builder to configure a strict CSP.
  */
-export const provideHashesOrNonce = strictDynamic()
+export const provideHashesOrNonce = strictDynamic();
