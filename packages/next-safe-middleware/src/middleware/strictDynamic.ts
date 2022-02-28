@@ -45,7 +45,7 @@ const fetchScriptSrcHashes = async (req: NextRequest) => {
 
 const getSupportInfo = (req: NextRequest) => {
   const ua = new uaParser(req.headers.get("user-agent"));
-  const browserName = ua.getBrowser().name;
+  const browserName = ua.getBrowser().name || "";
   const isFirefox = browserName.includes("Firefox");
   const isSafari = browserName.includes("Safari");
   const supportsStrictDynamic = !isSafari;
