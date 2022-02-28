@@ -64,30 +64,11 @@ You can quickly edit, test and run on StackBlitz or deploy to Vercel from there.
 Create a file `pages/_middleware.(js|ts)`:
 
 ```js
-import { chain, nextSafe, provideHashesOrNonce } from '@next-safe/middleware';
+import { chain, nextSafe, strictDynamic } from '@next-safe/middleware';
 
 const isDev = process.env.NODE_ENV === 'development';
 
-const nextSafeWithStrictDynamic = nextSafe((req) => {
-  // can't use strict-dynamic with `next dev`
-  // Browser support of strict-dynamic: https://caniuse.com/?search=strict-dynamic
-  // https://web.dev/strict-csp/#step-4:-add-fallbacks-to-support-safari-and-older-browsers
-  const strictDynamic =
-    !isDev
-      ? {
-          'script-src': [`'strict-dynamic'`, 'https:', `'unsafe-inline'`],
-        }
-      : {};
-  return {
-    isDev,
-    contentSecurityPolicy: {
-      ...strictDynamic,
-    }
-    // customize as you need: https://trezy.gitbook.io/next-safe/usage/configuration
-  };
-});
-
-export default chain(nextSafeWithStrictDynamic, provideHashesOrNonce);
+export default chain(nextSafe({ isDev }), strictDynamic());
 ```
 
 Then, create a custom `pages/_document.(jsx|tsx)`:
@@ -104,7 +85,7 @@ export default class MyDocument extends Document {
   }
 
   render() {
-    // those components are automagically wired with provideHashesOrNonce
+    // those components are automagically wired with strictDynamic
     const { Head, NextScript } = provideComponents(this.props);
     return (
       <Html>
@@ -273,8 +254,6 @@ const geoBlockMiddleware = (req, evt, res, next) => {
   ...
 }
 ```
-
-This gives you IntelliSense for parameters, but not on return type. Make sure it is `Response | void`.
 
 This will work when you have TypeScript enabled in your Next project. To do that, create an empty `tsconfig.json` file in the root of your Next project and run: 
 
