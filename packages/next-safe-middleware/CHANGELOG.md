@@ -1,5 +1,13 @@
 # @next-safe/middleware
 
+## 0.4.0
+
+### Minor Changes
+
+- [#13](https://github.com/nibtime/next-safe-middleware/pull/13) [`67469d7`](https://github.com/nibtime/next-safe-middleware/commit/67469d732b7d9bff6fe507cf94852525a10c991e) Thanks [@nibtime](https://github.com/nibtime)! - provide a uniform middleware builder and configuration interface
+
+* [`6b8bbc1`](https://github.com/nibtime/next-safe-middleware/commit/6b8bbc19e37685695952cc32928f2f3b51ca9f0e) Thanks [@nibtime](https://github.com/nibtime)! - add configuration options to `strictDynamic` (allowUnsafeEval, reportOnly)
+
 ## 0.3.1
 
 ### Patch Changes
