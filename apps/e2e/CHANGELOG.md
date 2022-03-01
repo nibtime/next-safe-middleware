@@ -1,5 +1,16 @@
 # e2e
 
+## 0.2.2
+
+### Patch Changes
+
+- [#13](https://github.com/nibtime/next-safe-middleware/pull/13) [`67469d7`](https://github.com/nibtime/next-safe-middleware/commit/67469d732b7d9bff6fe507cf94852525a10c991e) Thanks [@nibtime](https://github.com/nibtime)! - update `_middleware` with configuration capabilites from new builder interface
+
+* [#13](https://github.com/nibtime/next-safe-middleware/pull/13) [`67469d7`](https://github.com/nibtime/next-safe-middleware/commit/67469d732b7d9bff6fe507cf94852525a10c991e) Thanks [@nibtime](https://github.com/nibtime)! - add types and detection for reporting data payloads. Use them in `/api/reporting` endpoint.
+
+* Updated dependencies [[`67469d7`](https://github.com/nibtime/next-safe-middleware/commit/67469d732b7d9bff6fe507cf94852525a10c991e), [`6b8bbc1`](https://github.com/nibtime/next-safe-middleware/commit/6b8bbc19e37685695952cc32928f2f3b51ca9f0e)]:
+  - @next-safe/middleware@0.4.0
+
 ## 0.2.1
 
 ### Patch Changes
