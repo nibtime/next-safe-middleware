@@ -1,13 +1,13 @@
-import type { Middleware, MiddlewareConfig } from "./types";
+import type { MiddlewareBuilder } from "./types";
 import { extendCsp } from "../utils";
-import { ensureChainContext, unpackConfig } from "./builder";
+import { ensureChainContext, unpackConfig, withDefaultConfig } from "./builder";
 import { pullCspFromResponse, pushCspToResponse } from "./utils";
 
 /**
  * @see https://developers.google.com/web/updates/2018/09/reportingapi#fields
  */
-export type ReportTo<Groups extends string = string> = {
-  group?: Groups;
+export type ReportTo = {
+  group?: string;
   max_age: number;
   /**
    * @see https://developers.google.com/web/updates/2018/09/reportingapi#load
@@ -17,10 +17,10 @@ export type ReportTo<Groups extends string = string> = {
     priority?: number;
     weight?: number;
   }[];
-  includeSubdomains?: true;
+  includeSubdomains?: boolean;
 };
 
-export type ReportingCfgCSP<Groups extends string = string> = {
+export type ReportingCSP = {
   /** endpoint for report-uri directive (is deprecated in new browsers) */
   reportUri?: string;
   /**
@@ -29,12 +29,13 @@ export type ReportingCfgCSP<Groups extends string = string> = {
    * Must match a group name in the Report-To header
    * that accepts CSP violation reports in Reporting API format.
    *
-   * Will be ommitted from CSP if no match is present.
-   *
    * Will be set to `default` if omitted
+   *
+   * Will be ommitted if no match is present in Report-To
+   *
    * @see https://canhas.report/csp-report-to
    */
-  reportTo?: Groups | false;
+  reportTo?: string | "default";
   /**
    * adds `report-sample` to supported directives
    *
@@ -43,22 +44,22 @@ export type ReportingCfgCSP<Groups extends string = string> = {
    *
    * @see https://csper.io/blog/csp-report-filtering
    */
-  reportSample?: true;
+  reportSample?: boolean;
 };
 
-export type ReportingCfg<Groups extends string = string> = {
+export type ReportingCfg = {
   /**
    * a JS object representing a valid Report-To header
    * @see https://developers.google.com/web/updates/2018/09/reportingapi#header
    */
-  reportTo?: ReportTo<Groups> | ReportTo<Groups>[];
+  reportTo?: ReportTo | ReportTo[];
   /**
    * configure concerning CSP directives alongside the Reporting API configuration
    * @see https://canhas.report/csp-report-to
    *
    * if set to `true`, the group name `default` will be set for `report-to` directive
    */
-  csp?: ReportingCfgCSP<Groups> | true;
+  csp?: ReportingCSP | boolean;
 };
 
 /**
@@ -76,14 +77,24 @@ const stringifyReportTo = (reportTo: ReportTo) =>
  * @returns a middleware that extends a continued response of a middleware chain
  * with the configured reporting capabilites
  */
-const reporting: <Groups extends string = string>(
-  cfg: MiddlewareConfig<ReportingCfg<Groups>>
-) => Middleware = (cfg) =>
+const reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
   ensureChainContext(async (req, evt, res) => {
     const { reportTo = [], csp: cspCfg } = await unpackConfig(req, res, cfg);
-    const reportToHeaderValue = Array.isArray(reportTo)
-      ? reportTo.map((r) => stringifyReportTo(r)).join(",")
-      : stringifyReportTo(reportTo);
+
+    const arrayReportTo = Array.isArray(reportTo) ? reportTo : [reportTo];
+
+    const withSubstitutedRelativePaths = arrayReportTo.map((r) => ({
+      ...r,
+      endpoints: r.endpoints.map((e) => ({
+        ...e,
+        ...(e.url.startsWith("/")
+          ? { url: `${req.nextUrl.origin}${e.url}` }
+          : {}),
+      })),
+    }));
+    const reportToHeaderValue = withSubstitutedRelativePaths
+      .map((r) => stringifyReportTo(r))
+      .join(",");
 
     if (reportToHeaderValue) {
       res.headers.set("report-to", reportToHeaderValue);
@@ -93,40 +104,24 @@ const reporting: <Groups extends string = string>(
       return;
     }
 
-    const cspGroup =
-      cspCfg === true
-        ? "default"
-        : cspCfg.reportTo === false
-        ? ""
-        : cspCfg.reportTo
-        ? cspCfg.reportTo
-        : "default";
+    const cspGroup = cspCfg.reportTo;
 
     const groupMatches = (group?: string) =>
       (!group && cspGroup === "default") ||
       (cspGroup ? group === cspGroup : false);
 
-    const reportToHasCspGroup = Array.isArray(reportTo)
-      ? !!reportTo.find((r) => groupMatches(r.group))
-      : groupMatches(reportTo.group);
+    const reportToHasCspGroup = !!withSubstitutedRelativePaths.find((r) =>
+      groupMatches(r.group)
+    );
 
     let csp = pullCspFromResponse(res);
     if (!csp) {
       return;
-    }
-    if (cspCfg === true) {
-      if (reportToHasCspGroup) {
-        csp = extendCsp(
-          csp,
-          {
-            "report-to": cspGroup,
-          },
-          "override"
-        );
-      }
     } else {
-      const cspReportUri = cspCfg.reportUri;
-      const reportSample = cspCfg.reportSample;
+      const { reportUri = "", reportSample } = cspCfg;
+      const cspReportUri = reportUri.startsWith("/")
+        ? `${req.nextUrl.origin}${reportUri}`
+        : reportUri;
       if (csp) {
         csp = extendCsp(
           csp,
@@ -151,4 +146,9 @@ const reporting: <Groups extends string = string>(
     pushCspToResponse(csp, res);
   });
 
-export default reporting;
+export default withDefaultConfig(reporting, {
+  csp: {
+    reportSample: true,
+    reportTo: "default",
+  },
+});
