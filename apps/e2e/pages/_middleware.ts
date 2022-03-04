@@ -14,18 +14,16 @@ const nextSafeMiddleware = nextSafe((req) => {
     contentSecurityPolicy: {
       reportOnly,
       "style-src": `'unsafe-inline'`,
-      "connect-src": `'self' ${req.nextUrl.origin}`,
     },
     // customize as you need: https://trezy.gitbook.io/next-safe/usage/configuration
   };
 });
 
 const reportingMiddleware = reporting((req) => {
-  const nextApiReportEndpoint = `${req.nextUrl.origin}/api/reporting`;
+  const nextApiReportEndpoint = `/api/reporting`;
   return {
     csp: {
       reportUri: process.env.CSP_REPORT_URI || nextApiReportEndpoint,
-      reportSample: true,
     },
     reportTo: {
       max_age: 1800,
