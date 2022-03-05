@@ -1627,7 +1627,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/__virtual__/@next-safe-middleware-virtual-c52a5741ee/1/packages/next-safe-middleware/",\
           "packageDependencies": [\
             ["@next-safe/middleware", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#workspace:packages/next-safe-middleware"],\
-            ["@babel/runtime", "npm:7.17.2"],\
             ["@rollup/plugin-commonjs", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:21.0.2"],\
             ["@rollup/plugin-node-resolve", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:13.1.3"],\
             ["@swc/core", "npm:1.2.144"],\
@@ -1639,7 +1638,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/ramda", "npm:0.27.66"],\
             ["@types/react", "npm:17.0.39"],\
             ["@types/ua-parser-js", "npm:0.7.36"],\
-            ["babel-jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
             ["jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
             ["next", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:12.1.0"],\
             ["next-safe", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:3.2.1"],\
@@ -1664,7 +1662,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./packages/next-safe-middleware/",\
           "packageDependencies": [\
             ["@next-safe/middleware", "workspace:packages/next-safe-middleware"],\
-            ["@babel/runtime", "npm:7.17.2"],\
             ["@rollup/plugin-commonjs", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:21.0.2"],\
             ["@rollup/plugin-node-resolve", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:13.1.3"],\
             ["@swc/core", "npm:1.2.144"],\
@@ -1675,7 +1672,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/ramda", "npm:0.27.66"],\
             ["@types/react", "npm:17.0.39"],\
             ["@types/ua-parser-js", "npm:0.7.36"],\
-            ["babel-jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
             ["jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
             ["next", "virtual:e334acf360f17c372bb9553f62bbdfde1631243f4c1e6329c46aa85ad33f680fe650e0f9f1b06235a44b78df3d908da2201d77b8e95342fa33b754433235fb18#npm:12.1.0"],\
             ["next-safe", "virtual:e334acf360f17c372bb9553f62bbdfde1631243f4c1e6329c46aa85ad33f680fe650e0f9f1b06235a44b78df3d908da2201d77b8e95342fa33b754433235fb18#npm:3.2.1"],\
