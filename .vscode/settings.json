@@ -17,6 +17,7 @@
     "middleware",
     "vsc",
     "api",
-    "utils"
+    "utils",
+    "document"
   ]
 }
