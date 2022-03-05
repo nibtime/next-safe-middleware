@@ -1,8 +1,8 @@
 /* eslint-disable @next/next/no-document-import-in-page */
 import type { DocumentContext, DocumentProps } from 'next/document';
-import Document, { NextScript } from 'next/document';
+import Document, { Head, NextScript } from 'next/document';
 import React from 'react';
-import { Head as InliningHead } from './InliningHead';
+import { Head as NoncingHead } from './NoncingHead';
 import { Head as HashingHead } from './HashingHead';
 import { CSP_NONCE_HEADER } from '../constants';
 
@@ -19,12 +19,11 @@ export const provideComponents = (props: DocumentProps): Provided => {
   const isStatic = NEXT_DATA.gsp;
 
   const isPure = !isDynamic && !isStatic;
-
-  if (isDynamic) {
-    const nonce = (props as any).nonce;
+  const nonce = (props as any).nonce;
+  if (isDynamic && !!nonce) {
     return {
       Head: ({ children }) => (
-        <InliningHead nonce={nonce}>{children}</InliningHead>
+        <NoncingHead nonce={nonce}>{children}</NoncingHead>
       ),
       NextScript: () => <NextScript nonce={nonce} />,
     };
@@ -37,7 +36,7 @@ export const provideComponents = (props: DocumentProps): Provided => {
     };
   }
   return {
-    Head: ({ children }) => <InliningHead>{children}</InliningHead>,
+    Head: ({ children }) => <Head>{children}</Head>,
     NextScript: () => <NextScript />,
   };
 };

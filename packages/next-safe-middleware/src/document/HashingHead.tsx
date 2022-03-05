@@ -1,16 +1,22 @@
 // eslint-disable-next-line @next/next/no-document-import-in-page
-import { Head as NextHead, NextScript } from 'next/document';
-import { difference, partition } from 'ramda';
-import React from 'react';
-import type { Nullable } from './types';
+import { Head as NextHead, NextScript } from "next/document";
+import { difference, partition, flatten } from "ramda";
+import React from "react";
+import type { Nullable } from "./types";
 import {
   integritySha256,
   isScriptElement,
   createTrustedLoadingProxy,
   withHashIfInlineScript,
   scriptWithPatchedCrossOrigin,
-} from './utils';
-import { CSP_LOCATION_BUILD, SCRIPT_HASHES_FILENAME } from '../constants';
+  isStyleElement,
+  isJsxElement,
+} from "./utils";
+import {
+  CSP_LOCATION_BUILD,
+  SCRIPT_HASHES_FILENAME,
+  STYLE_HASHES_FILENAME,
+} from "../constants";
 
 const collectedHashes: string[] = [];
 const pullHashes = () => collectedHashes;
@@ -28,43 +34,32 @@ const pickupScriptWithIntegrity = (el: JSX.Element) => {
 // scripts with integrity will be registered and passed through
 // scripts without integrity will be loaded by a trusted proxy loading script
 // all integrities (self or proxy) will be picked up by CSP tag later
-export const trustify = (
-  el: Nullable<JSX.Element> | Nullable<JSX.Element>[]
-): Nullable<JSX.Element> | Nullable<JSX.Element>[] => {
-  if (Array.isArray(el)) {
-    const assert = el.every(isScriptElement);
-    console.assert(
-      assert,
-      'trustify: array of elements must be script elements',
-      { elements: el }
-    );
-    if (!assert) return el;
-    const scripts = el;
-    const withInlineHashed = scripts.map(withHashIfInlineScript);
+export const trustify = (els: Nullable<JSX.Element>[]) => {
+  const assert = Array.isArray(els) && els.every(isScriptElement);
+  console.assert(
+    assert,
+    "trustify: array of elements must be script elements",
+    { elements: els }
+  );
+  if (!assert) {
+    return els;
+  }
 
-    const [haveIntegrity, haveNoIntegrity] = partition(
-      pickupScriptWithIntegrity,
-      withInlineHashed
+  const scripts = els;
+  const withInlineHashed = scripts.map(withHashIfInlineScript);
+
+  const [haveIntegrity, haveNoIntegrity] = partition(
+    pickupScriptWithIntegrity,
+    withInlineHashed
+  );
+  if (haveNoIntegrity.length) {
+    const proxyLoader = withHashIfInlineScript(
+      createTrustedLoadingProxy(haveNoIntegrity)
     );
-    if (haveNoIntegrity.length) {
-      const proxyLoader = withHashIfInlineScript(
-        createTrustedLoadingProxy(haveNoIntegrity)
-      );
-      pickupScriptWithIntegrity(proxyLoader);
-      return [...haveIntegrity, proxyLoader];
-    }
-    return haveIntegrity;
+    pickupScriptWithIntegrity(proxyLoader);
+    return [...haveIntegrity, proxyLoader];
   }
-  const assert = isScriptElement(el);
-  console.assert(assert, 'trustify: element must be a script element', {
-    element: el,
-  });
-  if (!assert || pickupScriptWithIntegrity(el)) {
-    return el;
-  }
-  const proxyLoader = withHashIfInlineScript(createTrustedLoadingProxy([el]));
-  pickupScriptWithIntegrity(proxyLoader);
-  return proxyLoader;
+  return haveIntegrity;
 };
 
 const dotNextFolder = () => `${process.cwd()}/.next`;
@@ -78,28 +73,28 @@ const nextScriptWithInjectedIntegrity = (el: JSX.Element) => {
     if (
       // Manifest files have a different hash when they are served from CDN
       // than they have at build time. Will be loaded by trusted proxy.
-      src.includes('Manifest')
+      src.includes("Manifest")
     ) {
       return el;
     }
 
-    const filePath = decodeURI(src).replace('/_next', dotNextFolder());
+    const filePath = decodeURI(src).replace("/_next", dotNextFolder());
     const fs = getFs();
     const assert = fs && fs.existsSync(filePath);
     console.assert(
       assert,
-      'nextScriptWithInjectedIntegrity: file not found, cannot set integrity',
+      "nextScriptWithInjectedIntegrity: file not found, cannot set integrity",
       { filePath }
     );
     if (!assert) {
       return el;
     }
-    const scriptContent = fs.readFileSync(filePath, 'utf8');
+    const scriptContent = fs.readFileSync(filePath, "utf8");
     const integrity = integritySha256(scriptContent);
     return <script key={el.key} {...el.props} integrity={integrity} />;
   } catch (e) {
     console.error(
-      'nextScriptWithInjectedIntegrity: something went wrong with loading script content from file',
+      "nextScriptWithInjectedIntegrity: something went wrong with loading script content from file",
       e
     );
     return el;
@@ -108,30 +103,34 @@ const nextScriptWithInjectedIntegrity = (el: JSX.Element) => {
 
 const getFs = () => {
   try {
-    return require('fs');
+    return require("fs");
   } catch (e) {
     return undefined;
   }
 };
 
-const writeRouteHashesToJson = (route: string, hashes: string[] = []) => {
+type HashesKind = typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME;
+
+const writeRouteHashesToJson = (
+  route: string,
+  hashesKind: HashesKind,
+  hashes: string[] = []
+) => {
   const dir = `${staticCspFolder()}${route}`;
-  const filename = SCRIPT_HASHES_FILENAME;
+  const filename = hashesKind;
   const filepath = `${dir}/${filename}`;
   const fs = getFs();
   try {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-  }
-  catch {
+  } catch {
     // expected to fail in ISR
-    return
+    return;
   }
-
 
   if (!fs.existsSync(filepath)) {
-    fs.writeFileSync(filepath, hashes.join('\n'), 'utf8');
+    fs.writeFileSync(filepath, hashes.join("\n"), "utf8");
     return;
   }
 
@@ -139,14 +138,14 @@ const writeRouteHashesToJson = (route: string, hashes: string[] = []) => {
   try {
     oldHashes.push(
       ...fs
-        .readFileSync(filepath, 'utf8')
-        .split('\n')
+        .readFileSync(filepath, "utf8")
+        .split("\n")
         .map((line: string) => line.trim())
         .filter(Boolean)
     );
   } catch {
     try {
-      fs.appendFileSync(filepath, `\n${hashes.join('\n')}`, 'utf8');
+      fs.appendFileSync(filepath, `\n${hashes.join("\n")}`, "utf8");
       return;
     } catch {
       return;
@@ -155,7 +154,7 @@ const writeRouteHashesToJson = (route: string, hashes: string[] = []) => {
 
   const newHashes = difference(hashes, oldHashes);
   if (newHashes.length) {
-    fs.appendFileSync(filepath, `\n${newHashes.join('\n')}`);
+    fs.appendFileSync(filepath, `\n${newHashes.join("\n")}`);
   }
 };
 
@@ -169,9 +168,7 @@ const trustifyNextScripts = (els: Nullable<JSX.Element>[]) => {
     createTrustedLoadingProxy(nextScripts)
   );
   pickupScriptWithIntegrity(nextProxyLoader);
-  return trustify(
-    nextScripts.map(nextScriptWithInjectedIntegrity)
-  ) as JSX.Element[];
+  return trustify(nextScripts.map(nextScriptWithInjectedIntegrity));
 };
 
 // to obtain the hash from NextScript.getInlineScriptSource
@@ -184,10 +181,59 @@ const pushNextInlineScriptHash = (ctx: any) => {
   }
 };
 
-const writeHashesToJson = (ctx: any, newHashes: string[]) => {
+const writeScriptHashesToJson = (ctx: any, newHashes: string[]) => {
   const route = ctx.__NEXT_DATA__.page;
   pushNextInlineScriptHash(ctx);
-  writeRouteHashesToJson(route, newHashes);
+  writeRouteHashesToJson(route, "script-hashes.txt", newHashes);
+};
+
+const collectStyleHashes = (children: any) => {
+  const recurse = (child: any) => {
+    return React.Children.toArray(child)
+      .filter(isJsxElement)
+      .map((el) => {
+        if (isJsxElement(el) && el.props.children) {
+          return recurse(el.props.children);
+        }
+        if (isStyleElement(el) && el.props.dangerouslySetInnerHTML) {
+          return [integritySha256(el.props.dangerouslySetInnerHTML.__html)];
+        }
+        return [];
+      });
+  };
+  return flatten(recurse(children));
+};
+
+const writeStyleHashesToJson = (ctx: any, customHead: any) => {
+  const route = ctx.__NEXT_DATA__.page;
+  writeRouteHashesToJson(route, "style-hashes.txt", [
+    ...collectStyleHashes(ctx.styles),
+    ...collectStyleHashes(customHead),
+  ]);
+};
+
+const trustifyHeadElements = (children: any) => {
+  const recurse = (child: any) => {
+    React.Children.forEach(child, (el) => {
+      if (isScriptElement(el)) {
+        const trustified = trustify([el])[0];
+        el.props = trustified.props;
+        return;
+      }
+      if (
+        isJsxElement(el) &&
+        Array.isArray(el.props.children) &&
+        el.props.children.every(isScriptElement)
+      ) {
+        el.props.children = trustify(el.props.children);
+        return;
+      }
+      if (isJsxElement(el) && el.props.children) {
+        recurse(el.props.children);
+      }
+    });
+  };
+  recurse(children);
 };
 
 export class Head extends NextHead {
@@ -200,13 +246,20 @@ export class Head extends NextHead {
   // this will return the scripts that have been inserted by
   // <Script ... strategy="beforeInteractive"} /> from 'next/script' somewhere.
   getPreNextScripts() {
-    return trustify(super.getPreNextScripts().map(scriptWithPatchedCrossOrigin)) as JSX.Element[];
+    return trustify(
+      super.getPreNextScripts().map(scriptWithPatchedCrossOrigin)
+    );
   }
   // not sure whether this is the definitive best point to write hashes.
   // it should be whatever method returns the very last script in the document lifecycle.
   getScripts(files: any) {
     const scripts = trustifyNextScripts(super.getScripts(files));
-    writeHashesToJson(this.context, pullHashes());
+    writeScriptHashesToJson(this.context, pullHashes());
     return scripts;
+  }
+  render() {
+    writeStyleHashesToJson(this.context, this.props.children);
+    trustifyHeadElements(this.props.children);
+    return super.render();
   }
 }
