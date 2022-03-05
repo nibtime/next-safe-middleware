@@ -1,71 +1,78 @@
-import { mergeWithKey, uniq } from 'ramda';
-import type { CSP, CSPFilter, CSPDirective } from './types';
+import { mergeWithKey, uniq } from "ramda";
+import type { CSP, CSPFilter, CSPDirective } from "./types";
 
-const arrayifyValues = (csp: CSP): Record<CSPDirective, string[]> => {
+export const arrayifyCspValues = (values: string | string[]): string[] => {
+  if (typeof values !== "string") {
+    return values;
+  }
+  return values
+    .trim()
+    .split(" ")
+    .map((v) => v.trim())
+    .filter(Boolean);
+};
+
+export const arrayifyCsp = (csp: CSP): Record<CSPDirective, string[]> => {
   const arrayifiedEntries = Object.entries(csp).map(([directive, values]) => {
-    if (typeof values !== 'string') {
-      return [directive, values];
-    }
-    return [
-      directive,
-      values
-        .trim()
-        .split(' ')
-        .map((v) => v.trim())
-        .filter(Boolean)
-    ];
+    return [directive, arrayifyCspValues(values)];
   });
-  return Object.fromEntries(arrayifiedEntries);
+  return Object.fromEntries(
+    arrayifiedEntries.filter(([k, v]) => k && v && v.length)
+  );
 };
 export const toCspContent = (csp: CSP) =>
-  Object.entries(arrayifyValues(csp))
-    .map(([attr, values]) => `${attr} ${values.join(' ')}`)
-    .join(';');
+  Object.entries(arrayifyCsp(csp))
+    .map(([attr, values]) => `${attr} ${values.join(" ")}`)
+    .join(";");
 
 export const fromCspContent = (content: string): CSP =>
   Object.fromEntries(
     content
       .trim()
-      .split(';')
+      .split(";")
       .filter(Boolean)
       .map((line) =>
         line
-          .split(' ')
+          .split(" ")
           .map((lineItem) => lineItem.trim())
           .filter(Boolean)
       )
       .filter(Boolean)
-      .map(
-        (line) =>
-          (line[0] ? [line[0], line.slice(1)] : []) as [CSPDirective, string[]]
-      )
+      .map((line) => {
+        const directive = line[0];
+        const values = line.slice(1);
+
+        return (directive && values.length ? [directive, values] : []) as [
+          CSPDirective,
+          string[]
+        ];
+      })
   );
 
 export const extendCsp = (
   csp: CSP,
   cspExtension: CSP,
-  mode: 'prepend' | 'append' | 'override' = 'prepend'
+  mode: "prepend" | "append" | "override" = "prepend"
 ): CSP => {
   const concatValues = (_k: string, l: string[], r: string[]) =>
-    mode !== 'override'
-      ? uniq(mode === 'append' ? [...l, ...r] : [...r, ...l])
+    mode !== "override"
+      ? uniq(mode === "append" ? [...l, ...r] : [...r, ...l])
       : r;
   return mergeWithKey(
     concatValues,
-    arrayifyValues(csp),
-    arrayifyValues(cspExtension)
+    arrayifyCsp(csp),
+    arrayifyCsp(cspExtension)
   );
 };
 
 export const filterCsp = (csp: CSP, cspFilter: CSPFilter): CSP => {
-  return Object.entries(arrayifyValues(csp)).reduce((acc, [attr, values]) => {
+  return Object.entries(arrayifyCsp(csp)).reduce((acc, [attr, values]) => {
     const directive = attr as CSPDirective;
     const filter = cspFilter[directive];
     if (filter) {
       acc[directive] = values.filter((v: string) => !filter.test(v));
-    }
-    else {
-      acc[directive] = values
+    } else {
+      acc[directive] = values;
     }
     return acc;
   }, {} as CSP);
@@ -76,7 +83,7 @@ export const cspDirectiveHas = (
   directive: CSPDirective,
   value: RegExp | string
 ) => {
-  return !!arrayifyValues(csp)[directive]?.find((v) =>
-    typeof value === 'string' ? v.includes(value) : value.test(v)
+  return !!arrayifyCsp(csp)[directive]?.find((v) =>
+    typeof value === "string" ? v.includes(value) : value.test(v)
   );
 };
