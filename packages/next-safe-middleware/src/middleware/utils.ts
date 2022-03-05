@@ -5,7 +5,6 @@ import {
   CSP_NONCE_HEADER,
 } from "../constants";
 import { fromCspContent, toCspContent } from "../utils";
-import { nanoid } from "nanoid";
 
 export const setCspHeader = (
   cspContent: string,
@@ -44,10 +43,16 @@ export const pushCspToResponse = (
   setCspHeader(toCspContent(csp), res, reportOnly);
 };
 
-export const cspNonce = (res: Response) => {
+export const generateNonce = (bits = 128) => {
+  const buffer = new Uint8Array(Math.floor(bits / 8))
+  const random = crypto.getRandomValues(buffer)
+  return [...random].map(n => n.toString(16)).join("")
+}
+
+export const cspNonce = (res: Response, bits = 128) => {
   let nonce = res.headers.get(CSP_NONCE_HEADER);
   if (!nonce) {
-    nonce = nanoid();
+    nonce = generateNonce(bits);
     res.headers.set(CSP_NONCE_HEADER, nonce);
   }
   return nonce;
