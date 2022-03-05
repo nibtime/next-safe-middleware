@@ -2,7 +2,7 @@ import { uniq } from "ramda";
 import type { NextRequest } from "next/server";
 import uaParser from "ua-parser-js";
 import type { CSP } from "../types";
-import { extendCsp } from "../utils";
+import { arrayifyCspValues, extendCsp } from "../utils";
 import { CSP_LOCATION_MIDDLEWARE, SCRIPT_HASHES_FILENAME } from "../constants";
 import type { MiddlewareBuilder } from "./types";
 import { cspNonce, pullCspFromResponse, pushCspToResponse } from "./utils";
@@ -71,7 +71,7 @@ export type StrictDynamicCfg = {
    *
    * @see  https://github.com/nibtime/next-safe-middleware/issues/5
    */
-  fallbackScriptSrc?: string;
+  fallbackScriptSrc?: string | string[];
 
   /**
    * In some cases you might have to allow eval() for your app to work (e.g. for MDX)
@@ -126,9 +126,10 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
     const csp = pullCspFromResponse(res) ?? {};
     const { fallbackScriptSrc, allowUnsafeEval, reportOnly } =
       await unpackConfig(req, res, cfg);
+    const arrayifiedScriptSrc = arrayifyCspValues(fallbackScriptSrc);
     const fallback = allowUnsafeEval
-      ? `${fallbackScriptSrc} 'unsafe-eval'`
-      : fallbackScriptSrc;
+      ? [...arrayifiedScriptSrc, `'unsafe-eval'`]
+      : arrayifiedScriptSrc;
     try {
       const { supportsHashBased, supportsStrictDynamic } = getSupportInfo(req);
 
@@ -157,7 +158,8 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
             getCsp(),
             {
               "script-src": [
-                `'strict-dynamic' ${fallback}`,
+                `'strict-dynamic'`,
+                ...fallback,
                 ...scriptSrcHashes,
               ],
             },
@@ -167,7 +169,7 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
           extendedCsp = extendCsp(
             getCsp(),
             {
-              "script-src": fallbackScriptSrc,
+              "script-src": fallback,
             },
             "override"
           );
@@ -178,9 +180,10 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
         extendedCsp = extendCsp(
           getCsp(),
           {
-            "script-src": `'strict-dynamic' 'nonce-${cspNonce(
-              res
-            )}' ${fallback}`,
+            "script-src": [
+              `'strict-dynamic' 'nonce-${cspNonce(res)}'`,
+              ...fallback,
+            ],
           },
           "override"
         );
@@ -189,17 +192,17 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
         pushCspToResponse(extendedCsp, res, reportOnly);
       }
     } catch (err) {
-      const withFallbackScriptsrc = extendCsp(
+      const fallbackCsp = extendCsp(
         csp,
         {
           "script-src": fallback,
         },
         "override"
       );
-      pushCspToResponse(withFallbackScriptsrc, res, reportOnly);
+      pushCspToResponse(fallbackCsp, res, reportOnly);
       console.error(
         "[strictDynamic]: Internal error. Use script-src fallback value",
-        { fallbackScriptSrc, err }
+        { fallbackCsp, err }
       );
     }
   });
