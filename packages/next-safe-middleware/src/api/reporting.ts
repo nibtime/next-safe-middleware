@@ -2,41 +2,52 @@
 
 import type { NextApiHandler } from "next";
 
-export type ReportToItemBase = {
+export type ReportToSerializedBase = {
   age: number;
   url: string;
   user_agent: string;
 };
 
-export type ReportToBodyCspViolation = {
-  blockedURL: string;
-  disposition: string;
+/**
+ * @see https://w3c.github.io/webappsec-csp/#csp-violation-report
+ */
+export type CSPViolationReportBody = {
   documentURL: string;
+  referrer?: string;
+  blockedURL?: string;
   effectiveDirective: string;
-  lineNumber: number;
   originalPolicy: string;
-  referrer: string;
-  sample: string;
-  sourceFile: string;
-  statusCode: number;
+  sourceFile?: string;
+  sample?: string;
+  disposition: "enforce" | "report";
+  lineNumber?: number;
+  statusCode?: number;
 };
 
-export type ReportToCspViolationItem = ReportToItemBase & {
+export type ReportToCspViolation = {
   type: "csp-violation";
-  body: ReportToBodyCspViolation;
+  /**
+   * @see https://w3c.github.io/webappsec-csp/#csp-violation-report
+   */
+  body: CSPViolationReportBody;
 };
 
-export type AnyViolationItem = ReportToItemBase & {
+export type ReportToAny = {
   type: string;
-  body: Record<string, any>;
+  body: Record<string, any> | null;
 };
 
-export type ReportToItem = ReportToCspViolationItem | AnyViolationItem;
+export type ReportToSerialized = ReportToSerializedBase &
+  (ReportToCspViolation | ReportToAny);
 
 /**
- * the data shape of what browsers sent to endpoints of Report-To headers
+ * the data shape of what browsers send to endpoints of Report-To headers
+ * @see https://w3c.github.io/reporting/#serialize-reports
+ * @see https://developers.google.com/web/updates/2018/09/reportingapi#reportypes
+ * @see https://developers.google.com/web/updates/2018/09/reportingapi#debug
+ *
  */
-export type ReportToPayload = ReportToItem[];
+export type ReportToPayload = ReportToSerialized[];
 
 export type CspReport = {
   "blocked-uri": string;
@@ -51,27 +62,41 @@ export type CspReport = {
 };
 
 /**
- * the data shape of what browsers sent to endpoints of CSP report-uri directive
+ * the data shape of what browsers send to endpoints of CSP report-uri directive
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-uri
+ * @see https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
+ *
  */
 export type CspReportUriPayload = {
   "csp-report": CspReport;
 };
 
-export type ReportToData = {
+export type PayloadKindReportTo = {
   kind: "report-to";
-  data: ReportToPayload;
+  /**
+   * the serialized payload of what browsers send to endpoints of Report-To headers
+   * @see https://w3c.github.io/reporting/#serialize-reports
+   * @see https://developers.google.com/web/updates/2018/09/reportingapi#reportypes
+   * @see https://developers.google.com/web/updates/2018/09/reportingapi#debug
+   *
+   */
+  payload: ReportToPayload;
 };
 
-export type CspReportUriData = {
+export type PayloadKindCspReportUri = {
   kind: "csp-report-uri";
-  data: CspReportUriPayload;
+  /**
+   * the serialized payload of what browsers send to endpoints of CSP report-uri directive
+   * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-uri
+   * @see https://w3c.github.io/webappsec-csp/#deprecated-serialize-violation
+   */
+  payload: CspReportUriPayload;
 };
 
-//
-export type ReportingData = ReportToData | CspReportUriData;
+export type ReportingData = PayloadKindReportTo | PayloadKindCspReportUri;
 
 // TODO: find out what's required and what's optional
-export const isReportToItem = (x: any): x is ReportToItem => {
+export const isReportToItem = (x: any): x is ReportToSerialized => {
   if (typeof x !== "object") {
     return false;
   }
@@ -117,29 +142,66 @@ const deepJsonParse = (x: unknown) => {
   return x;
 };
 
+/**
+
+ * @param {unknown} x - unknown
+ * @returns a `ReportingData` object if the input represents
+ * valid reporting data. Otherwise, it returns `undefined`.
+ */
 export const extractReportingData = (x: unknown): ReportingData | undefined => {
   if (isReportingData(x)) {
     return x;
   }
-  const data = deepJsonParse(x);
-  if (isCspReportUriPayload(data)) {
+  const payload = deepJsonParse(x);
+  if (isCspReportUriPayload(payload)) {
     return {
       kind: "csp-report-uri",
-      data: data,
+      payload,
     };
   }
-  if (isReportToPayload(data)) {
+  if (isReportToPayload(payload)) {
     return {
       kind: "report-to",
-      data,
+      payload,
     };
   }
 
   return undefined;
 };
 
+/**
+ *
+ * @param process a function that processes reporting data (e.g. log to console, send to logging service, etc.)
+ * @returns a `NextApiHandler` that processes incoming reporting data. This is what's expected to be exported from files in `pages/api`
+ *
+ * @example // pages/api/reporting.ts
+ *
+ * import type{ ReportToPayload, CspReportUriPayload } from "@next-safe/middleware/dist/api";
+ * import { reporting } from "@next-safe/middleware/dist/api";
+ *
+ * const handleReportTo = async (data: ReportToPayload) => {
+ * // handle Report-To header
+ * };
+ *
+ * const handleCspReportUri = async (data: CspReportUriPayload) => {
+ * // handle CSP reports of report-uri directive
+ * };
+ *
+ * const handler = reporting(async (data) => {
+ *            switch (data.kind) {
+ *            case "report-to":
+ *              handleReportTo(data.payload);
+ *              break;
+ *            case "csp-report-uri":
+ *              handleCspReportUri(data.payload);
+ *              break;
+ *            }
+ * });
+ *
+ * export default handler;
+ */
 const apiHandler: (
-  process: (reportingData: ReportingData) => Promise<void> | void
+  process: (data: ReportingData) => Promise<void> | void
 ) => NextApiHandler = (process) => async (req, res) => {
   try {
     const data = extractReportingData(req.body);
