@@ -1,42 +1,48 @@
-import crypto from 'crypto';
-import React from 'react';
-import type { IterableScript, Primitve, Nullable } from './types';
+import crypto from "crypto";
+import React from "react";
+import type { IterableScript, Primitve, Nullable } from "./types";
 
 export const integritySha256 = (inlineScriptCode: string) => {
-  const hash = crypto.createHash('sha256');
+  const hash = crypto.createHash("sha256");
   hash.update(inlineScriptCode);
-  return `sha256-${hash.digest('base64')}`;
+  return `sha256-${hash.digest("base64")}`;
 };
 
 const getScriptValue = (attr: string, attrs: IterableScript) =>
   attrs.find(([a]) => attr === a)?.[1];
 
 const quoteIfString = (value: Primitve) =>
-  typeof value === 'string' ? `'${value}'` : value;
+  typeof value === "string" ? `'${value}'` : value;
 
 // the attributes the can be set in plain string JS hacking
 const isKnownScriptAttr = (attr: string) =>
   [
-    'id',
-    'src',
-    'integrity',
-    'async',
-    'defer',
-    'noModule',
-    'crossOrigin',
-    'nonce',
+    "id",
+    "src",
+    "integrity",
+    "async",
+    "defer",
+    "noModule",
+    "crossOrigin",
+    "nonce",
   ].includes(attr);
 
+export const isJsxElement = (el: any): el is JSX.Element =>
+  typeof el === "object" && !!el["type"] && el["props"]
+
 export const isScriptElement = (el: any): el is JSX.Element =>
-  el && el.type === 'script';
+  isJsxElement(el)  && el.type === "script";
+
+export const isStyleElement = (el: unknown): el is JSX.Element =>
+  isJsxElement(el) && el.type === "style";
 
 const iterableScriptFromProps = (el: Nullable<JSX.Element>): IterableScript => {
   if (!isScriptElement(el)) return [];
   return Object.entries<Primitve>(el.props).filter(
     ([, value]) =>
-      typeof value === 'string' ||
-      typeof value === 'boolean' ||
-      typeof value === 'number'
+      typeof value === "string" ||
+      typeof value === "boolean" ||
+      typeof value === "number"
   );
 };
 
@@ -57,17 +63,17 @@ export const createHashableScriptLoader = (
         ? `s${i}.${attr}=${quoteIfString(value)}`
         : `s${i}.setAttribute('${attr}', '${value}')`
     )
-    .join(';')}`
+    .join(";")}`
         )
-        .join(';')};
-  var s = [${scripts.map((s, i) => `s${i}`).join(',')}];
+        .join(";")};
+  var s = [${scripts.map((s, i) => `s${i}`).join(",")}];
   var p = document.getElementById('${id}').parentNode;
   s.forEach(function(si) {
     p.appendChild(si);
   });
 })()
 `
-    : '';
+    : "";
 };
 
 // load a batch of script elements without integrity via a trusted proxy loader element with integrity
@@ -76,12 +82,12 @@ export const createTrustedLoadingProxy = (els: JSX.Element[]) => {
   const iterableScripts = els.map(iterableScriptFromProps);
   const proxy = createHashableScriptLoader(
     iterableScripts,
-    'self-reference-proxy'
+    "proxy-self-7f10ba7a15bc0318e7dd56e8c7e1cff"
   );
-  const id = integritySha256(proxy);
-  const inlineCode = proxy.replace(/self-reference-proxy/g, id);
-  const async = iterableScripts.every((s) => !!getScriptValue('async', s));
-  const defer = iterableScripts.every((s) => !!getScriptValue('defer', s));
+  const id = integritySha256(proxy).replace(/^sha256-/g, "");
+  const inlineCode = proxy.replace(/proxy-self-7f10ba7a15bc0318e7dd56e8c7e1cff/g, id);
+  const async = iterableScripts.every((s) => !!getScriptValue("async", s));
+  const defer = iterableScripts.every((s) => !!getScriptValue("defer", s));
   return (
     <script id={id} async={async || undefined} defer={defer || undefined}>
       {inlineCode}
@@ -92,10 +98,23 @@ export const createTrustedLoadingProxy = (els: JSX.Element[]) => {
 // create a script element from inline code with its hash as integrity
 // a script element is interpreted to be a inline script if it has a single child of type string
 export const withHashIfInlineScript = (s: JSX.Element) => {
-  if(!isScriptElement(s) || typeof s.props.children !== 'string') {
+  if (!isScriptElement(s)) {
     return s;
   }
-  const { children: inlineScriptCode, ...props } = s.props;
+
+  const { children, dangerouslySetInnerHTML, ...props } = s.props;
+
+  let inlineScriptCode = "";
+
+  if (typeof children === "string") {
+    inlineScriptCode = s.props.children;
+  } else if (dangerouslySetInnerHTML) {
+    inlineScriptCode = dangerouslySetInnerHTML.__html;
+  }
+
+  if (!inlineScriptCode) {
+    return s;
+  }
   const integrity = integritySha256(inlineScriptCode);
   return (
     // eslint-disable-next-line @next/next/no-sync-scripts
@@ -110,10 +129,13 @@ export const withHashIfInlineScript = (s: JSX.Element) => {
 };
 
 export const scriptWithPatchedCrossOrigin = (s: JSX.Element) => {
-  if(!isScriptElement(s) || !(s.props.integrity && s.props.src)) {
+  if (
+    !isScriptElement(s) ||
+    !(s.props.integrity && s.props.src) ||
+    !s.props["data-crossorigin"]
+  ) {
     return s;
   }
-    const setCrossOrigin = { crossOrigin: s.props['crossOrigin'] || s.props['data-crossorigin'] || s.props['crossorigin'] }
-    const removePlaceHolders = { ['data-crossorigin']: null, ['crossorigin']: null }
-    return React.cloneElement(s, {...setCrossOrigin, ...removePlaceHolders})
+  const setCrossOrigin = { crossOrigin: s.props["data-crossorigin"] };
+  return <script key={s.key} {...s.props} {...setCrossOrigin} />;
 };
