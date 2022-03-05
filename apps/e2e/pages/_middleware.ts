@@ -2,6 +2,7 @@ import {
   chain,
   nextSafe,
   strictDynamic,
+  strictInlineStyles,
   reporting,
 } from "@next-safe/middleware";
 
@@ -13,7 +14,6 @@ const nextSafeMiddleware = nextSafe((req) => {
     isDev,
     contentSecurityPolicy: {
       reportOnly,
-      "style-src": `'unsafe-inline'`,
     },
     // customize as you need: https://trezy.gitbook.io/next-safe/usage/configuration
   };
@@ -36,4 +36,9 @@ const reportingMiddleware = reporting((req) => {
   };
 });
 
-export default chain(nextSafeMiddleware, strictDynamic(), reportingMiddleware);
+export default chain(
+  nextSafeMiddleware,
+  strictDynamic(),
+  strictInlineStyles({ extendStyleSrc: false }),
+  reportingMiddleware
+);
