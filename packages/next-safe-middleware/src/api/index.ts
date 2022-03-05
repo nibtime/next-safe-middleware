@@ -1,6 +1,6 @@
 export type {
-  ReportingData,
   CspReportUriPayload,
   ReportToPayload,
+  ReportingData,
 } from "./reporting";
-export { default as reportingHandler } from "./reporting";
+export { default as reporting, extractReportingData } from "./reporting";
