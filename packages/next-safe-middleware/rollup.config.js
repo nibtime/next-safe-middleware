@@ -1,62 +1,141 @@
 // rollup.config.js
-import { swc } from "rollup-plugin-swc3";
+import { swc, defineRollupSwcOption } from "rollup-plugin-swc3";
 import dts from "rollup-plugin-dts";
+import { nodeResolve } from "@rollup/plugin-node-resolve";
+import { mergeDeepRight } from "ramda";
+import commonjs from "@rollup/plugin-commonjs";
 
-const isCI = () => !!process.env.CI
+const isDev = process.env.NODE_ENV === "development";
+const minify = !isDev
+const sourcemap = !minify
 
-export default [
+const swcBase = defineRollupSwcOption({
+  minify,
+  tsconfig: false,
+  sourceMaps: sourcemap,
+  jsc: {
+    parser: {
+      syntax: "typescript",
+    },
+    externalHelpers: true,
+    target: "es2020",
+  },
+});
+const mainCfg = swcBase;
+
+const documentCfg = defineRollupSwcOption(
+  mergeDeepRight(swcBase, {
+    jsc: {
+      parser: {
+        tsx: true,
+      },
+    },
+  })
+);
+
+const apiCfg = swcBase;
+
+const resolve = [
+  commonjs({}),
+  nodeResolve({
+    resolveOnly: [
+      "ua-parser-js",
+      "@swc/helpers",
+      "tslib",
+      "next-safe",
+      "ramda",
+    ],
+  }),
+];
+
+const main = [
   {
     input: "src/index.ts",
     output: {
       file: "dist/index.js",
       format: "cjs",
       name: "main",
+      sourcemap,
     },
-    plugins: [swc({
-      minify: isCI()
-    })],
+    external: ["next"],
+    plugins: [...resolve, swc(mainCfg)],
   },
   {
     input: "src/index.ts",
     output: {
       file: "dist/index.mjs",
       format: "es",
-      name: "module",
+      name: "main-mjs",
+      sourcemap,
     },
-    plugins: [swc({
-      minify: isCI()
-    })],
+    external: ["next"],
+    plugins: [...resolve, swc(mainCfg)],
   },
+  {
+    input: "src/index.ts",
+    output: [{ file: "dist/index.d.ts", format: "es", name: "main-dts" }],
+    plugins: [dts()],
+  },
+];
+const document = [
   {
     input: "src/document/index.tsx",
     output: {
       file: "dist/document/index.js",
       format: "cjs",
       name: "document",
+      sourcemap,
     },
-    plugins: [swc({
-      minify: isCI()
-    })],
+    external: ["next", "react"],
+    plugins: [...resolve, swc(documentCfg)],
   },
   {
     input: "src/document/index.tsx",
     output: {
       file: "dist/document/index.mjs",
       format: "es",
-      name: "document-module",
+      name: "document-mjs",
+      sourcemap,
     },
-    plugins: [swc({
-      minify: isCI()
-    })],
-  },
-  {
-    input: "src/index.ts",
-    output: [{ file: "dist/index.d.ts", format: "es", name: "dts" }],
-    plugins: [dts()],
+    external: ["next", "react"],
+    plugins: [...resolve, swc(documentCfg)],
   },
   {
     input: "src/document/index.tsx",
-    output: [{ file: "dist/document/index.d.ts", format: "es", name: "dts" }],
+    output: [
+      { file: "dist/document/index.d.ts", format: "es", name: "document-dts" },
+    ],
     plugins: [dts()],
   },
 ];
+const api = [
+  {
+    input: "src/api/index.ts",
+    output: {
+      file: "dist/api/index.js",
+      format: "cjs",
+      name: "api",
+      sourcemap,
+    },
+    external: ["next"],
+    plugins: [...resolve, swc(apiCfg)],
+  },
+  {
+    input: "src/api/index.ts",
+    output: {
+      file: "dist/api/index.mjs",
+      format: "es",
+      name: "api-mjs",
+      sourcemap,
+    },
+    external: ["next"],
+    plugins: [...resolve, swc(apiCfg)],
+  },
+  {
+    input: "src/api/index.ts",
+    output: [{ file: "dist/api/index.d.ts", format: "es", name: "api-dts" }],
+    plugins: [dts()],
+  },
+];
+
+export default [...main, ...document, ...api];
