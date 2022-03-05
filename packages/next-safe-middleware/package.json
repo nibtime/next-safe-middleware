@@ -5,16 +5,15 @@
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "dev": "rollup -c rollup.config.js --watch",
+    "dev": "NODE_ENV=development rollup -c rollup.config.js --watch",
     "clean": "rm -rf dist package.tgz",
-    "build": "rollup -c rollup.config.js && yarn pack",
+    "build": "NODE_ENV=production rollup -c rollup.config.js && yarn pack",
     "test": "jest --runInBand"
   },
   "peerDependencies": {
