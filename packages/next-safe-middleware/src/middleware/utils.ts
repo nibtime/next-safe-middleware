@@ -1,8 +1,13 @@
+import type { NextRequest } from "next/server";
 import type { CSP } from "../types";
+import { uniq } from "ramda";
 import {
   CSP_HEADER,
   CSP_HEADER_REPORT_ONLY,
+  CSP_LOCATION_MIDDLEWARE,
   CSP_NONCE_HEADER,
+  SCRIPT_HASHES_FILENAME,
+  STYLE_HASHES_FILENAME,
 } from "../constants";
 import { fromCspContent, toCspContent } from "../utils";
 
@@ -56,4 +61,36 @@ export const cspNonce = (res: Response, bits = 128) => {
     res.headers.set(CSP_NONCE_HEADER, nonce);
   }
   return nonce;
+};
+
+const singleQuotify = (value: string) => `'${value}'`;
+
+export const fetchHashes = async (req: NextRequest, hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME) => {
+  // req.page.name is the name of the route, e.g. `/` or `/blog/[slug]`
+  const route = req.page.name;
+  const { origin, pathname } = req.nextUrl;
+  let resHashes: Response | undefined;
+  const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
+  // route seems to get confused when there's a dynamic route and a
+  // matching static route within the same folder. Attempt to fix that.
+  // TODO: This is a hack, and should be removed once we found a better way to handle this.
+  if (route !== pathname) {
+    const hashesUrl = encodeURI(
+      `${baseUrl}${pathname}/${hashesKind}`
+    );
+    resHashes = await fetch(hashesUrl);
+  }
+  if (!resHashes?.ok) {
+    const hashesUrl = encodeURI(`${baseUrl}${route}/${hashesKind}`);
+    resHashes = await fetch(hashesUrl);
+  }
+  if (!resHashes?.ok) {
+    return undefined;
+  }
+  const hashesText = await resHashes.text();
+  const hashes = hashesText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return uniq(hashes).map(singleQuotify);
 };
