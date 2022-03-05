@@ -17,3 +17,6 @@ export type { StrictDynamicCfg } from "./strictDynamic";
  * @deprecated use the `strictDynamic` middleware builder to configure a strict CSP.
  */
 export const provideHashesOrNonce = strictDynamic();
+
+export { default as strictInlineStyles } from "./strictInlineStyles";
+export type { StrictInlineStylesCfg as StrictStylesCfg } from "./strictInlineStyles";
