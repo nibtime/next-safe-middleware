@@ -10,6 +10,10 @@
   "engines": {
     "node": ">=10"
   },
+  "yarn.build": {
+    "input": "src",
+    "output": "dist"
+  },
   "scripts": {
     "dev": "NODE_ENV=development rollup -c rollup.config.js --watch",
     "clean": "rm -rf dist package.tgz",
