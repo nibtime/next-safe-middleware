@@ -1,47 +1,18 @@
-import { uniq } from "ramda";
 import type { NextRequest } from "next/server";
-import uaParser from "ua-parser-js";
+import UAParser from "ua-parser-js";
 import type { CSP } from "../types";
 import { arrayifyCspValues, extendCsp } from "../utils";
-import { CSP_LOCATION_MIDDLEWARE, SCRIPT_HASHES_FILENAME } from "../constants";
 import type { MiddlewareBuilder } from "./types";
-import { cspNonce, pullCspFromResponse, pushCspToResponse } from "./utils";
+import {
+  cspNonce,
+  pullCspFromResponse,
+  pushCspToResponse,
+  fetchHashes,
+} from "./utils";
 import { unpackConfig, withDefaultConfig, ensureChainContext } from "./builder";
 
-const singleQuotify = (value: string) => `'${value}'`;
-
-const fetchScriptSrcHashes = async (req: NextRequest) => {
-  // req.page.name is the name of the route, e.g. `/` or `/blog/[slug]`
-  const route = req.page.name;
-  const { origin, pathname } = req.nextUrl;
-  let resHashes: Response | undefined;
-  const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
-  // route seems to get confused when there's a dynamic route and a
-  // matching static route within the same folder. Attempt to fix that.
-  // TODO: This is a hack, and should be removed once we found a better way to handle this.
-  if (route !== pathname) {
-    const hashesUrl = encodeURI(
-      `${baseUrl}${pathname}/${SCRIPT_HASHES_FILENAME}`
-    );
-    resHashes = await fetch(hashesUrl);
-  }
-  if (!resHashes?.ok) {
-    const hashesUrl = encodeURI(`${baseUrl}${route}/${SCRIPT_HASHES_FILENAME}`);
-    resHashes = await fetch(hashesUrl);
-  }
-  if (!resHashes?.ok) {
-    return undefined;
-  }
-  const hashesText = await resHashes.text();
-  const hashes = hashesText
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-  return uniq(hashes).map(singleQuotify);
-};
-
 const getSupportInfo = (req: NextRequest) => {
-  const ua = new uaParser(req.headers.get("user-agent"));
+  const ua = new UAParser(req.headers.get("user-agent"));
   const browserName = ua.getBrowser().name || "";
   const isFirefox = browserName.includes("Firefox");
   const isSafari = browserName.includes("Safari");
@@ -150,7 +121,7 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
 
       let extendedCsp: CSP | undefined;
       const getCsp = () => extendedCsp || csp;
-      const scriptSrcHashes = await fetchScriptSrcHashes(req);
+      const scriptSrcHashes = await fetchHashes(req, "script-hashes.txt");
       // if fetched hashes, it's a static page. Hash-based strict CSP
       if (scriptSrcHashes) {
         if (supportsHashBased) {
