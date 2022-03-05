@@ -982,7 +982,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@next-safe/middleware@workspace:packages/next-safe-middleware"
   dependencies:
-    "@babel/runtime": ^7.17.2
     "@rollup/plugin-commonjs": ^21.0.2
     "@rollup/plugin-node-resolve": ^13.1.3
     "@swc/core": ^1.2.144
@@ -993,7 +992,6 @@ __metadata:
     "@types/ramda": ^0.27.64
     "@types/react": ^17.0.39
     "@types/ua-parser-js": ^0.7.36
-    babel-jest: ^27.5.1
     jest: ^27.5.1
     next: ^12.1.0
     next-safe: ^3.2.1
