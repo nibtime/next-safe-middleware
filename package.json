@@ -7,14 +7,16 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "yarn clean:libs && yarn build:libs && yarn workspaces foreach -pvi run dev",
+    "clean": "yarn workspaces foreach -p run clean",
+    "dev": "yarn build && yarn workspaces foreach -pvi run dev",
+    "dev::no-cache": "yarn build --ignore-cache && yarn workspaces foreach -pvi run dev",
+    "start": "yarn build && yarn workspace e2e start",
+    "start:no-cache": "yarn build --ignore-cache && yarn workspace e2e start",
     "test": "yarn workspaces foreach -pv run test",
-    "start": "yarn start:e2e",
     "clean:libs": "yarn workspaces foreach -p --no-private run clean",
-    "build:libs": "yarn workspaces foreach -pvit --no-private run build",
-    "build:e2e": "yarn workspaces foreach -pvitR --from e2e run build",
+    "build:libs": "yarn workspaces foreach -pvt --no-private run build",
+    "build:e2e": "yarn workspaces foreach -pvtR --from e2e run build",
     "build:e2e:vercel": "yarn test && yarn build:e2e",
-    "start:e2e": "yarn clean:libs && yarn build:e2e && yarn workspace e2e start",
     "version:changeset": "yarn changeset version",
     "release:changeset": "yarn build:libs && yarn changeset publish"
   },
