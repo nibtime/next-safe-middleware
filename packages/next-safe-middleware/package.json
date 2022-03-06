@@ -11,7 +11,7 @@
     "node": ">=10"
   },
   "yarn.build": {
-    "input": "src",
+    "input": ["src", "rollup.config.js"],
     "output": "dist"
   },
   "scripts": {
