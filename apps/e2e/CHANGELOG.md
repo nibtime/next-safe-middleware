@@ -1,5 +1,18 @@
 # e2e
 
+## 0.3.0
+
+### Minor Changes
+
+- [#17](https://github.com/nibtime/next-safe-middleware/pull/17) [`b084027`](https://github.com/nibtime/next-safe-middleware/commit/b0840272b32fbec265e5bee26607160b55cb9dc4) Thanks [@nibtime](https://github.com/nibtime)! - use `strictInlineStyles`in `_middleware` + include Inter Var by inline style in `_document` to test custom inline styles in `<Head>`
+
+### Patch Changes
+
+- [#15](https://github.com/nibtime/next-safe-middleware/pull/15) [`e7b4193`](https://github.com/nibtime/next-safe-middleware/commit/e7b4193e3935d945f2103ecd75f2826aaaad82cc) Thanks [@nibtime](https://github.com/nibtime)! - use API handler from lib to create reporting endpoint
+
+- Updated dependencies [[`e7b4193`](https://github.com/nibtime/next-safe-middleware/commit/e7b4193e3935d945f2103ecd75f2826aaaad82cc), [`e7b4193`](https://github.com/nibtime/next-safe-middleware/commit/e7b4193e3935d945f2103ecd75f2826aaaad82cc), [`b084027`](https://github.com/nibtime/next-safe-middleware/commit/b0840272b32fbec265e5bee26607160b55cb9dc4), [`b084027`](https://github.com/nibtime/next-safe-middleware/commit/b0840272b32fbec265e5bee26607160b55cb9dc4)]:
+  - @next-safe/middleware@0.5.0
+
 ## 0.2.2
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @next-safe/middleware
 
+## 0.5.0
+
+### Minor Changes
+
+- [#15](https://github.com/nibtime/next-safe-middleware/pull/15) [`e7b4193`](https://github.com/nibtime/next-safe-middleware/commit/e7b4193e3935d945f2103ecd75f2826aaaad82cc) Thanks [@nibtime](https://github.com/nibtime)! - better bundling config + bundling of external utils. Saves around ~100% size for `_middleware` - important for edge where limit is 1MB
+
+* [#15](https://github.com/nibtime/next-safe-middleware/pull/15) [`e7b4193`](https://github.com/nibtime/next-safe-middleware/commit/e7b4193e3935d945f2103ecd75f2826aaaad82cc) Thanks [@nibtime](https://github.com/nibtime)! - provide an API handler for easy creation of a report procesing endpoint by Next/Vercel cloud function
+
+- [#17](https://github.com/nibtime/next-safe-middleware/pull/17) [`b084027`](https://github.com/nibtime/next-safe-middleware/commit/b0840272b32fbec265e5bee26607160b55cb9dc4) Thanks [@nibtime](https://github.com/nibtime)! - provide `strictInlineStyles` middleware. Extend `dist/document` to write out hashes of inline styles (Hash-based) or attach nonce to inline styles (Nonce-based).
+
+* [#17](https://github.com/nibtime/next-safe-middleware/pull/17) [`b084027`](https://github.com/nibtime/next-safe-middleware/commit/b0840272b32fbec265e5bee26607160b55cb9dc4) Thanks [@nibtime](https://github.com/nibtime)! - add `tellsupported` config option (a function) to `strictDynamic`. Allows for strong customization of fallback behavior by parsed user agent.
+
 ## 0.4.0
 
 ### Minor Changes
