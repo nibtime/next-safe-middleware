@@ -98,7 +98,7 @@ export type StrictDynamicCfg = {
  */
 const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
   ensureChainContext(async (req, evt, res) => {
-    if (process.env.NODE_ENV === "development" || !req.page.name) {
+    if (process.env.NODE_ENV === "development") {
       return;
     }
     const csp = pullCspFromResponse(res) ?? {};

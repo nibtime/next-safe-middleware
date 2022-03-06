@@ -49,10 +49,10 @@ export const pushCspToResponse = (
 };
 
 export const generateNonce = (bits = 128) => {
-  const buffer = new Uint8Array(Math.floor(bits / 8))
-  const random = crypto.getRandomValues(buffer)
-  return [...random].map(n => n.toString(16)).join("")
-}
+  const buffer = new Uint8Array(Math.floor(bits / 8));
+  const random = crypto.getRandomValues(buffer);
+  return [...random].map((n) => n.toString(16)).join("");
+};
 
 export const cspNonce = (res: Response, bits = 128) => {
   let nonce = res.headers.get(CSP_NONCE_HEADER);
@@ -65,24 +65,32 @@ export const cspNonce = (res: Response, bits = 128) => {
 
 const singleQuotify = (value: string) => `'${value}'`;
 
-export const fetchHashes = async (req: NextRequest, hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME) => {
+export const fetchHashes = async (
+  req: NextRequest,
+  hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME
+) => {
+  const { origin, pathname } = req.nextUrl;
+  const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
+
   // req.page.name is the name of the route, e.g. `/` or `/blog/[slug]`
   const route = req.page.name;
-  const { origin, pathname } = req.nextUrl;
+
   let resHashes: Response | undefined;
-  const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
-  // route seems to get confused when there's a dynamic route and a
-  // matching static route within the same folder. Attempt to fix that.
-  // TODO: This is a hack, and should be removed once we found a better way to handle this.
-  if (route !== pathname) {
-    const hashesUrl = encodeURI(
-      `${baseUrl}${pathname}/${hashesKind}`
-    );
-    resHashes = await fetch(hashesUrl);
-  }
-  if (!resHashes?.ok) {
-    const hashesUrl = encodeURI(`${baseUrl}${route}/${hashesKind}`);
-    resHashes = await fetch(hashesUrl);
+
+  const fetchPaths = [
+    ...(!route ? ["/404"] : []),
+    // route seems to get confused when there's a dynamic route and a
+    // matching static route within the same folder. Attempt to fix that.
+    // TODO: This is a hack, and should be removed once we found a better way to handle this.
+    ...(route ? (route !== pathname ? [pathname, route] : [route]) : []),
+  ];
+  const fetchUrls = fetchPaths.map((fetchPath) =>
+    encodeURI(`${baseUrl}${fetchPath}/${hashesKind}`)
+  );
+  for (const url of fetchUrls) {
+    if (!resHashes?.ok) {
+      resHashes = await fetch(url);
+    }
   }
   if (!resHashes?.ok) {
     return undefined;
