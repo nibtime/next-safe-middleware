@@ -1,4 +1,3 @@
-import type { NextRequest } from "next/server";
 import UAParser from "ua-parser-js";
 import type { CSP } from "../types";
 import { arrayifyCspValues, extendCsp } from "../utils";
@@ -11,19 +10,20 @@ import {
 } from "./utils";
 import { unpackConfig, withDefaultConfig, ensureChainContext } from "./builder";
 
-const getSupportInfo = (req: NextRequest) => {
-  const ua = new UAParser(req.headers.get("user-agent"));
-  const browserName = ua.getBrowser().name || "";
-  const isFirefox = browserName.includes("Firefox");
-  const isSafari = browserName.includes("Safari");
-  const supportsStrictDynamic = !isSafari;
-  const supportsHashBased = !isFirefox;
-
-  return {
-    supportsStrictDynamic,
-    supportsHashBased,
-  };
+export type SupportInfo = {
+  /**
+   * Whether the browser supports`'strict-dynamic'`.
+   */
+  supportsStrictDynamic: boolean;
+  /**
+   * Whether the browser supports the `integrity` attribute on <script>` tags
+   * in combination with `src` attribute. If a browser doesn;t
+   * support this, it can't use a Hash-based strict CSP on pages with `getStaticProps`
+   */
+  supportsSrcIntegrityCheck: boolean;
 };
+
+export type TellSupported = (uaParser: UAParser) => SupportInfo;
 
 /**
  * configuration object for strict CSPs with strict-dynamic
@@ -40,7 +40,9 @@ export type StrictDynamicCfg = {
    * It is also possible, that browsers support 'strict-dynamic', but don't support Hash-based (like Firefox).
    * In this case, static routes will use the fallback value for script-src and dynamic routes will use a Nonce-based strict CSP.
    *
-   * @see  https://github.com/nibtime/next-safe-middleware/issues/5
+   * @see  https://github.com/nibtime/next-safe-middleware/issues/
+   *
+   * When to use this value, can be customized by passing the `tellSupported` function to this config.
    */
   fallbackScriptSrc?: string | string[];
 
@@ -60,6 +62,11 @@ export type StrictDynamicCfg = {
    * @see https://web.dev/strict-csp/#step-2:-set-a-strict-csp-and-prepare-your-scripts
    */
   reportOnly?: true;
+  /**
+   * @param {UAParser} uaParser a `UAParser` instance from the `ua-parser-js` module
+   * @returns {SupportInfo} the required support info for applying`'strict-dynamic'` correctly
+   */
+  tellSupported?: TellSupported;
 };
 
 /**
@@ -95,21 +102,22 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
       return;
     }
     const csp = pullCspFromResponse(res) ?? {};
-    const { fallbackScriptSrc, allowUnsafeEval, reportOnly } =
+    const { fallbackScriptSrc, allowUnsafeEval, reportOnly, tellSupported } =
       await unpackConfig(req, res, cfg);
-    const arrayifiedScriptSrc = arrayifyCspValues(fallbackScriptSrc);
-    const fallback = allowUnsafeEval
-      ? [...arrayifiedScriptSrc, `'unsafe-eval'`]
-      : arrayifiedScriptSrc;
+    const fallbackSrcArray = arrayifyCspValues(fallbackScriptSrc);
+    const withUnsafeEval = (values: string[]) =>
+      allowUnsafeEval ? [...values, `'unsafe-eval'`] : values;
     try {
-      const { supportsHashBased, supportsStrictDynamic } = getSupportInfo(req);
+      const uaParser = new UAParser(req.headers.get("user-agent"));
+      const { supportsSrcIntegrityCheck, supportsStrictDynamic } =
+        tellSupported(uaParser);
 
       if (!supportsStrictDynamic) {
         pushCspToResponse(
           extendCsp(
             csp,
             {
-              "script-src": fallback,
+              "script-src": withUnsafeEval(fallbackSrcArray),
             },
             "override"
           ),
@@ -124,23 +132,24 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
       const scriptSrcHashes = await fetchHashes(req, "script-hashes.txt");
       // if fetched hashes, it's a static page. Hash-based strict CSP
       if (scriptSrcHashes) {
-        if (supportsHashBased) {
+        if (supportsSrcIntegrityCheck) {
           extendedCsp = extendCsp(
             getCsp(),
             {
               "script-src": [
                 `'strict-dynamic'`,
-                ...fallback,
+                ...withUnsafeEval(fallbackSrcArray),
                 ...scriptSrcHashes,
               ],
             },
             "override"
           );
         } else {
+          // Hash-based unsupported. 'strict-dynamic' would be enforced and break things if we set it.
           extendedCsp = extendCsp(
             getCsp(),
             {
-              "script-src": fallback,
+              "script-src": withUnsafeEval(fallbackSrcArray),
             },
             "override"
           );
@@ -153,7 +162,7 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
           {
             "script-src": [
               `'strict-dynamic' 'nonce-${cspNonce(res)}'`,
-              ...fallback,
+              ...withUnsafeEval(fallbackSrcArray),
             ],
           },
           "override"
@@ -163,21 +172,38 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
         pushCspToResponse(extendedCsp, res, reportOnly);
       }
     } catch (err) {
-      const fallbackCsp = extendCsp(
+      const errorCsp = extendCsp(
         csp,
         {
-          "script-src": fallback,
+          "script-src": [
+            `'strict-dynamic'`,
+            ...withUnsafeEval(fallbackSrcArray),
+          ],
         },
         "override"
       );
-      pushCspToResponse(fallbackCsp, res, reportOnly);
+      pushCspToResponse(errorCsp, res, true);
       console.error(
-        "[strictDynamic]: Internal error. Use script-src fallback value",
-        { fallbackCsp, err }
+        "[strictDynamic]: Internal error. No hashes or nonce have been added to CSP. Switch to report-only mode to not break the app and to let you know about this.",
+        { errorCsp, err }
       );
     }
   });
 
+const tellSupported: TellSupported = (ua) => {
+  const browserName = ua.getBrowser().name || "";
+  const isFirefox = browserName.includes("Firefox");
+  const isSafari = browserName.includes("Safari");
+  const supportsStrictDynamic = !isSafari;
+  const supportsSrcIntegrityCheck = !isFirefox;
+
+  return {
+    supportsStrictDynamic,
+    supportsSrcIntegrityCheck,
+  };
+};
+
 export default withDefaultConfig(strictDynamic, {
   fallbackScriptSrc: `https: 'unsafe-inline'`,
+  tellSupported,
 });
