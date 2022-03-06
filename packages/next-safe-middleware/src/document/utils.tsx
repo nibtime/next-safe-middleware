@@ -28,10 +28,13 @@ const isKnownScriptAttr = (attr: string) =>
   ].includes(attr);
 
 export const isJsxElement = (el: any): el is JSX.Element =>
-  typeof el === "object" && !!el["type"] && el["props"]
+  typeof el === "object" && "props" in el
+
+export const isElementWithChildren = (el: any): el is JSX.Element =>
+  isJsxElement(el) && "children" in el.props
 
 export const isScriptElement = (el: any): el is JSX.Element =>
-  isJsxElement(el)  && el.type === "script";
+  isJsxElement(el) && el.type === "script";
 
 export const isStyleElement = (el: unknown): el is JSX.Element =>
   isJsxElement(el) && el.type === "style";
@@ -85,7 +88,10 @@ export const createTrustedLoadingProxy = (els: JSX.Element[]) => {
     "proxy-self-7f10ba7a15bc0318e7dd56e8c7e1cff"
   );
   const id = integritySha256(proxy).replace(/^sha256-/g, "");
-  const inlineCode = proxy.replace(/proxy-self-7f10ba7a15bc0318e7dd56e8c7e1cff/g, id);
+  const inlineCode = proxy.replace(
+    /proxy-self-7f10ba7a15bc0318e7dd56e8c7e1cff/g,
+    id
+  );
   const async = iterableScripts.every((s) => !!getScriptValue("async", s));
   const defer = iterableScripts.every((s) => !!getScriptValue("defer", s));
   return (
