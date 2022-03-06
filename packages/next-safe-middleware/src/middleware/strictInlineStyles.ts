@@ -21,7 +21,7 @@ export type StrictInlineStylesCfg = {
 
 const strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
   ensureChainContext(async (req, evt, res) => {
-    if (process.env.NODE_ENV === "development" || !req.page.name) {
+    if (process.env.NODE_ENV === "development") {
       return;
     }
     const { extendStyleSrc } = await unpackConfig(req, res, cfg);
