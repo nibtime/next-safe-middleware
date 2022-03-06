@@ -5,40 +5,26 @@ import {
   withHashIfInlineScript,
   isStyleElement,
   isScriptElement,
-  isJsxElement,
+  isElementWithChildren,
 } from "./utils";
 import { pipe } from "ramda";
 import React from "react";
 
-const noncifyElements = (children: any, nonce: string) => {
-  const recurse = (child: any) => {
-    React.Children.forEach(child, (el) => {
-      if (isScriptElement(el)) {
-        const inlined = withHashIfInlineScript(el);
-        el.props = inlined.props;
-      }
-      if (isScriptElement(el) || isStyleElement(el)) {
-        el.props.nonce = nonce;
-        return;
-      }
-      if (
-        isJsxElement(el) &&
-        Array.isArray(el.props.children) &&
-        el.props.children.every(isScriptElement)
-      ) {
-        el.props.children = el.props.children.map((s) => {
-          const inlined = withHashIfInlineScript(s);
-          inlined.props.nonce = nonce;
-          return inlined;
-        });
-        return;
-      }
-      if (isJsxElement(el) && el.props.children) {
-        recurse(el.props.children);
+const noncifyChildren = (nonce: string, children: any) => {
+  if (nonce) {
+    React.Children.forEach(children, (child: any) => {
+      if (isScriptElement(child)) {
+        const newProps = { ...withHashIfInlineScript(child).props, nonce };
+        child.props = newProps;
+      } else if (isStyleElement(child)) {
+        child.props.nonce = nonce;
+      } else if (isElementWithChildren(child)) {
+        noncifyChildren(nonce, child.props.children);
+      } else if (Array.isArray(child)) {
+        noncifyChildren(nonce, child);
       }
     });
-  };
-  recurse(children);
+  }
 };
 
 export class Head extends NextHead {
@@ -51,8 +37,10 @@ export class Head extends NextHead {
   }
   render() {
     const nonce = this.props.nonce;
-    noncifyElements(this.context.styles, nonce);
-    noncifyElements(this.props.children, nonce);
-    return super.render();
+    noncifyChildren(nonce, this.context.styles);
+    noncifyChildren(nonce, this.props.children);
+    const rendered = super.render();
+    noncifyChildren(nonce, rendered);
+    return rendered;
   }
 }

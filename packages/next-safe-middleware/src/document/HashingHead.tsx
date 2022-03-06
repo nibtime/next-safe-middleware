@@ -1,6 +1,6 @@
 // eslint-disable-next-line @next/next/no-document-import-in-page
 import { Head as NextHead, NextScript } from "next/document";
-import { difference, partition, flatten } from "ramda";
+import { difference, flatten, partition } from "ramda";
 import React from "react";
 import type { Nullable } from "./types";
 import {
@@ -10,7 +10,7 @@ import {
   withHashIfInlineScript,
   scriptWithPatchedCrossOrigin,
   isStyleElement,
-  isJsxElement,
+  isElementWithChildren,
 } from "./utils";
 import {
   CSP_LOCATION_BUILD,
@@ -187,53 +187,43 @@ const writeScriptHashesToJson = (ctx: any, newHashes: string[]) => {
   writeRouteHashesToJson(route, "script-hashes.txt", newHashes);
 };
 
-const collectStyleHashes = (children: any) => {
+const collectStyleHashes = (children: any): string[] => {
   const recurse = (child: any) => {
-    return React.Children.toArray(child)
-      .filter(isJsxElement)
-      .map((el) => {
-        if (isJsxElement(el) && el.props.children) {
-          return recurse(el.props.children);
-        }
-        if (isStyleElement(el) && el.props.dangerouslySetInnerHTML) {
-          return [integritySha256(el.props.dangerouslySetInnerHTML.__html)];
-        }
-        return [];
-      });
+    if (isStyleElement(child) && child.props.dangerouslySetInnerHTML) {
+      return [integritySha256(child.props.dangerouslySetInnerHTML.__html)];
+    }
+    if (isElementWithChildren(child)) {
+      return recurse(child.props.children);
+    }
+    if (Array.isArray(child)) {
+      return child.map(recurse);
+    }
+    return [];
   };
   return flatten(recurse(children));
 };
 
-const writeStyleHashesToJson = (ctx: any, customHead: any) => {
+const writeStyleHashesToJson = (ctx: any, hashes: string[]) => {
   const route = ctx.__NEXT_DATA__.page;
-  writeRouteHashesToJson(route, "style-hashes.txt", [
-    ...collectStyleHashes(ctx.styles),
-    ...collectStyleHashes(customHead),
-  ]);
+  writeRouteHashesToJson(route, "style-hashes.txt", hashes);
 };
 
-const trustifyHeadElements = (children: any) => {
-  const recurse = (child: any) => {
-    React.Children.forEach(child, (el) => {
-      if (isScriptElement(el)) {
-        const trustified = trustify([el])[0];
-        el.props = trustified.props;
-        return;
-      }
-      if (
-        isJsxElement(el) &&
-        Array.isArray(el.props.children) &&
-        el.props.children.every(isScriptElement)
-      ) {
-        el.props.children = trustify(el.props.children);
-        return;
-      }
-      if (isJsxElement(el) && el.props.children) {
-        recurse(el.props.children);
-      }
-    });
-  };
-  recurse(children);
+const trustifyChildren = (children: any) => {
+  React.Children.forEach(children, (child) => {
+    if (isScriptElement(child)) {
+      child.props = trustify([child])[0].props;
+    } else if (
+      isElementWithChildren(child) &&
+      Array.isArray(child.props.children) &&
+      child.props.children.every(isScriptElement)
+    ) {
+      child.props.children = trustify(child.props.children);
+    } else if (isElementWithChildren(child)) {
+      trustifyChildren(child.props.children);
+    } else if (Array.isArray(child)) {
+      trustifyChildren(child);
+    }
+  });
 };
 
 export class Head extends NextHead {
@@ -258,8 +248,14 @@ export class Head extends NextHead {
     return scripts;
   }
   render() {
-    writeStyleHashesToJson(this.context, this.props.children);
-    trustifyHeadElements(this.props.children);
-    return super.render();
+    trustifyChildren(this.props.children);
+    const styleHashes = [
+      ...collectStyleHashes(this.context.styles),
+      ...collectStyleHashes(this.props.children),
+    ];
+    const rendered = super.render();
+    styleHashes.push(...collectStyleHashes(rendered));
+    writeStyleHashesToJson(this.context, styleHashes);
+    return rendered;
   }
 }
