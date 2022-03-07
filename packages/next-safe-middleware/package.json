@@ -1,6 +1,6 @@
 {
   "name": "@next-safe/middleware",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
@@ -11,7 +11,10 @@
     "node": ">=10"
   },
   "yarn.build": {
-    "input": ["src", "rollup.config.js"],
+    "input": [
+      "src",
+      "rollup.config.js"
+    ],
     "output": "dist"
   },
   "scripts": {
