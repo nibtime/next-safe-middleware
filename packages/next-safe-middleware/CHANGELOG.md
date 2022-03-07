@@ -1,5 +1,13 @@
 # @next-safe/middleware
 
+## 0.5.1
+
+### Patch Changes
+
+- [#18](https://github.com/nibtime/next-safe-middleware/pull/18) [`b40cc05`](https://github.com/nibtime/next-safe-middleware/commit/b40cc0550ae8d67a97795c992155791628dd15be) Thanks [@nibtime](https://github.com/nibtime)! - use correct call order in `render()` of custom `Document` components. That should prevent things from breaking in ISR mode.
+
+* [#18](https://github.com/nibtime/next-safe-middleware/pull/18) [`b40cc05`](https://github.com/nibtime/next-safe-middleware/commit/b40cc0550ae8d67a97795c992155791628dd15be) Thanks [@nibtime](https://github.com/nibtime)! - fetch script/style hashes for `/404` route if a request has no route/page. This makes strict CSP work with a custom `pages/404.js`.
+
 ## 0.5.0
 
 ### Minor Changes

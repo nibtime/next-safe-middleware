@@ -1,5 +1,14 @@
 # e2e
 
+## 0.3.1
+
+### Patch Changes
+
+- [#18](https://github.com/nibtime/next-safe-middleware/pull/18) [`b40cc05`](https://github.com/nibtime/next-safe-middleware/commit/b40cc0550ae8d67a97795c992155791628dd15be) Thanks [@nibtime](https://github.com/nibtime)! - add a custom css-in-js styled `pages/404.tsx`
+
+- Updated dependencies [[`b40cc05`](https://github.com/nibtime/next-safe-middleware/commit/b40cc0550ae8d67a97795c992155791628dd15be), [`b40cc05`](https://github.com/nibtime/next-safe-middleware/commit/b40cc0550ae8d67a97795c992155791628dd15be)]:
+  - @next-safe/middleware@0.5.1
+
 ## 0.3.0
 
 ### Minor Changes
