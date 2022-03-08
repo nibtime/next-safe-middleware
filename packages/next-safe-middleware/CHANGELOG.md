@@ -1,5 +1,11 @@
 # @next-safe/middleware
 
+## 0.5.2
+
+### Patch Changes
+
+- [#20](https://github.com/nibtime/next-safe-middleware/pull/20) [`0e5fe59`](https://github.com/nibtime/next-safe-middleware/commit/0e5fe590612624fa4727817f2fd3b77b4d07a87e) Thanks [@nibtime](https://github.com/nibtime)! - add hash of empty string to style hashes. CSS-in-js frameworks like stitches seem to need it to not break during hydration
+
 ## 0.5.1
 
 ### Patch Changes
