@@ -250,6 +250,8 @@ export class Head extends NextHead {
   render() {
     trustifyChildren(this.props.children);
     const styleHashes = [
+      // hashing empty avoid breaking things with ISR (tested with stitches).
+      integritySha256(""),
       ...collectStyleHashes(this.context.styles),
       ...collectStyleHashes(this.props.children),
     ];
