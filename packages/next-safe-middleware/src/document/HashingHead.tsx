@@ -253,9 +253,7 @@ export class Head extends NextHead {
       ...collectStyleHashes(this.context.styles),
       ...collectStyleHashes(this.props.children),
     ];
-    const rendered = super.render();
-    styleHashes.push(...collectStyleHashes(rendered));
     writeStyleHashesToJson(this.context, styleHashes);
-    return rendered;
+    return super.render();
   }
 }

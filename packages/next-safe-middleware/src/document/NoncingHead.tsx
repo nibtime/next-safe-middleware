@@ -39,8 +39,6 @@ export class Head extends NextHead {
     const nonce = this.props.nonce;
     noncifyChildren(nonce, this.context.styles);
     noncifyChildren(nonce, this.props.children);
-    const rendered = super.render();
-    noncifyChildren(nonce, rendered);
-    return rendered;
+    return super.render();
   }
 }
