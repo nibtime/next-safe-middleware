@@ -1,15 +1,15 @@
-import Link from 'next/link';
-import { useRouter } from 'next/router';
-import {useCallback, useState } from 'react';
-import fetch from 'ky-universal';
-import Prose from 'components/Prose'
-import Container from 'components/Container'
-import Hydrated from 'components/Hydrated'
-import Button from 'components/Button'
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useCallback, useState } from "react";
+import fetch from "ky-universal";
+import Prose from "components/Prose";
+import Layout from "components/Layout";
+import Hydrated from "components/Hydrated";
+import Button from "components/Button";
 
 // required for Hash-based CSP to work with ISR on Vercel
 export const config = {
-  unstable_includeFiles: ['.next/static/chunks/**/*.js'],
+  unstable_includeFiles: [".next/static/chunks/**/*.js"],
 };
 
 export const getStaticProps = async () => {
@@ -25,9 +25,9 @@ const RevalidateButton = () => {
       const res = await fetch(`/api/revalidate`, {
         searchParams: {
           pathname,
-          secret: 'this should be a real secret',
+          secret: "this should be a real secret",
         },
-        method: 'get',
+        method: "get",
       });
       if (res.ok) {
         const { revalidated } = await res.json();
@@ -41,20 +41,16 @@ const RevalidateButton = () => {
   }, [pathname, revalidated]);
 
   return (
-    <Button
-      type="button"
-      variant="primary"
-      onClick={onClick}
-    >
+    <Button type="button" variant="primary" onClick={onClick}>
       {!revalidated
-        ? 'Change it / revalidate!'
-        : 'Revalidated! Click to Reload the page'}
+        ? "Change it / revalidate!"
+        : "Revalidated! Click to Reload the page"}
     </Button>
   );
 };
 const Page = ({ random }) => {
   return (
-    <Container isCentered>
+    <Layout>
       <Prose>
         <h1>A Page with getStaticProps</h1>
         <Hydrated />
@@ -85,7 +81,7 @@ const Page = ({ random }) => {
           </li>
         </ul>
       </Prose>
-    </Container>
+    </Layout>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import 'twin.macro'
+import "twin.macro";
 
 const Hydrated = () => {
   const [hydrated, setHydrated] = useState(false);

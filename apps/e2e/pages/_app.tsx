@@ -1,13 +1,13 @@
-import Script from 'next/script';
+import Script from "next/script";
 // import '../styles/globals.css';
-import globalStyles from '../styles/globalStyles'
+import globalStyles from "../styles/globalStyles";
 
 const customInlineScriptBefore = `console.log('Hi I am inline-script running with strategy beforeInteractive')`;
 
 const customInlineScriptAfter = `console.log('Hi I am an inline-script running with strategy afterInteractive')`;
 
 function MyApp({ Component, pageProps }) {
-  globalStyles()
+  globalStyles();
   return (
     <>
       <Script
