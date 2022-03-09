@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import Prose from 'components/Prose'
-import Container from 'components/Container'
-import Hydrated from 'components/Hydrated'
+import Link from "next/link";
+import Prose from "components/Prose";
+import Layout from "components/Layout";
+import Hydrated from "components/Hydrated";
 
 export const getServerSideProps = async (ctx) => {
   return {
@@ -14,7 +14,7 @@ export const getServerSideProps = async (ctx) => {
 
 const Page = ({ requestHeaders, responseHeaders }) => {
   return (
-    <Container isCentered>
+    <Layout>
       <Prose>
         <h1>A Page with getServerSideProps</h1>
         <Hydrated />
@@ -45,7 +45,7 @@ const Page = ({ requestHeaders, responseHeaders }) => {
         <h2>Response Headers</h2>
         <pre>{JSON.stringify(responseHeaders, null, 2)}</pre>
       </Prose>
-    </Container>
+    </Layout>
   );
 };
 

@@ -1,19 +1,19 @@
-import Link from 'next/link';
+import Link from "next/link";
 import Prose from "components/Prose";
-import Container from "components/Container";
+import Layout from "components/Layout";
 import Hydrated from "components/Hydrated";
 
 // required for Hash-based CSP to work with ISR on Vercel
 export const config = {
-  unstable_includeFiles: ['.next/static/chunks/**/*.js'],
+  unstable_includeFiles: [".next/static/chunks/**/*.js"],
 };
 
 export const getStaticPaths = async () => {
   // as long as we build-time prerender at least one path, it will work with Hash-based strict CSP.
-  const path = 'static-incremental';
+  const path = "static-incremental";
   return {
     paths: [{ params: { slug: path } }],
-    fallback: 'blocking',
+    fallback: "blocking",
   };
 };
 export const getStaticProps = async () => {
@@ -24,12 +24,12 @@ export const getStaticProps = async () => {
 
 const Page = ({ random, revalidate }) => {
   return (
-    <Container isCentered>
+    <Layout>
       <Prose>
         <h1>A Page with getStaticProps + revalidate (ISR)</h1>
         <Hydrated />
         <p>
-          It get's prerendered at ... it's too complicated, see at{' '}
+          It get's prerendered at ... it's too complicated, see at{" "}
           <a href="https://vercel.com/docs/concepts/next.js/incremental-static-regeneration">
             the concept guide of Vercel
           </a>
@@ -48,7 +48,7 @@ const Page = ({ random, revalidate }) => {
         <p>
           E.g. if you had 1 million product pages in an e-commerce app, as long
           as you prerender at least 1 product page at build-time by returning a
-          page path from id in <code>getStaticPaths</code> and set{' '}
+          page path from id in <code>getStaticPaths</code> and set{" "}
           <code>{`{ fallback: true | blocking }`}</code>. Then you can prerender
           the remaining 999999 products lazy on demand.
         </p>
@@ -67,7 +67,7 @@ const Page = ({ random, revalidate }) => {
           </li>
         </ul>
       </Prose>
-    </Container>
+    </Layout>
   );
 };
 

@@ -1,6 +1,7 @@
 import Prose from "components/Prose";
 import Container from "components/Container";
 import Hydrated from "components/Hydrated";
+import Link from "next/link";
 
 // pages without a data fetching function are static pages and must use a Hash-based CSP.
 const Page = () => {
@@ -10,8 +11,8 @@ const Page = () => {
         <h1>@next-safe/middleware demo </h1>
         <Hydrated />
         <p>
-          A little demo project to showcase the
-          usage and the hybrid strict-dynamic CSP support of the{" "}
+          A little demo project to showcase the usage and the hybrid
+          strict-dynamic CSP support of the{" "}
           <a href="https://www.npmjs.com/package/@next-safe/middleware">
             @next-safe/middleware
           </a>{" "}
