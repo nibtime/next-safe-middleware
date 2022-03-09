@@ -18,6 +18,7 @@
     "vsc",
     "api",
     "utils",
-    "document"
+    "document",
+    "e2e"
   ]
 }
