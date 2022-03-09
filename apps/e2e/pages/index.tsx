@@ -8,11 +8,10 @@ const Page = () => {
   return (
     <Container isCentered>
       <Prose>
-        <h1>@next-safe/middleware demo </h1>
+        <h1>@next-safe/middleware e2e test app</h1>
         <Hydrated />
         <p>
-          A little demo project to showcase the usage and the hybrid
-          strict-dynamic CSP support of the{" "}
+          An app to e2e test the strict CSP capabilities of the
           <a href="https://www.npmjs.com/package/@next-safe/middleware">
             @next-safe/middleware
           </a>{" "}
