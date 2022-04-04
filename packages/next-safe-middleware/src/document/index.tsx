@@ -1,10 +1,24 @@
 /* eslint-disable @next/next/no-document-import-in-page */
-import type { DocumentContext, DocumentProps } from 'next/document';
-import Document, { Head, NextScript } from 'next/document';
-import React from 'react';
-import { Head as NoncingHead } from './NoncingHead';
-import { Head as HashingHead } from './HashingHead';
-import { CSP_NONCE_HEADER } from '../constants';
+import type { DocumentContext, DocumentProps } from "next/document";
+import Document, { Head, NextScript } from "next/document";
+import React from "react";
+import cheerio from "cheerio";
+import { CSP_NONCE_HEADER } from "../constants";
+import { extendCsp, fromCspContent, toCspContent } from "../utils";
+import {
+  getCspHeader,
+  getCtxHeader,
+  integritySha256,
+  setCspHeader,
+} from "./utils";
+import { Head as NoncingHead } from "./NoncingHead";
+import {
+  Head as HashingHead,
+  collectStyleElemHashes,
+  collectStyleAttrHashes,
+  pullStyleAttrHashes,
+  pullStyleElemHashes,
+} from "./HashingHead";
 
 type Provided = {
   Head: React.FC;
@@ -29,7 +43,7 @@ export const provideComponents = (props: DocumentProps): Provided => {
     };
   }
 
-  if ((isStatic || isPure) && process.env.NODE_ENV === 'production') {
+  if ((isStatic || isPure) && process.env.NODE_ENV === "production") {
     return {
       Head: ({ children }) => <HashingHead>{children}</HashingHead>,
       NextScript: () => <NextScript />,
@@ -41,15 +55,65 @@ export const provideComponents = (props: DocumentProps): Provided => {
   };
 };
 
+const trustifyHtml = (html: string, nonce?: string) => {
+  const $ = cheerio.load(html);
+  const scripts = $("script").get();
+  const styleElements = $("style").get();
+
+  if (nonce) {
+    scripts.forEach((s) => {
+      s.attribs["nonce"] = nonce;
+    });
+    styleElements.forEach((s) => {
+      s.attribs["nonce"] = nonce;
+    });
+  }
+
+  const styleElemHashes = styleElements
+    .map((el) => $.text(el.children))
+    .filter(Boolean)
+    .map(integritySha256);
+
+  const getStyleAttr = (e) => e?.attribs["style"] || false;
+
+  const styleAttrHashes = $("*")
+    .get()
+    .filter(getStyleAttr)
+    .map((e) => integritySha256(getStyleAttr(e)));
+
+  collectStyleElemHashes(...styleElemHashes);
+  collectStyleAttrHashes(...styleAttrHashes);
+  return $.html();
+};
+
 export default class NextSafeDocument extends Document<{ nonce?: string }> {
   static async getInitialProps(ctx: DocumentContext) {
     const initialProps = await Document.getInitialProps(ctx);
-    // weirdness: when running on Vercel, the response header set by middleware
-    // will be found in req, when serving a prod build with next start, it will be in res
-    const cspNonceHeader =
-      ctx.res?.getHeader(CSP_NONCE_HEADER) ||
-      ctx.req?.headers?.[CSP_NONCE_HEADER];
-    const nonce = cspNonceHeader?.toString();
-    return { ...initialProps, nonce };
+    const nonce = getCtxHeader(ctx, CSP_NONCE_HEADER);
+    initialProps.html = trustifyHtml(initialProps.html, nonce);
+    const htmlStyleHashes = [
+      ...pullStyleElemHashes(),
+      ...pullStyleAttrHashes(),
+    ];
+    if (nonce) {
+      const cspContent = getCspHeader(ctx);
+      if (cspContent) {
+        let csp = fromCspContent(cspContent);
+        if (htmlStyleHashes.length) {
+          csp = extendCsp(csp, {
+            "style-src": [
+              ...htmlStyleHashes.map((hash) => `'${hash}'`),
+              `'unsafe-hashes'`,
+            ],
+          });
+        }
+        csp = extendCsp(csp, {
+          "style-src": `'nonce-${nonce}'`,
+        });
+        setCspHeader(toCspContent(csp), ctx);
+      }
+      return { ...initialProps, nonce };
+    }
+    return initialProps;
   }
 }
