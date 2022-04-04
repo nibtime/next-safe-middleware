@@ -2,6 +2,8 @@ import Link from "next/link";
 import Prose from "components/Prose";
 import Layout from "components/Layout";
 import Hydrated from "components/Hydrated";
+import StyleElem from "components/StyleElem";
+import StyleAttr from "components/StyleAttr";
 
 // required for Hash-based CSP to work with ISR on Vercel
 export const config = {
@@ -49,14 +51,23 @@ const Page = ({ random, revalidate }) => {
           E.g. if you had 1 million product pages in an e-commerce app, as long
           as you prerender at least 1 product page at build-time by returning a
           page path from id in <code>getStaticPaths</code> and set{" "}
-          <code>{`{ fallback: true | blocking }`}</code>. Then you can prerender
-          the remaining 999999 products lazy on demand.
+          <code>{`{ fallback: true | "blocking" }`}</code>. Then you can
+          prerender the remaining 999999 products lazy on demand.
         </p>
         <p>
           Even though its seems dynamic, it doesn't prerender per request. It is
           "static for a while" for everybody, so it cannot use a Nonce-based
           CSP. Must use Hash-based CSP like a regular static page.
         </p>
+        <h2>Inline Styles</h2>
+        <StyleElem Tag="p">
+          Hi, i am styled with by an inline style tag. If I am <b>teal</b>, I am
+          trusted by CSP
+        </StyleElem>
+        <StyleAttr Tag="p">
+          Hi, i am styled with by an inline style attribute, If I am{" "}
+          <b>fuchsia</b>, I am trusted by CSP
+        </StyleAttr>
         <h2>Internal navigation to other pages:</h2>
         <ul>
           <li>
