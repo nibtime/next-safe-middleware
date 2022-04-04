@@ -13,7 +13,7 @@ const nextSafeMiddleware = nextSafe((req) => {
   return {
     isDev,
     contentSecurityPolicy: {
-      reportOnly,
+      reportOnly
     },
     // customize as you need: https://trezy.gitbook.io/next-safe/usage/configuration
   };
@@ -36,9 +36,13 @@ const reportingMiddleware = reporting((req) => {
   };
 });
 
-export default chain(
+const securityMiddleware = [
   nextSafeMiddleware,
   strictDynamic(),
-  strictInlineStyles({ extendStyleSrc: false }),
-  reportingMiddleware
-);
+  strictInlineStyles({
+    extendStyleSrc: false
+  }),
+  reportingMiddleware,
+];
+
+export default chain(...securityMiddleware);

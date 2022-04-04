@@ -6,6 +6,8 @@ import Prose from "components/Prose";
 import Layout from "components/Layout";
 import Hydrated from "components/Hydrated";
 import Button from "components/Button";
+import StyleElem from "components/StyleElem";
+import StyleAttr from "components/StyleAttr";
 
 // required for Hash-based CSP to work with ISR on Vercel
 export const config = {
@@ -67,6 +69,16 @@ const Page = ({ random }) => {
           response data. Can't use a Nonce-based CSP here, because it doesn't
           rerender per request. Must use a Hash-based CSP.
         </p>
+        <h2>Inline Styles</h2>
+        <StyleElem Tag="p">
+          Hi, i am styled with by an inline style tag. If I am <b>teal</b>, I am
+          trusted by CSP
+        </StyleElem>
+        <StyleAttr Tag="p">
+          Hi, i am styled with by an inline style attribute, If I am{" "}
+          <b>fuchsia</b>, I am trusted by CSP
+        </StyleAttr>
+
         <h2>Internal navigation to other pages</h2>
         <ul>
           <li>

@@ -2,6 +2,8 @@ import Link from "next/link";
 import Prose from "components/Prose";
 import Layout from "components/Layout";
 import Hydrated from "components/Hydrated";
+import StyleElem from "components/StyleElem";
+import StyleAttr from "components/StyleAttr";
 
 export const getServerSideProps = async (ctx) => {
   return {
@@ -26,7 +28,15 @@ const Page = ({ requestHeaders, responseHeaders }) => {
           That's why it can use Nonce-based CSP, it has the chance to set a
           fresh nonce as attribute to scripts on each request.
         </p>
-
+        <h2>Inline Styles</h2>
+        <StyleElem Tag="p">
+          Hi, i am styled with by an inline style tag. If I am <b>teal</b>, I am
+          trusted by CSP
+        </StyleElem>
+        <StyleAttr Tag="p" color="blue">
+          Hi, i am styled with by an inline style attribute, If I am{" "}
+          <b>blue</b>, I am trusted by CSP
+        </StyleAttr>
         <h2>Internal navigation to other pages</h2>
         <ul>
           <li>
