@@ -18,15 +18,34 @@ import {
   STYLE_HASHES_FILENAME,
 } from "../constants";
 
-const collectedHashes: string[] = [];
-const pullHashes = () => collectedHashes;
+const collectedScriptHashes: string[] = [];
+export const collectScriptHashes = (...hashes: string[]) => {
+  collectedScriptHashes.push(
+    ...difference(hashes.filter(Boolean), collectedScriptHashes)
+  );
+};
+export const pullScriptHashes = () => collectedScriptHashes.slice();
+
+const collectedStyleElemHashes: string[] = [];
+export const collectStyleElemHashes = (...hashes: string[]) => {
+  collectedStyleElemHashes.push(
+    ...difference(hashes.filter(Boolean), collectedStyleElemHashes)
+  );
+};
+export const pullStyleElemHashes = () => collectedStyleElemHashes.slice();
+
+const collectedStyleAttrHashes: string[] = [];
+export const collectStyleAttrHashes = (...hashes: string[]) => {
+  collectedStyleAttrHashes.push(
+    ...difference(hashes.filter(Boolean), collectedStyleAttrHashes)
+  );
+};
+export const pullStyleAttrHashes = () => collectedStyleAttrHashes.slice();
 
 // picks up the integrity of a script element globally for later injection in CSP tag
 const pickupScriptWithIntegrity = (el: JSX.Element) => {
   const integrity = el.props.integrity;
-  if (!collectedHashes.includes(integrity)) {
-    collectedHashes.push(integrity);
-  }
+  collectScriptHashes(integrity);
   return !!integrity;
 };
 
@@ -176,8 +195,11 @@ const pushNextInlineScriptHash = (ctx: any) => {
   const nextInlineScript = NextScript.getInlineScriptSource(ctx);
   const nextInlineScriptHash =
     nextInlineScript && integritySha256(nextInlineScript);
-  if (nextInlineScriptHash && !collectedHashes.includes(nextInlineScriptHash)) {
-    collectedHashes.push(nextInlineScriptHash);
+  if (
+    nextInlineScriptHash &&
+    !collectedScriptHashes.includes(nextInlineScriptHash)
+  ) {
+    collectedScriptHashes.push(nextInlineScriptHash);
   }
 };
 
@@ -187,7 +209,7 @@ const writeScriptHashesToJson = (ctx: any, newHashes: string[]) => {
   writeRouteHashesToJson(route, "script-hashes.txt", newHashes);
 };
 
-const collectStyleHashes = (children: any): string[] => {
+const collectStyleHashesFromChildren = (children: any): string[] => {
   const recurse = (child: any) => {
     if (isStyleElement(child) && child.props.dangerouslySetInnerHTML) {
       return [integritySha256(child.props.dangerouslySetInnerHTML.__html)];
@@ -203,9 +225,8 @@ const collectStyleHashes = (children: any): string[] => {
   return flatten(recurse(children));
 };
 
-const writeStyleHashesToJson = (ctx: any, hashes: string[]) => {
-  const route = ctx.__NEXT_DATA__.page;
-  writeRouteHashesToJson(route, "style-hashes.txt", hashes);
+export const writeStyleHashesToJson = (hashes: string[]) => {
+  writeRouteHashesToJson("/", "style-hashes.txt", hashes);
 };
 
 const trustifyChildren = (children: any) => {
@@ -244,7 +265,7 @@ export class Head extends NextHead {
   // it should be whatever method returns the very last script in the document lifecycle.
   getScripts(files: any) {
     const scripts = trustifyNextScripts(super.getScripts(files));
-    writeScriptHashesToJson(this.context, pullHashes());
+    writeScriptHashesToJson(this.context, pullScriptHashes());
     return scripts;
   }
   render() {
@@ -252,10 +273,12 @@ export class Head extends NextHead {
     const styleHashes = [
       // hashing empty avoid breaking things with ISR (tested with stitches).
       integritySha256(""),
-      ...collectStyleHashes(this.context.styles),
-      ...collectStyleHashes(this.props.children),
+      ...collectStyleHashesFromChildren(this.context.styles),
+      ...collectStyleHashesFromChildren(this.props.children),
+      ...pullStyleElemHashes(),
+      ...pullStyleAttrHashes(),
     ];
-    writeStyleHashesToJson(this.context, styleHashes);
+    writeStyleHashesToJson(styleHashes);
     return super.render();
   }
 }
