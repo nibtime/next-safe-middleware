@@ -67,7 +67,8 @@ const singleQuotify = (value: string) => `'${value}'`;
 
 export const fetchHashes = async (
   req: NextRequest,
-  hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME
+  hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME,
+  overrideFetchpath?: string
 ) => {
   const { origin, pathname } = req.nextUrl;
   const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
@@ -78,6 +79,7 @@ export const fetchHashes = async (
   let resHashes: Response | undefined;
 
   const fetchPaths = [
+    ...(overrideFetchpath ? [overrideFetchpath] : []),
     ...(!route ? ["/404"] : []),
     // route seems to get confused when there's a dynamic route and a
     // matching static route within the same folder. Attempt to fix that.

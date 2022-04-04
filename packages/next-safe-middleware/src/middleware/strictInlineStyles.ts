@@ -1,12 +1,6 @@
-import type { CSP } from "../types";
 import { extendCsp } from "../utils";
 import type { MiddlewareBuilder } from "./types";
-import {
-  cspNonce,
-  pullCspFromResponse,
-  pushCspToResponse,
-  fetchHashes,
-} from "./utils";
+import { pullCspFromResponse, pushCspToResponse, fetchHashes } from "./utils";
 import { withDefaultConfig, ensureChainContext, unpackConfig } from "./builder";
 
 export type StrictInlineStylesCfg = {
@@ -14,7 +8,11 @@ export type StrictInlineStylesCfg = {
    * if set to true, it will extend an existing style-src directive
    * from further left in the middleware chain
    *
-   * Default: `true`
+   * Default: `true`. This respects an existing `style-src` configuration
+   * that relies on additonal stylesheets on top of inline styles.
+   *
+   * Set to `false` if you use a CSS-in-JS solution like Stitches that relies on
+   * inline styles and don't need to include any further stylesheet for your app.
    */
   extendStyleSrc?: boolean;
 };
@@ -24,41 +22,33 @@ const strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
     if (process.env.NODE_ENV === "development") {
       return;
     }
-    const { extendStyleSrc } = await unpackConfig(req, res, cfg);
-    const mode = extendStyleSrc ? "append" : "override";
-    const csp = pullCspFromResponse(res) ?? {};
+    let fetchedHashes: string[] = [];
     try {
-      let extendedCsp: CSP | undefined;
-      const getCsp = () => extendedCsp || csp;
-      const styleSrcHashes = await fetchHashes(req, "style-hashes.txt");
-      // if fetched hashes, it's a static page. Hash-based strict CSP
-      if (styleSrcHashes) {
-        extendedCsp = extendCsp(
-          getCsp(),
+      fetchedHashes = await fetchHashes(req, "style-hashes.txt", "/");
+      if (fetchedHashes) {
+        const { extendStyleSrc } = await unpackConfig(req, res, cfg);
+        const mode = extendStyleSrc ? "append" : "override";
+        let csp = pullCspFromResponse(res) ?? {};
+        csp = extendCsp(
+          csp,
           {
-            "style-src": styleSrcHashes,
+            "style-src": [...fetchedHashes, "'unsafe-hashes'"],
           },
           mode
         );
-      }
-      // if not it's a dynamic page. Nonce-based strict CSP
-      else {
-        extendedCsp = extendCsp(
-          getCsp(),
-          {
-            "style-src": `'nonce-${cspNonce(res)}'`,
-          },
-          mode
-        );
-      }
-      if (extendedCsp) {
-        pushCspToResponse(extendedCsp, res);
+        pushCspToResponse(csp, res);
       }
     } catch (err) {
       console.error(
-        "[strictStyles]: Internal error. Didn't add hashes or nonce to CSP",
-        { err }
+        "[strictInlineStyles]: Internal error. No style hashes were added to CSP",
+        { err, fetchedHashes }
       );
+    } finally {
+      if (!fetchedHashes.length) {
+        console.log(
+          "[strictInlineStyles]: No styles. Is your app using any inline styles at all?. If yes, this is unexpected"
+        );
+      }
     }
   });
 
