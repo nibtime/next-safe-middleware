@@ -1,5 +1,7 @@
 import crypto from "crypto";
+import { DocumentContext } from "next/document";
 import React from "react";
+import { CSP_HEADER, CSP_HEADER_REPORT_ONLY } from "../constants";
 import type { IterableScript, Primitve, Nullable } from "./types";
 
 export const integritySha256 = (inlineScriptCode: string) => {
@@ -28,10 +30,10 @@ const isKnownScriptAttr = (attr: string) =>
   ].includes(attr);
 
 export const isJsxElement = (el: any): el is JSX.Element =>
-  typeof el === "object" && "props" in el
+  typeof el === "object" && "props" in el;
 
 export const isElementWithChildren = (el: any): el is JSX.Element =>
-  isJsxElement(el) && "children" in el.props
+  isJsxElement(el) && "children" in el.props;
 
 export const isScriptElement = (el: any): el is JSX.Element =>
   isJsxElement(el) && el.type === "script";
@@ -144,4 +146,49 @@ export const scriptWithPatchedCrossOrigin = (s: JSX.Element) => {
   }
   const setCrossOrigin = { crossOrigin: s.props["data-crossorigin"] };
   return <script key={s.key} {...s.props} {...setCrossOrigin} />;
+};
+
+// weirdness: when running on Vercel, the response header set by middleware
+// will be found in req, when serving a prod build with next start, it will be in res
+export const getCtxHeader = (ctx: DocumentContext, header: string) => {
+  return (
+    ctx.res?.getHeader(header) ||
+    ctx.req?.headers[header] ||
+    ""
+  ).toString();
+};
+
+export const setCtxHeader = (
+  ctx: DocumentContext,
+  header: string,
+  value: string
+) => {
+  ctx.res.setHeader(header, value);
+  if (ctx.req.headers[header]) {
+    ctx.req.headers[header] = value;
+  }
+};
+
+export const deleteCtxHeader = (ctx: DocumentContext, header: string) => {
+  ctx.res.removeHeader(header);
+  if (ctx.req.headers[header]) {
+    ctx.req.headers[header] = null;
+  }
+};
+
+export const getCspHeader = (ctx: DocumentContext) => {
+  return (
+    getCtxHeader(ctx, CSP_HEADER) || getCtxHeader(ctx, CSP_HEADER_REPORT_ONLY)
+  );
+};
+
+export const setCspHeader = (cspContent: string, ctx: DocumentContext) => {
+  const isReportOnly = !!getCtxHeader(ctx, CSP_HEADER_REPORT_ONLY);
+  if (isReportOnly) {
+    deleteCtxHeader(ctx, CSP_HEADER);
+    setCtxHeader(ctx, CSP_HEADER_REPORT_ONLY, cspContent);
+  } else {
+    deleteCtxHeader(ctx, CSP_HEADER_REPORT_ONLY);
+    setCtxHeader(ctx, CSP_HEADER, cspContent);
+  }
 };
