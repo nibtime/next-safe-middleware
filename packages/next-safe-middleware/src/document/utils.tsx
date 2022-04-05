@@ -30,7 +30,7 @@ const isKnownScriptAttr = (attr: string) =>
   ].includes(attr);
 
 export const isJsxElement = (el: any): el is JSX.Element =>
-  typeof el === "object" && "props" in el;
+  !!el && typeof el === "object" && "props" in el;
 
 export const isElementWithChildren = (el: any): el is JSX.Element =>
   isJsxElement(el) && "children" in el.props;

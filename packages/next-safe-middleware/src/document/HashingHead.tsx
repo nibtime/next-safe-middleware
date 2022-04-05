@@ -1,6 +1,6 @@
 // eslint-disable-next-line @next/next/no-document-import-in-page
 import { Head as NextHead, NextScript } from "next/document";
-import { difference, flatten, partition } from "ramda";
+import { difference, flatten, partition, pipe } from "ramda";
 import React from "react";
 import type { Nullable } from "./types";
 import {
@@ -65,7 +65,8 @@ export const trustify = (els: Nullable<JSX.Element>[]) => {
   }
 
   const scripts = els;
-  const withInlineHashed = scripts.map(withHashIfInlineScript);
+  const mapper = pipe(withHashIfInlineScript, scriptWithPatchedCrossOrigin);
+  const withInlineHashed = scripts.map(mapper);
 
   const [haveIntegrity, haveNoIntegrity] = partition(
     pickupScriptWithIntegrity,
@@ -255,11 +256,13 @@ export class Head extends NextHead {
     return trustifyNextScripts(super.getPolyfillScripts());
   }
   // this will return the scripts that have been inserted by
-  // <Script ... strategy="beforeInteractive"} /> from 'next/script' somewhere.
+  // <Script ... strategy="beforeInteractive"} />
+  // and the partytown inline scripts fro <Script ... strategy="beforeInteractive"} />
+  // from 'next/script'
   getPreNextScripts() {
-    return trustify(
-      super.getPreNextScripts().map(scriptWithPatchedCrossOrigin)
-    );
+    const preNextScripts = super.getPreNextScripts();
+    trustifyChildren(preNextScripts);
+    return preNextScripts;
   }
   // not sure whether this is the definitive best point to write hashes.
   // it should be whatever method returns the very last script in the document lifecycle.
@@ -271,8 +274,6 @@ export class Head extends NextHead {
   render() {
     trustifyChildren(this.props.children);
     const styleHashes = [
-      // hashing empty avoid breaking things with ISR (tested with stitches).
-      integritySha256(""),
       ...collectStyleHashesFromChildren(this.context.styles),
       ...collectStyleHashesFromChildren(this.props.children),
       ...pullStyleElemHashes(),
