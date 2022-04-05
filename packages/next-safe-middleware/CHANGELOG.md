@@ -1,5 +1,17 @@
 # @next-safe/middleware
 
+## 0.6.0
+
+### Minor Changes
+
+- [#24](https://github.com/nibtime/next-safe-middleware/pull/24) [`af9b7ad`](https://github.com/nibtime/next-safe-middleware/commit/af9b7ad621f4ddbcfe584abbc1d66df99258ad8c) Thanks [@nibtime](https://github.com/nibtime)! - support exhaustive inline style hashing and noncing in `document` and `strictInlineStyles` middleware
+
+### Patch Changes
+
+- [#26](https://github.com/nibtime/next-safe-middleware/pull/26) [`8340307`](https://github.com/nibtime/next-safe-middleware/commit/83403072598b8d4fc02d268a238339830534dae3) Thanks [@nibtime](https://github.com/nibtime)! - update `getPreNextScripts` for the new `<Script strategy="worker>"` with [partytown](https://partytown.builder.io/#web-workers) introduced in [Next 12.1.1](https://github.com/vercel/next.js/releases/tag/v12.1.1).
+
+  - follow https://nextjs.org/docs/basic-features/script#off-loading-scripts-to-a-web-worker-experimental to set it up.
+
 ## 0.5.2
 
 ### Patch Changes

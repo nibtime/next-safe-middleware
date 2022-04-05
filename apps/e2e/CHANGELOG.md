@@ -1,5 +1,20 @@
 # e2e
 
+## 0.4.0
+
+### Minor Changes
+
+- [#24](https://github.com/nibtime/next-safe-middleware/pull/24) [`af9b7ad`](https://github.com/nibtime/next-safe-middleware/commit/af9b7ad621f4ddbcfe584abbc1d66df99258ad8c) Thanks [@nibtime](https://github.com/nibtime)! - provide components and extend pages for exhaustive inline style testing
+
+### Patch Changes
+
+- [#26](https://github.com/nibtime/next-safe-middleware/pull/26) [`8340307`](https://github.com/nibtime/next-safe-middleware/commit/83403072598b8d4fc02d268a238339830534dae3) Thanks [@nibtime](https://github.com/nibtime)! - add a test inline script with `<Script strategy="worker>"` to `_app.tsx`
+
+  - requires CSP configuration for `frame-src` with self and origin for partytown iframe
+
+- Updated dependencies [[`8340307`](https://github.com/nibtime/next-safe-middleware/commit/83403072598b8d4fc02d268a238339830534dae3), [`af9b7ad`](https://github.com/nibtime/next-safe-middleware/commit/af9b7ad621f4ddbcfe584abbc1d66df99258ad8c)]:
+  - @next-safe/middleware@0.6.0
+
 ## 0.3.2
 
 ### Patch Changes
