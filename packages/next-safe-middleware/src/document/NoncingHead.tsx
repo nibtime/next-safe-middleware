@@ -14,8 +14,9 @@ const noncifyChildren = (nonce: string, children: any) => {
   if (nonce) {
     React.Children.forEach(children, (child: any) => {
       if (isScriptElement(child)) {
-        const newProps = { ...withHashIfInlineScript(child).props, nonce };
-        child.props = newProps;
+        const map = pipe(withHashIfInlineScript, scriptWithPatchedCrossOrigin);
+        const newProps = map(child).props;
+        child.props = { ...newProps, nonce };
       } else if (isStyleElement(child)) {
         child.props.nonce = nonce;
       } else if (isElementWithChildren(child)) {
@@ -29,11 +30,13 @@ const noncifyChildren = (nonce: string, children: any) => {
 
 export class Head extends NextHead {
   // this will return the scripts that have been inserted by
-  // <Script ... strategy="beforeInteractive"} /> from 'next/script' somewhere.
+  // <Script ... strategy="beforeInteractive"} />
+  // and the partytown inline scripts fro <Script ... strategy="beforeInteractive"} />
+  // from 'next/script' 
   getPreNextScripts() {
-    return super
-      .getPreNextScripts()
-      .map(pipe(withHashIfInlineScript, scriptWithPatchedCrossOrigin));
+    const preNextScripts = super.getPreNextScripts();
+    noncifyChildren(this.props.nonce, preNextScripts);
+    return preNextScripts;
   }
   render() {
     const nonce = this.props.nonce;

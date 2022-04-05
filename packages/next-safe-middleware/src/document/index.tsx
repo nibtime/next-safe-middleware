@@ -81,8 +81,16 @@ const trustifyHtml = (html: string, nonce?: string) => {
     .filter(getStyleAttr)
     .map((e) => integritySha256(getStyleAttr(e)));
 
-  collectStyleElemHashes(...styleElemHashes);
-  collectStyleAttrHashes(...styleAttrHashes);
+  collectStyleElemHashes(
+    ...styleElemHashes,
+    // hashing empty avoid breaking things with ISR (tested with stitches).
+    integritySha256("")
+  );
+  collectStyleAttrHashes(
+    ...styleAttrHashes,
+    // partytown iframe style
+    integritySha256("display:block;width:0;height:0;border:0;visibility:hidden")
+  );
   return $.html();
 };
 
