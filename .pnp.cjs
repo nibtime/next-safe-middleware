@@ -991,6 +991,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@builder.io/partytown", [\
+        ["npm:0.5.2", {\
+          "packageLocation": "./.yarn/cache/@builder.io-partytown-npm-0.5.2-0bca2fc39a-88ca3f3e6e.zip/node_modules/@builder.io/partytown/",\
+          "packageDependencies": [\
+            ["@builder.io/partytown", "npm:0.5.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@changesets/apply-release-plan", [\
         ["npm:5.0.5", {\
           "packageLocation": "./.yarn/cache/@changesets-apply-release-plan-npm-5.0.5-4f2adf4d83-cf810c94d1.zip/node_modules/@changesets/apply-release-plan/",\
@@ -4200,6 +4209,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["e2e", "workspace:apps/e2e"],\
             ["@babel/runtime", "npm:7.17.2"],\
+            ["@builder.io/partytown", "npm:0.5.2"],\
             ["@next-safe/middleware", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#workspace:packages/next-safe-middleware"],\
             ["@stitches/react", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:1.2.6"],\
             ["@tailwindcss/typography", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:0.4.1"],\

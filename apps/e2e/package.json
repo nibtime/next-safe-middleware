@@ -28,6 +28,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@builder.io/partytown": "^0.5.2",
     "@next-safe/middleware": "workspace:*",
     "@stitches/react": "^1.2.6",
     "ky": "^0.29.0",
