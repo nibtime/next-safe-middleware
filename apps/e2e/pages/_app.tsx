@@ -3,6 +3,7 @@ import Script from "next/script";
 import globalStyles from "../styles/globalStyles";
 
 const customInlineScriptBefore = `console.log('Hi I am inline-script running with strategy beforeInteractive')`;
+const customInlineScriptWorker = `console.log('Hi I am inline-script running with strategy webworker and partytown')`;
 
 const customInlineScriptAfter = `console.log('Hi I am an inline-script running with strategy afterInteractive')`;
 
@@ -20,6 +21,15 @@ function MyApp({ Component, pageProps }) {
         strategy="beforeInteractive"
       >
         {customInlineScriptBefore}
+      </Script>
+      <Script
+        id="inline-worker-test-script"
+        // https://nextjs.org/docs/basic-features/script#off-loading-scripts-to-a-web-worker-experimental
+        // if you follow this instructions, the partytown inline scripts will be hashed and nonced
+        // and they will load all webworker scripts which then are also trusted.
+        strategy="worker"
+      >
+        {customInlineScriptWorker}
       </Script>
       <Script
         id="sentry-script"
