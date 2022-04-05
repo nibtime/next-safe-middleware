@@ -13,7 +13,8 @@ const nextSafeMiddleware = nextSafe((req) => {
   return {
     isDev,
     contentSecurityPolicy: {
-      reportOnly
+      reportOnly,
+      "frame-src": [`'self'`, req.nextUrl.origin],
     },
     // customize as you need: https://trezy.gitbook.io/next-safe/usage/configuration
   };
@@ -40,7 +41,7 @@ const securityMiddleware = [
   nextSafeMiddleware,
   strictDynamic(),
   strictInlineStyles({
-    extendStyleSrc: false
+    extendStyleSrc: false,
   }),
   reportingMiddleware,
 ];

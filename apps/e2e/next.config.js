@@ -1,11 +1,11 @@
-const nextSafe = require('next-safe');
+const nextSafe = require("next-safe");
 
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = process.env.NODE_ENV !== "production";
 
 /** @type {import('next').NextConfig['headers']} */
 const headers = async () => [
   {
-    source: '/:path*',
+    source: "/:path*",
     headers: nextSafe({ isDev }),
   },
 ];
@@ -14,5 +14,9 @@ const headers = async () => [
 module.exports = {
   reactStrictMode: true,
   swcMinify: true,
-	experimental: { workerThreads: true, urlImports: ['https://unpkg.com'] },
+  experimental: {
+    workerThreads: true,
+    urlImports: ["https://unpkg.com"],
+    nextScriptWorkers: true,
+  },
 };
