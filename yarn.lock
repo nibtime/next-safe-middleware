@@ -409,6 +409,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@builder.io/partytown@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@builder.io/partytown@npm:0.5.2"
+  bin:
+    partytown: bin/partytown.cjs
+  checksum: 88ca3f3e6e15039bf1e7319fbc580ba19cf0fc61136761dea82ab64e18eba5885f76b551d44102ac7e495e2c951815fc1fcf71629d2564097a81946912cd38a7
+  languageName: node
+  linkType: hard
+
 "@changesets/apply-release-plan@npm:^5.0.5":
   version: 5.0.5
   resolution: "@changesets/apply-release-plan@npm:5.0.5"
@@ -3013,6 +3022,7 @@ __metadata:
   resolution: "e2e@workspace:apps/e2e"
   dependencies:
     "@babel/runtime": ^7.17.2
+    "@builder.io/partytown": ^0.5.2
     "@next-safe/middleware": "workspace:*"
     "@stitches/react": ^1.2.6
     "@tailwindcss/typography": ~0.4.1
