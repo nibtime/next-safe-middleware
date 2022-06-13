@@ -24,8 +24,8 @@
     "test": "jest --runInBand"
   },
   "peerDependencies": {
-    "next": "^12",
-    "react": "^17"
+    "next": ">=12",
+    "react": ">=17"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.2",
