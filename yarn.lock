@@ -1014,8 +1014,8 @@ __metadata:
     typescript: ^4.5.5
     ua-parser-js: ^1.0.2
   peerDependencies:
-    next: ^12
-    react: ^17
+    next: ">=12"
+    react: ">=17"
   languageName: unknown
   linkType: soft
 
