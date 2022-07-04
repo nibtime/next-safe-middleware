@@ -3,6 +3,8 @@ import { DocumentContext } from "next/document";
 import React from "react";
 import { CSP_HEADER, CSP_HEADER_REPORT_ONLY } from "../constants";
 import type { IterableScript, Primitve, Nullable } from "./types";
+import { fromCspContent, toCspContent } from '../utils'
+import { CspDirectives, CspDirectivesLenient } from "..";
 
 export const integritySha256 = (inlineScriptCode: string) => {
   const hash = crypto.createHash("sha256");
@@ -172,7 +174,7 @@ export const setCtxHeader = (
 export const deleteCtxHeader = (ctx: DocumentContext, header: string) => {
   ctx.res.removeHeader(header);
   if (ctx.req.headers[header]) {
-    ctx.req.headers[header] = null;
+    delete ctx.req.headers[header];
   }
 };
 
@@ -182,8 +184,8 @@ export const getCspHeader = (ctx: DocumentContext) => {
   );
 };
 
-export const setCspHeader = (cspContent: string, ctx: DocumentContext) => {
-  const isReportOnly = !!getCtxHeader(ctx, CSP_HEADER_REPORT_ONLY);
+export const setCspHeader = (cspContent: string, ctx: DocumentContext, reportOnly?: boolean) => {
+  const isReportOnly = reportOnly === undefined ? !!getCtxHeader(ctx, CSP_HEADER_REPORT_ONLY) : reportOnly
   if (isReportOnly) {
     deleteCtxHeader(ctx, CSP_HEADER);
     setCtxHeader(ctx, CSP_HEADER_REPORT_ONLY, cspContent);
@@ -191,4 +193,14 @@ export const setCspHeader = (cspContent: string, ctx: DocumentContext) => {
     deleteCtxHeader(ctx, CSP_HEADER_REPORT_ONLY);
     setCtxHeader(ctx, CSP_HEADER, cspContent);
   }
+};
+
+export const pullCspFromCtx = (ctx: DocumentContext): CspDirectives | undefined => {
+  const cspContent = getCspHeader(ctx)
+  return cspContent ? fromCspContent(cspContent) : undefined
+};
+
+export const pushCsptoCtx = (csp: CspDirectives | CspDirectivesLenient, ctx: DocumentContext, reportOnly?: boolean): void => {
+  const cspContent = toCspContent(csp);
+  setCspHeader(cspContent, ctx, reportOnly)
 };

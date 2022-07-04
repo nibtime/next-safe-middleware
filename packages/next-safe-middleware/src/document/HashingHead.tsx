@@ -1,6 +1,6 @@
 // eslint-disable-next-line @next/next/no-document-import-in-page
 import { Head as NextHead, NextScript } from "next/document";
-import { difference, flatten, partition, pipe } from "ramda";
+import { difference, F, flatten, partition, pipe } from "ramda";
 import React from "react";
 import type { Nullable } from "./types";
 import {
@@ -206,7 +206,8 @@ const pushNextInlineScriptHash = (ctx: any) => {
 
 const writeScriptHashesToJson = (ctx: any, newHashes: string[]) => {
   const route = ctx.__NEXT_DATA__.page;
-  pushNextInlineScriptHash(ctx);
+  // don't think this is needed, as it's type application/json and does not execute
+  // pushNextInlineScriptHash(ctx);
   writeRouteHashesToJson(route, "script-hashes.txt", newHashes);
 };
 
@@ -230,7 +231,7 @@ export const writeStyleHashesToJson = (hashes: string[]) => {
   writeRouteHashesToJson("/", "style-hashes.txt", hashes);
 };
 
-const trustifyChildren = (children: any) => {
+export const trustifyScriptChildren = (children: any) => {
   React.Children.forEach(children, (child) => {
     if (isScriptElement(child)) {
       child.props = trustify([child])[0].props;
@@ -241,19 +242,29 @@ const trustifyChildren = (children: any) => {
     ) {
       child.props.children = trustify(child.props.children);
     } else if (isElementWithChildren(child)) {
-      trustifyChildren(child.props.children);
+      trustifyScriptChildren(child.props.children);
     } else if (Array.isArray(child)) {
-      trustifyChildren(child);
+      trustifyScriptChildren(child);
     }
   });
 };
 
 export class Head extends NextHead {
+  trustifyScripts(): boolean {
+    return (this.props as any).trustifyScripts ?? false;
+  }
+  trustifyStyles(): boolean {
+    return (this.props as any).trustifyStyles ?? false;
+  }
   getDynamicChunks(files: any) {
-    return trustifyNextScripts(super.getDynamicChunks(files));
+    return this.trustifyScripts()
+      ? trustifyNextScripts(super.getDynamicChunks(files))
+      : super.getDynamicChunks(files);
   }
   getPolyfillScripts() {
-    return trustifyNextScripts(super.getPolyfillScripts());
+    return this.trustifyScripts()
+      ? trustifyNextScripts(super.getPolyfillScripts())
+      : super.getPolyfillScripts();
   }
   // this will return the scripts that have been inserted by
   // <Script ... strategy="beforeInteractive"} />
@@ -261,25 +272,45 @@ export class Head extends NextHead {
   // from 'next/script'
   getPreNextScripts() {
     const preNextScripts = super.getPreNextScripts();
-    trustifyChildren(preNextScripts);
+    if (this.trustifyScripts()) {
+      trustifyScriptChildren(preNextScripts);
+    }
     return preNextScripts;
   }
   // not sure whether this is the definitive best point to write hashes.
   // it should be whatever method returns the very last script in the document lifecycle.
   getScripts(files: any) {
-    const scripts = trustifyNextScripts(super.getScripts(files));
-    writeScriptHashesToJson(this.context, pullScriptHashes());
-    return scripts;
+    if (this.trustifyScripts()) {
+      const scripts = trustifyNextScripts(super.getScripts(files));
+      writeScriptHashesToJson(this.context, pullScriptHashes());
+      return scripts;
+    }
+    return super.getScripts(files);
   }
   render() {
-    trustifyChildren(this.props.children);
-    const styleHashes = [
-      ...collectStyleHashesFromChildren(this.context.styles),
-      ...collectStyleHashesFromChildren(this.props.children),
-      ...pullStyleElemHashes(),
-      ...pullStyleAttrHashes(),
-    ];
-    writeStyleHashesToJson(styleHashes);
+    trustifyScriptChildren(this.props.children);
+    if (this.trustifyStyles()) {
+      collectStyleElemHashes(
+        // hashing empty string can avoid breaking things with ISR (with stitches).
+        // Stitches seems to dynamically styles into an empty style tag after hydration.
+        // Stitches has transitive trust to manipulate DOM with a strict-dynamic CSP,
+        // an attacker can't do harm by just injecting a style tag with an empty string.
+        integritySha256("")
+      );
+      collectStyleAttrHashes(
+        // partytown iframe style
+        integritySha256(
+          "display:block;width:0;height:0;border:0;visibility:hidden"
+        )
+      );
+      const styleHashes = [
+        ...collectStyleHashesFromChildren(this.context.styles),
+        ...collectStyleHashesFromChildren(this.props.children),
+        ...pullStyleElemHashes(),
+        ...pullStyleAttrHashes(),
+      ];
+      writeStyleHashesToJson(styleHashes);
+    }
     return super.render();
   }
 }

@@ -10,38 +10,57 @@ import {
 import { pipe } from "ramda";
 import React from "react";
 
-const noncifyChildren = (nonce: string, children: any) => {
+const noncifyChildren = (
+  nonce: string,
+  children: any,
+  { trustifyStyles, trustifyScripts }
+) => {
   if (nonce) {
     React.Children.forEach(children, (child: any) => {
-      if (isScriptElement(child)) {
+      if (trustifyScripts && isScriptElement(child)) {
         const map = pipe(withHashIfInlineScript, scriptWithPatchedCrossOrigin);
         const newProps = map(child).props;
         child.props = { ...newProps, nonce };
-      } else if (isStyleElement(child)) {
+      } else if (trustifyStyles && isStyleElement(child)) {
         child.props.nonce = nonce;
       } else if (isElementWithChildren(child)) {
-        noncifyChildren(nonce, child.props.children);
+        noncifyChildren(nonce, child.props.children, { trustifyStyles, trustifyScripts });
       } else if (Array.isArray(child)) {
-        noncifyChildren(nonce, child);
+        noncifyChildren(nonce, child, { trustifyStyles, trustifyScripts });
       }
     });
   }
 };
 
 export class Head extends NextHead {
-  // this will return the scripts that have been inserted by
-  // <Script ... strategy="beforeInteractive"} />
-  // and the partytown inline scripts fro <Script ... strategy="beforeInteractive"} />
-  // from 'next/script' 
+
+  trustifyScripts(): boolean {
+    return (this.props as any).trustifyScripts ?? false
+  }
+  trustifyStyles(): boolean {
+    return (this.props as any).trustifyStyles ?? false
+  }
   getPreNextScripts() {
     const preNextScripts = super.getPreNextScripts();
-    noncifyChildren(this.props.nonce, preNextScripts);
+    noncifyChildren(this.props.nonce, preNextScripts, {
+      trustifyStyles: this.trustifyStyles(),
+      trustifyScripts: this.trustifyScripts(),
+    });
     return preNextScripts;
   }
   render() {
     const nonce = this.props.nonce;
-    noncifyChildren(nonce, this.context.styles);
-    noncifyChildren(nonce, this.props.children);
+    const trustifyStyles = this.trustifyStyles();
+    const trustifyScripts =  this.trustifyScripts();
+
+    noncifyChildren(nonce, this.context.styles, {
+      trustifyStyles,
+      trustifyScripts,
+    });
+    noncifyChildren(nonce, this.props.children, {
+      trustifyStyles,
+      trustifyScripts,
+    });
     return super.render();
   }
 }
