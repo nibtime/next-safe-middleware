@@ -57,6 +57,14 @@ type PermPolicyDirectiveList =
  */
 type NextSafeConfig = {
   contentTypeOptions?: HeaderConfig;
+  /**
+   * @deprecated  to configure a CSP, use the `csp` middleware instead and
+   * and set `disableCsp` to `true` in cfg,
+   *
+   * next-safe adds CSP legacy headers and reporting cannot be set up properly
+   * (https://github.com/trezy/next-safe/issues/41)
+   *
+   */
   contentSecurityPolicy?: CSPConfig | false;
   frameOptions?: HeaderConfig;
   permissionsPolicy?:
@@ -70,19 +78,65 @@ type NextSafeConfig = {
   xssProtection?: HeaderConfig;
 };
 
-export type NextSafeCfg = NextSafeConfig;
-type _NextSafeCSPCfg = NonNullable<NextSafeCfg>["contentSecurityPolicy"];
-export type NextSafeCfgCSP = Exclude<_NextSafeCSPCfg, false>;
+export type NextSafeCfg = NextSafeConfig & {
+  /**
+   * set this flag to prevent next-safe to set any CSP header.
+   *
+   * For CSPs, use the `csp` middleware instead and set this to `true`.
+   * You can use `nextSafeMiddleware` for other security headers if you need them.
+   *
+   * Defaults to `false` so no existing configs get broken.
+   *
+   * @default false
+   */
+  disableCsp?: boolean;
+};
 
 // derive from lib to check if local signatures are valid.
 const nextSafe = _nextSafe as unknown as typeof _nextSafe.nextSafe;
 
-const nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
+const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
   ensureChainContext(async (req, evt, res) => {
-    const unpackedCfg = await unpackConfig(req, res, cfg);
-    nextSafe(unpackedCfg).forEach((header) =>
+    const { disableCsp, uaParser, ...nextSafeCfg } = await unpackConfig(
+      req,
+      res,
+      cfg
+    );
+    if (disableCsp) {
+      (nextSafeCfg.contentSecurityPolicy as any) = false;
+    }
+    nextSafe(nextSafeCfg).forEach((header) =>
       res.headers.set(header.key, header.value)
     );
   });
 
-export default withDefaultConfig(nextSafeMiddleware, {});
+/**
+ * @param cfg config object for next-safe https://trezy.gitbook.io/next-safe/usage/configuration
+ * @returns a middleware that adds HTTP response headers the same way next-safe does.
+ *
+ * To configure a CSP, use the `csp` middleware instead and and set `disableCsp` to `true` in cfg,
+ *
+ * next-safe adds CSP legacy headers and set up of reporting could be problematic
+ * @see https://github.com/trezy/next-safe/issues/41
+ *
+ * You can use the `nextSafe` middleware for other security headers if you need them.
+ *
+ * @example
+ * import {
+ *   chain,
+ *   csp,
+ *   nextSafe,
+ *   strictDynamic,
+ * } from "@next-safe/middleware";
+ *
+ * const securityMiddleware = [
+ *   nextSafe({ disableCsp: true }),
+ *   csp(),
+ *   strictDynamic(),
+ * ];
+ *
+ * export default chain(...securityMiddleware);
+ *
+ */
+const nextSafeMiddleware = withDefaultConfig(_nextSafeMiddleware, {});
+export default nextSafeMiddleware;

@@ -17,7 +17,7 @@ export type StrictInlineStylesCfg = {
   extendStyleSrc?: boolean;
 };
 
-const strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
+const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
   ensureChainContext(async (req, evt, res) => {
     if (process.env.NODE_ENV === "development") {
       return;
@@ -32,7 +32,7 @@ const strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
         csp = extendCsp(
           csp,
           {
-            "style-src": [...fetchedHashes, "'unsafe-hashes'"],
+            "style-src": [...fetchedHashes, "unsafe-hashes"],
           },
           mode
         );
@@ -52,6 +52,36 @@ const strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
     }
   });
 
-export default withDefaultConfig(strictInlineStyles, {
+/** 
+ * @param cfg a configuration object for strict inline styles within a Content Security Policy (CSP)
+ * 
+ * @returns a middleware that provides an augmented CSP with strict inline styles. 
+ * It will ensure to all style hashes (elem and attr) in the CSP that could be picked up during prerendering
+ *  
+ * @requires `@next-safe/middleware/dist/document`
+ *
+ * Must be used together with `getCspInitialProps` and `provideComponents` in `pages/_document.js` 
+ * to wire stuff up with Next.js page prerendering. Additionally, you must pass 
+ * `{ trustifyStyles: true }` to `getCspInitialProps`.
+ *
+ * @example
+ * import {
+ *   chain,
+ *   csp, 
+ *   strictDynamic,
+ *   strictInlineStyles,
+ * } from "@next-safe/middleware";
+ *
+ * const securityMiddleware = [
+ *   csp(),
+ *   strictDynamic(),
+ *   strictInlineStyles(),
+ * ];
+ * 
+ * export default chain(...securityMiddleware);
+ */
+const strictInlineStyles = withDefaultConfig(_strictInlineStyles, {
   extendStyleSrc: true,
 });
+
+export default strictInlineStyles;

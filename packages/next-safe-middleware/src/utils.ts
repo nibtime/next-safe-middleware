@@ -1,7 +1,51 @@
 import { mergeWithKey, uniq } from "ramda";
-import type { CSP, CSPFilter, CSPDirective } from "./types";
+import type {
+  BooleanDirectives,
+  CspDirectives,
+  CspDirectivesLenient,
+  CspFilter,
+} from "./types";
 
-export const arrayifyCspValues = (values: string | string[]): string[] => {
+const isBoolDirective = (directive: string) => {
+  return ["upgrade-insecure-requests", "block-all-mixed-content"].includes(
+    directive
+  );
+};
+
+const singleQuotify = (directiveValue: string) => `'${directiveValue}'`;
+
+const isLiteralDirectiveValue = (directiveValue: string) => {
+  const c1 = [
+    "strict-dynamic",
+    "report-sample",
+    "self",
+    "unsafe-eval",
+    "unsafe-hashes",
+    "unsafe-inline",
+    "none",
+  ].includes(directiveValue);
+  const c2 = ["nonce", "sha256", "sha384", "sha512"].reduce(
+    (is, next) => is || directiveValue.startsWith(`${next}-`),
+    false
+  );
+  return c1 || c2;
+};
+
+const singleQuotifiedIfLiteral = (directiveValue: string) =>
+  isLiteralDirectiveValue(directiveValue)
+    ? singleQuotify(directiveValue)
+    : directiveValue;
+
+const unquotify = (directiveValue: string) => {
+  if(directiveValue.startsWith("'") && directiveValue.endsWith("'")) {
+    return directiveValue.slice(1, -1)
+  }
+  return directiveValue
+}
+
+export const arrayifyCspValues = (
+  values: string | string[] | boolean
+): string[] | boolean => {
   if (typeof values !== "string") {
     return values;
   }
@@ -12,20 +56,34 @@ export const arrayifyCspValues = (values: string | string[]): string[] => {
     .filter(Boolean);
 };
 
-export const arrayifyCsp = (csp: CSP): Record<CSPDirective, string[]> => {
-  const arrayifiedEntries = Object.entries(csp).map(([directive, values]) => {
-    return [directive, arrayifyCspValues(values)];
-  });
+const arrayifyCspDirectives = (
+  directives: CspDirectives | CspDirectivesLenient
+): CspDirectives => {
+  const arrayifiedEntries = Object.entries(directives).map(
+    ([directive, values]) => {
+      return [directive, arrayifyCspValues(values)];
+    }
+  );
   return Object.fromEntries(
-    arrayifiedEntries.filter(([k, v]) => k && v && v.length)
+    arrayifiedEntries.filter(([k, v]) =>
+      k && v && Array.isArray(v) ? v.length : true
+    )
   );
 };
-export const toCspContent = (csp: CSP) =>
-  Object.entries(arrayifyCsp(csp))
-    .map(([attr, values]) => `${attr} ${values.join(" ")}`)
+
+export const toCspContent = (csp: CspDirectives | CspDirectivesLenient) =>
+  Object.entries(arrayifyCspDirectives(csp))
+    .map(([attr, values]) =>
+      typeof values == "boolean"
+        ? isBoolDirective(attr) && values
+          ? attr
+          : ""
+        : `${attr} ${values.map(singleQuotifiedIfLiteral).join(" ")}`
+    )
+    .filter(Boolean)
     .join(";");
 
-export const fromCspContent = (content: string): CSP =>
+export const fromCspContent = (content: string): CspDirectives =>
   Object.fromEntries(
     content
       .trim()
@@ -41,49 +99,63 @@ export const fromCspContent = (content: string): CSP =>
       .map((line) => {
         const directive = line[0];
         const values = line.slice(1);
-
-        return (directive && values.length ? [directive, values] : []) as [
-          CSPDirective,
+        if (isBoolDirective(directive)) {
+          return [directive, true];
+        }
+        return (directive && values.length ? [directive, values.map(unquotify)] : []) as [
+          keyof CspDirectives,
           string[]
         ];
       })
   );
 
 export const extendCsp = (
-  csp: CSP,
-  cspExtension: CSP,
+  csp: CspDirectives | CspDirectivesLenient,
+  cspExtension: CspDirectives | CspDirectivesLenient,
   mode: "prepend" | "append" | "override" = "prepend"
-): CSP => {
+): CspDirectives => {
   const concatValues = (_k: string, l: string[], r: string[]) =>
     mode !== "override"
       ? uniq(mode === "append" ? [...l, ...r] : [...r, ...l])
       : r;
   return mergeWithKey(
     concatValues,
-    arrayifyCsp(csp),
-    arrayifyCsp(cspExtension)
+    arrayifyCspDirectives(csp),
+    arrayifyCspDirectives(cspExtension)
   );
 };
 
-export const filterCsp = (csp: CSP, cspFilter: CSPFilter): CSP => {
-  return Object.entries(arrayifyCsp(csp)).reduce((acc, [attr, values]) => {
-    const directive = attr as CSPDirective;
-    const filter = cspFilter[directive];
-    if (filter) {
-      acc[directive] = values.filter((v: string) => !filter.test(v));
-    } else {
-      acc[directive] = values;
-    }
-    return acc;
-  }, {} as CSP);
+export const filterCsp = (
+  directives: CspDirectives | CspDirectivesLenient,
+  excludePatterns: CspFilter
+): CspDirectives => {
+  return Object.entries(arrayifyCspDirectives(directives)).reduce(
+    (acc, [attr, values]) => {
+      const directive = attr;
+      const excludePattern = excludePatterns[directive];
+      if (excludePattern && typeof values !== "boolean") {
+        acc[directive] = values.filter((v: string) => !excludePattern.test(v));
+      } else {
+        acc[directive] = values;
+      }
+      return acc;
+    },
+    {} as CspDirectives
+  );
 };
 
 export const cspDirectiveHas = (
-  csp: CSP,
-  directive: CSPDirective,
-  value: RegExp | string
+  directives: CspDirectives | CspDirectivesLenient,
+  directive: Exclude<keyof CspDirectives, BooleanDirectives>,
+  patternOrValue: RegExp | string
 ) => {
-  return !!arrayifyCsp(csp)[directive]?.find((v) =>
-    typeof value === "string" ? v.includes(value) : value.test(v)
+  const directiveValues = arrayifyCspDirectives(directives)[directive];
+  if (typeof directiveValues === "boolean") {
+    return directiveValues;
+  }
+  return directiveValues.some((v) =>
+    typeof patternOrValue === "string"
+      ? v.includes(patternOrValue)
+      : patternOrValue.test(v)
   );
 };

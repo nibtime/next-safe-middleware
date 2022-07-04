@@ -1,6 +1,6 @@
 import UAParser from "ua-parser-js";
-import type { CSP } from "../types";
-import { arrayifyCspValues, extendCsp } from "../utils";
+import type { CspDirectives } from "../types";
+import { extendCsp } from "../utils";
 import type { MiddlewareBuilder } from "./types";
 import {
   cspNonce,
@@ -25,6 +25,7 @@ export type SupportInfo = {
 
 export type TellSupported = (uaParser: UAParser) => SupportInfo;
 
+type ScriptSrcSources = CspDirectives["script-src"];
 /**
  * configuration object for strict CSPs with strict-dynamic
  */
@@ -44,7 +45,7 @@ export type StrictDynamicCfg = {
    *
    * When to use this value, can be customized by passing the `tellSupported` function to this config.
    */
-  fallbackScriptSrc?: string | string[];
+  fallbackScriptSrc?: ScriptSrcSources;
 
   /**
    * In some cases you might have to allow eval() for your app to work (e.g. for MDX)
@@ -55,60 +56,44 @@ export type StrictDynamicCfg = {
   allowUnsafeEval?: true;
 
   /**
-   * Before you enforce a CSP in production, you might want to test in report-only mode
-   * first to make sure configuration mistakes or bugs of this package
-   * don't break your app.
-   *
-   * @see https://web.dev/strict-csp/#step-2:-set-a-strict-csp-and-prepare-your-scripts
-   */
-  reportOnly?: true;
-  /**
    * @param {UAParser} uaParser a `UAParser` instance from the `ua-parser-js` module
    * @returns {SupportInfo} the required support info for applying`'strict-dynamic'` correctly
    */
   tellSupported?: TellSupported;
+
+  /**
+   * if you set this to true, the `fallbackScriptSrc` you specified
+   * will be appended to `strict-dynamic` also when `tellSupported` says "is supported"
+   * This shifts the support decision to the browser.
+   *
+   * Defaults to true, as this is more lenient towards a "blacklisting"
+   * approach of browser support, like the default `tellSupported` does.
+   *
+   * Set this to false, if you pass a detailled support specification with `tellSupported`
+   *
+   */
+  inclusiveFallback?: boolean;
 };
 
-/**
- * @see https://web.dev/strict-csp/
- *
- * @param cfg A configuration object for a strict Content Security Policy (CSP)
- *
- * @returns
- * a middleware that provides a strict CSP. It will ensure to include hashes of scripts for static routes (`getStaticProps` - Hash-based strict CSP)
- * or a nonce for dynamic routes (`getServerSideProps` - Nonce-based strict CSP).
- *
- * Must be used together with custom `next/document` component drop-ins
- * that wire it up with page prerendering.
- *
- * @requires \@next-safe/middleware/dist/document
- *
- * @see https://github.com/nibtime/next-safe-middleware/blob/main/packages/next-safe-middleware/README.md#with-csp3-strict-dynamic
- *
- * @example
- *
- * // pages/_middleware.js
- *
- * import { chain, nextSafe, strictDynamic } from '@next-safe/middleware'
- *
- * const isDev = process.env.NODE_ENV === 'development'
- *
- * export default chain(nextSafe({ isDev }), strictDynamic())
- *
- */
-const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
+const _strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
   ensureChainContext(async (req, evt, res) => {
     if (process.env.NODE_ENV === "development") {
       return;
     }
     const csp = pullCspFromResponse(res) ?? {};
-    const { fallbackScriptSrc, allowUnsafeEval, reportOnly, tellSupported } =
-      await unpackConfig(req, res, cfg);
-    const fallbackSrcArray = arrayifyCspValues(fallbackScriptSrc);
-    const withUnsafeEval = (values: string[]) =>
-      allowUnsafeEval ? [...values, `'unsafe-eval'`] : values;
+    const {
+      fallbackScriptSrc,
+      allowUnsafeEval,
+      tellSupported,
+      uaParser,
+      inclusiveFallback,
+    } = await unpackConfig(req, res, cfg);
+    const withUnsafeEval = (values: ScriptSrcSources): ScriptSrcSources =>
+      allowUnsafeEval ? [...values, "unsafe-eval"] : values;
+    const appendToStrictDynamic = withUnsafeEval(
+      inclusiveFallback ? fallbackScriptSrc : []
+    );
     try {
-      const uaParser = new UAParser(req.headers.get("user-agent"));
       const { supportsSrcIntegrityCheck, supportsStrictDynamic } =
         tellSupported(uaParser);
 
@@ -117,19 +102,21 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
           extendCsp(
             csp,
             {
-              "script-src": withUnsafeEval(fallbackSrcArray),
+              "script-src": withUnsafeEval(fallbackScriptSrc),
             },
             "override"
           ),
-          res,
-          reportOnly
+          res
         );
         return;
       }
 
-      let extendedCsp: CSP | undefined;
+      let extendedCsp: CspDirectives | undefined;
       const getCsp = () => extendedCsp || csp;
-      const scriptSrcHashes = await fetchHashes(req, "script-hashes.txt");
+      const scriptSrcHashes = (await fetchHashes(
+        req,
+        "script-hashes.txt"
+      )) as ScriptSrcSources;
       // if fetched hashes, it's a static page. Hash-based strict CSP
       if (scriptSrcHashes) {
         if (supportsSrcIntegrityCheck) {
@@ -137,8 +124,8 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
             getCsp(),
             {
               "script-src": [
-                `'strict-dynamic'`,
-                ...withUnsafeEval(fallbackSrcArray),
+                "strict-dynamic",
+                ...appendToStrictDynamic,
                 ...scriptSrcHashes,
               ],
             },
@@ -149,7 +136,7 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
           extendedCsp = extendCsp(
             getCsp(),
             {
-              "script-src": withUnsafeEval(fallbackSrcArray),
+              "script-src": withUnsafeEval(fallbackScriptSrc),
             },
             "override"
           );
@@ -161,24 +148,22 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
           getCsp(),
           {
             "script-src": [
-              `'strict-dynamic' 'nonce-${cspNonce(res)}'`,
-              ...withUnsafeEval(fallbackSrcArray),
+              "strict-dynamic",
+              `nonce-${cspNonce(res)}`,
+              ...appendToStrictDynamic,
             ],
           },
           "override"
         );
       }
       if (extendedCsp) {
-        pushCspToResponse(extendedCsp, res, reportOnly);
+        pushCspToResponse(extendedCsp, res);
       }
     } catch (err) {
       const errorCsp = extendCsp(
         csp,
         {
-          "script-src": [
-            `'strict-dynamic'`,
-            ...withUnsafeEval(fallbackSrcArray),
-          ],
+          "script-src": ["strict-dynamic", ...appendToStrictDynamic],
         },
         "override"
       );
@@ -193,8 +178,9 @@ const strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
 const tellSupported: TellSupported = (ua) => {
   const browserName = ua.getBrowser().name || "";
   const isFirefox = browserName.includes("Firefox");
-  const isSafari = browserName.includes("Safari");
-  const supportsStrictDynamic = !isSafari;
+  const isSupportedSafari =
+    browserName.includes("Safari") && Number(ua.getBrowser().version) <= 15.4;
+  const supportsStrictDynamic = !isSupportedSafari;
   const supportsSrcIntegrityCheck = !isFirefox;
 
   return {
@@ -203,7 +189,38 @@ const tellSupported: TellSupported = (ua) => {
   };
 };
 
-export default withDefaultConfig(strictDynamic, {
-  fallbackScriptSrc: `https: 'unsafe-inline'`,
+/**
+ *
+ * @param cfg A configuration object for a strict Content Security Policy (CSP)
+ * @see https://web.dev/strict-csp/
+ *
+ * @returns
+ * a middleware that provides an augmented strict CSP. It will ensure to include hashes of scripts for static routes (`getStaticProps` - Hash-based strict CSP)
+ * or a nonce for dynamic routes (`getServerSideProps` - Nonce-based strict CSP).
+ *
+ * @requires `@next-safe/middleware/dist/document`
+ *
+ * Must be used together with `getCspInitialProps` and `provideComponents`
+ * in `pages/_document.js` to wire stuff up with Next.js page prerendering.
+ *
+ * @example
+ * import {
+ *   chain,
+ *   csp,
+ *   strictDynamic,
+ * } from "@next-safe/middleware";
+ *
+ *  const securityMiddleware = [
+ *    csp(),
+ *    strictDynamic(),
+ *  ];
+ *
+ * export default chain(...securityMiddleware);
+ *
+ */
+const strictDynamic = withDefaultConfig(_strictDynamic, {
+  fallbackScriptSrc: ["https:", "unsafe-inline"],
   tellSupported,
+  inclusiveFallback: true,
 });
+export default strictDynamic;

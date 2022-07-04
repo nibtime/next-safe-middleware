@@ -1,8 +1,9 @@
 import type { NextFetchEvent, NextRequest, NextResponse } from "next/server";
+import type { UAParserInstance } from "ua-parser-js";
 
 type NextMiddlewareResult = NextResponse | Response | null | undefined | void;
 
-type NextMiddleware = (
+export type NextMiddleware = (
   request: NextRequest,
   event: NextFetchEvent
 ) => NextMiddlewareResult | Promise<NextMiddlewareResult>;
@@ -15,13 +16,16 @@ export type Middleware = (
   ]
 ) => ReturnType<NextMiddleware>;
 
-export type EnsuredMiddleware = (
+export type ChainableMiddleware = Middleware;
+
+export type EnsuredChainableMiddleware = (
   ...params: Required<Parameters<Middleware>>
 ) => ReturnType<Middleware>;
 
 export type ConfigInitalizer<Config extends Record<string, unknown>> = (
   req: NextRequest,
-  res: Response
+  res: Response,
+  ua: UAParserInstance
 ) => Config | Promise<Config>;
 
 export type MiddlewareConfig<Config extends Record<string, unknown>> =

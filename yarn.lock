@@ -996,11 +996,13 @@ __metadata:
     "@swc/core": ^1.2.144
     "@swc/helpers": ^0.3.3
     "@swc/jest": ^0.2.20
+    "@types/base-64": ^1
     "@types/jest": ^27.4.1
     "@types/node": ^17.0.18
     "@types/ramda": ^0.27.64
     "@types/react": ^17.0.39
     "@types/ua-parser-js": ^0.7.36
+    base-64: ^1.0.0
     cheerio: ^1.0.0-rc.10
     jest: ^27.5.1
     next: ^12.1.4
@@ -1510,6 +1512,13 @@ __metadata:
   dependencies:
     "@babel/types": ^7.3.0
   checksum: a797ea09c72307569e3ee08aa3900ca744ce3091114084f2dc59b67a45ee7d01df7865252790dbfa787a7915ce892cdc820c9b920f3683292765fc656b08dc63
+  languageName: node
+  linkType: hard
+
+"@types/base-64@npm:^1":
+  version: 1.0.0
+  resolution: "@types/base-64@npm:1.0.0"
+  checksum: bcb1b52b404a0a6e3cfdefab6d2eb04a0a23dd3881890944f56e0885866b97e8b7e13988b2fd74359a1258b68c7e399d58c0e2aaed3f03fcd801af62a0040ee2
   languageName: node
   linkType: hard
 
@@ -2120,6 +2129,13 @@ __metadata:
   version: 1.0.2
   resolution: "balanced-match@npm:1.0.2"
   checksum: 9706c088a283058a8a99e0bf91b0a2f75497f185980d9ffa8b304de1d9e58ebda7c72c07ebf01dadedaac5b2907b2c6f566f660d62bd336c3468e960403b9d65
+  languageName: node
+  linkType: hard
+
+"base-64@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "base-64@npm:1.0.0"
+  checksum: d10b64a1fc9b2c5a5f39f1ce1e6c9d1c5b249222bbfa3a0604c592d90623caf74419983feadd8a170f27dc0c3389704f72faafa3e645aeb56bfc030c93ff074a
   languageName: node
   linkType: hard
 

@@ -44,6 +44,7 @@ const resolve = [
       "tslib",
       "next-safe",
       "ramda",
+      "base-64",
     ],
   }),
 ];

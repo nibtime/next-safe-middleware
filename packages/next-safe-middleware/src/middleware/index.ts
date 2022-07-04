@@ -1,8 +1,3 @@
-export * from "./types";
-export * from "./utils";
-
-export { default as chain } from "./chain";
-
 export { default as nextSafe } from "./nextSafe";
 export type { NextSafeCfg } from "./nextSafe";
 
@@ -19,4 +14,7 @@ export type { StrictDynamicCfg } from "./strictDynamic";
 export const provideHashesOrNonce = strictDynamic();
 
 export { default as strictInlineStyles } from "./strictInlineStyles";
-export type { StrictInlineStylesCfg as StrictStylesCfg } from "./strictInlineStyles";
+export type { StrictInlineStylesCfg } from "./strictInlineStyles";
+
+export { default as csp } from "./csp";
+export type { CspCfg } from "./csp";
