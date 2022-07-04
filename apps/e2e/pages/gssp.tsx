@@ -40,10 +40,10 @@ const Page = ({ requestHeaders, responseHeaders }) => {
         <h2>Internal navigation to other pages</h2>
         <ul>
           <li>
-            <Link href="/static-page">Page with getStaticProps</Link>
+            <Link href="/gsp">Page with getStaticProps</Link>
           </li>
           <li>
-            <Link href="/isr/i-am-a-lazy-path">
+            <Link href="/isr/gsp">
               <a>
                 Page with getStaticProps + <code>revalidate</code> (ISR)
               </a>
