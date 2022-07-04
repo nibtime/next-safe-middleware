@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import type { CSP } from "../types";
+import { encode as base64Encode  } from 'base-64'
 import { uniq } from "ramda";
 import {
   CSP_HEADER,
@@ -9,6 +9,7 @@ import {
   SCRIPT_HASHES_FILENAME,
   STYLE_HASHES_FILENAME,
 } from "../constants";
+import type { CspDirectives, CspDirectivesLenient } from "../types";
 import { fromCspContent, toCspContent } from "../utils";
 
 export const setCspHeader = (
@@ -30,9 +31,9 @@ export const getCspHeader = (res: Response) => {
   return res.headers.get(CSP_HEADER) || res.headers.get(CSP_HEADER_REPORT_ONLY);
 };
 
-export const pullCspFromResponse: (res: Response) => CSP | undefined = (
-  res
-) => {
+export const pullCspFromResponse: (
+  res: Response
+) => CspDirectives | undefined = (res) => {
   const cspContent = getCspHeader(res);
   if (cspContent) {
     return fromCspContent(cspContent);
@@ -41,7 +42,7 @@ export const pullCspFromResponse: (res: Response) => CSP | undefined = (
 };
 
 export const pushCspToResponse = (
-  csp: CSP,
+  csp: CspDirectives | CspDirectivesLenient,
   res: Response,
   reportOnly?: boolean
 ) => {
@@ -51,8 +52,8 @@ export const pushCspToResponse = (
 export const generateNonce = (bits = 128) => {
   const buffer = new Uint8Array(Math.floor(bits / 8));
   const random = crypto.getRandomValues(buffer);
-  return [...random].map((n) => n.toString(16)).join("");
-};
+  return base64Encode([...random].join(""));
+}
 
 export const cspNonce = (res: Response, bits = 128) => {
   let nonce = res.headers.get(CSP_NONCE_HEADER);
@@ -62,8 +63,6 @@ export const cspNonce = (res: Response, bits = 128) => {
   }
   return nonce;
 };
-
-const singleQuotify = (value: string) => `'${value}'`;
 
 export const fetchHashes = async (
   req: NextRequest,
@@ -102,5 +101,5 @@ export const fetchHashes = async (
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
-  return uniq(hashes).map(singleQuotify);
+  return uniq(hashes);
 };

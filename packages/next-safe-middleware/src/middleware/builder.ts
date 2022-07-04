@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { mergeDeepWithKey } from "ramda";
+import UAParser from "ua-parser-js";
 import {
-  EnsuredMiddleware,
+  EnsuredChainableMiddleware,
   Middleware,
   MiddlewareBuilder,
   MiddlewareConfig,
@@ -13,7 +14,10 @@ export const unpackConfig = async <Config extends Record<string, unknown>>(
   res: Response,
   cfg: MiddlewareConfig<Config>
 ) => {
-  return typeof cfg === "function" ? cfg(req, res) : cfg;
+  const uaParser = new UAParser(req.headers.get("user-agent"));
+  return typeof cfg === "function"
+    ? { uaParser, ...(await cfg(req, res, uaParser)) }
+    : { uaParser, ...cfg };
 };
 
 type KeyMerger = (k: string, x: any, z: any) => any;
@@ -83,7 +87,7 @@ export const withDefaultConfig =
   };
 
 export const ensureChainContext = (
-  middleware: EnsuredMiddleware,
+  middleware: EnsuredChainableMiddleware,
   ensureResponse: (
     req: NextRequest
   ) => Response | Promise<Response> = NextResponse.next

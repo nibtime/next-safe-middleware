@@ -2,5 +2,9 @@ export type {
   CspReportUriPayload,
   ReportToPayload,
   ReportingData,
-} from "./reporting";
-export { default as reporting, extractReportingData } from "./reporting";
+  Reporter
+} from "./reporting/types";
+export {
+  sentryCspReporterForEndpoint
+} from "./reporting/utils";
+export { default as reporting } from "./reporting";

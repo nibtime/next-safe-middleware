@@ -1,9 +1,18 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
-import type { Middleware } from "./types";
+import type { ChainableMiddleware, NextMiddleware } from "./types";
 
-// https://www.youtube.com/watch?v=tVCUAXOBF7w
+/**
+ * 
+ * @param middlewares the middlewares to chain in sequence
+ * @returns 
+ * the chained middlewares as a single Next.js middleware
+ * to export from `middleware.js`  
+ * 
+ */
 const weAreChained =
-  (...middlewares: (Middleware | Promise<Middleware>)[]) =>
+  (
+    ...middlewares: (ChainableMiddleware | Promise<ChainableMiddleware>)[]
+  ): NextMiddleware =>
   async (req: NextRequest, evt: NextFetchEvent) => {
     let res: Response | void;
     const next = (resp: Response) => {

@@ -1641,12 +1641,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@swc/core", "npm:1.2.144"],\
             ["@swc/helpers", "npm:0.3.3"],\
             ["@swc/jest", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20"],\
+            ["@types/base-64", "npm:1.0.0"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/next", null],\
             ["@types/node", "npm:17.0.21"],\
             ["@types/ramda", "npm:0.27.66"],\
             ["@types/react", "npm:17.0.39"],\
             ["@types/ua-parser-js", "npm:0.7.36"],\
+            ["base-64", "npm:1.0.0"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
             ["next", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:12.1.4"],\
@@ -1677,11 +1679,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@swc/core", "npm:1.2.144"],\
             ["@swc/helpers", "npm:0.3.3"],\
             ["@swc/jest", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20"],\
+            ["@types/base-64", "npm:1.0.0"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/node", "npm:17.0.21"],\
             ["@types/ramda", "npm:0.27.66"],\
             ["@types/react", "npm:17.0.39"],\
             ["@types/ua-parser-js", "npm:0.7.36"],\
+            ["base-64", "npm:1.0.0"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
             ["next", "virtual:e334acf360f17c372bb9553f62bbdfde1631243f4c1e6329c46aa85ad33f680fe650e0f9f1b06235a44b78df3d908da2201d77b8e95342fa33b754433235fb18#npm:12.1.4"],\
@@ -2319,6 +2323,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@types/babel__traverse", "npm:7.14.2"],\
             ["@babel/types", "npm:7.17.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/base-64", [\
+        ["npm:1.0.0", {\
+          "packageLocation": "./.yarn/cache/@types-base-64-npm-1.0.0-425fbc008e-bcb1b52b40.zip/node_modules/@types/base-64/",\
+          "packageDependencies": [\
+            ["@types/base-64", "npm:1.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -3164,6 +3177,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/balanced-match-npm-1.0.2-a53c126459-9706c088a2.zip/node_modules/balanced-match/",\
           "packageDependencies": [\
             ["balanced-match", "npm:1.0.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["base-64", [\
+        ["npm:1.0.0", {\
+          "packageLocation": "./.yarn/cache/base-64-npm-1.0.0-0683a6b836-d10b64a1fc.zip/node_modules/base-64/",\
+          "packageDependencies": [\
+            ["base-64", "npm:1.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
