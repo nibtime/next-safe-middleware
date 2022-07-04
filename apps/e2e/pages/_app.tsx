@@ -1,4 +1,11 @@
+import {
+  ColorScheme,
+  ColorSchemeProvider,
+  MantineProvider,
+} from "@mantine/core";
+import { useHotkeys, useLocalStorage } from "@mantine/hooks";
 import Script from "next/script";
+import { useMemo } from "react";
 // import '../styles/globals.css';
 import globalStyles from "../styles/globalStyles";
 
@@ -7,8 +14,19 @@ const customInlineScriptWorker = `console.log('Hi I am inline-script running wit
 
 const customInlineScriptAfter = `console.log('Hi I am an inline-script running with strategy afterInteractive')`;
 
-function MyApp({ Component, pageProps }) {
-  globalStyles();
+function MyApp({ Component, pageProps, ssrNonce }) {
+  const nonce = typeof window === 'undefined' ? ssrNonce : document.head.nonce
+
+  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+    key: "mantine-color-scheme",
+    defaultValue: "light",
+    getInitialValueInEffect: true,
+  });
+
+  const toggleColorScheme = (value?: ColorScheme) =>
+    setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
+
+  useHotkeys([["mod+J", () => toggleColorScheme()]]);
   return (
     <>
       <Script
@@ -50,7 +68,20 @@ function MyApp({ Component, pageProps }) {
       >
         {customInlineScriptAfter}
       </Script>
-      <Component {...pageProps} />
+      <ColorSchemeProvider
+        colorScheme={colorScheme}
+        toggleColorScheme={toggleColorScheme}
+      >
+        <MantineProvider
+          theme={{ colorScheme }}
+          emotionOptions={{
+            key: "mantine",
+            nonce,
+          }}
+        >
+          <Component {...pageProps} />
+        </MantineProvider>
+      </ColorSchemeProvider>
     </>
   );
 }

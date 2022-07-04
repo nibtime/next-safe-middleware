@@ -12,7 +12,7 @@ export const config = {
 
 export const getStaticPaths = async () => {
   // as long as we build-time prerender at least one path, it will work with Hash-based strict CSP.
-  const path = "static-incremental";
+  const path = "gsp";
   return {
     paths: [{ params: { slug: path } }],
     fallback: "blocking",
@@ -71,10 +71,10 @@ const Page = ({ random, revalidate }) => {
         <h2>Internal navigation to other pages:</h2>
         <ul>
           <li>
-            <Link href="/static-page">Page with getStaticProps</Link>
+            <Link href="/gsp">Page with getStaticProps</Link>
           </li>
           <li>
-            <Link href="/dynamic-page">Page with getServerSideProps</Link>
+            <Link href="/gssp">Page with getServerSideProps</Link>
           </li>
         </ul>
       </Prose>

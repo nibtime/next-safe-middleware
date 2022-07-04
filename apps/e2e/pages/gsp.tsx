@@ -82,14 +82,14 @@ const Page = ({ random }) => {
         <h2>Internal navigation to other pages</h2>
         <ul>
           <li>
-            <Link href="/isr/lazy-slug">
+            <Link href="/isr/gsp">
               <a>
                 Page with getStaticProps + <code>revalidate</code> (ISR)
               </a>
             </Link>
           </li>
           <li>
-            <Link href="/dynamic-page">Page with getServerSideProps</Link>
+            <Link href="/gssp">Page with getServerSideProps</Link>
           </li>
         </ul>
       </Prose>
