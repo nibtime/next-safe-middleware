@@ -59,10 +59,22 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nibtime/next-safe-middleware/tree/main/packages/next-safe-middleware"
+    "url": "https://github.com/nibtime/next-safe-middleware"
   },
-  "homepage": "https://github.com/nibtime/next-safe-middleware/tree/main/packages/next-safe-middleware#readme",
   "bugs": {
     "url": "https://github.com/nibtime/next-safe-middleware/issues"
-  }
+  },
+  "homepage": "https://github.com/nibtime/next-safe-middleware/tree/main/#readme",
+  "description": "Strict Content-Security-Policy (CSP) for Next.js",
+  "keywords": [
+    "nextjs",
+    "security",
+    "content-security-policy",
+    "strict-csp",
+    "strict-dynamic",
+    "csp",
+    "content-security-policy-report-only",
+    "reportingapi",
+    "vercel"
+  ]
 }
