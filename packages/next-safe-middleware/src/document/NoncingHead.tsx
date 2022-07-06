@@ -17,14 +17,21 @@ const noncifyChildren = (
 ) => {
   if (nonce) {
     React.Children.forEach(children, (child: any) => {
-      if (trustifyScripts && isScriptElement(child)) {
+      if (trustifyScripts && isScriptElement(child) && !child.props.nonce) {
         const map = pipe(withHashIfInlineScript, scriptWithPatchedCrossOrigin);
         const newProps = map(child).props;
-        child.props = { ...newProps, nonce };
-      } else if (trustifyStyles && isStyleElement(child)) {
-        child.props.nonce = nonce;
+        try {
+          child.props = { ...newProps, nonce };
+        } catch {}
+      } else if (trustifyStyles && isStyleElement(child) && !child.props.nonce) {
+        try {
+          child.props.nonce = nonce;
+        } catch {}
       } else if (isElementWithChildren(child)) {
-        noncifyChildren(nonce, child.props.children, { trustifyStyles, trustifyScripts });
+        noncifyChildren(nonce, child.props.children, {
+          trustifyStyles,
+          trustifyScripts,
+        });
       } else if (Array.isArray(child)) {
         noncifyChildren(nonce, child, { trustifyStyles, trustifyScripts });
       }
@@ -33,12 +40,11 @@ const noncifyChildren = (
 };
 
 export class Head extends NextHead {
-
   trustifyScripts(): boolean {
-    return (this.props as any).trustifyScripts ?? false
+    return (this.props as any).trustifyScripts ?? false;
   }
   trustifyStyles(): boolean {
-    return (this.props as any).trustifyStyles ?? false
+    return (this.props as any).trustifyStyles ?? false;
   }
   getPreNextScripts() {
     const preNextScripts = super.getPreNextScripts();
@@ -51,7 +57,7 @@ export class Head extends NextHead {
   render() {
     const nonce = this.props.nonce;
     const trustifyStyles = this.trustifyStyles();
-    const trustifyScripts =  this.trustifyScripts();
+    const trustifyScripts = this.trustifyScripts();
 
     noncifyChildren(nonce, this.context.styles, {
       trustifyStyles,

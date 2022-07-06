@@ -3,7 +3,6 @@ import type { CspDirectives } from "../types";
 import { extendCsp } from "../utils";
 import type { MiddlewareBuilder } from "./types";
 import {
-  cspNonce,
   pullCspFromResponse,
   pushCspToResponse,
   fetchHashes,
@@ -93,94 +92,81 @@ const _strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
     const appendToStrictDynamic = withUnsafeEval(
       inclusiveFallback ? fallbackScriptSrc : []
     );
-    try {
-      const { supportsSrcIntegrityCheck, supportsStrictDynamic } =
-        tellSupported(uaParser);
+    const { supportsSrcIntegrityCheck, supportsStrictDynamic } =
+      tellSupported(uaParser);
 
-      if (!supportsStrictDynamic) {
-        pushCspToResponse(
-          extendCsp(
-            csp,
-            {
-              "script-src": withUnsafeEval(fallbackScriptSrc),
-            },
-            "override"
-          ),
-          res
-        );
-        return;
-      }
-
-      let extendedCsp: CspDirectives | undefined;
-      const getCsp = () => extendedCsp || csp;
-      const scriptSrcHashes = (await fetchHashes(
-        req,
-        "script-hashes.txt"
-      )) as ScriptSrcSources;
-      // if fetched hashes, it's a static page. Hash-based strict CSP
-      if (scriptSrcHashes) {
-        if (supportsSrcIntegrityCheck) {
-          extendedCsp = extendCsp(
-            getCsp(),
-            {
-              "script-src": [
-                "strict-dynamic",
-                ...appendToStrictDynamic,
-                ...scriptSrcHashes,
-              ],
-            },
-            "override"
-          );
-        } else {
-          // Hash-based unsupported. 'strict-dynamic' would be enforced and break things if we set it.
-          extendedCsp = extendCsp(
-            getCsp(),
-            {
-              "script-src": withUnsafeEval(fallbackScriptSrc),
-            },
-            "override"
-          );
-        }
-      }
-      // if not it's a dynamic page. Nonce-based strict CSP
-      else {
-        extendedCsp = extendCsp(
-          getCsp(),
+    if (!supportsStrictDynamic) {
+      pushCspToResponse(
+        extendCsp(
+          csp,
           {
-            "script-src": [
-              "strict-dynamic",
-              `nonce-${cspNonce(res)}`,
-              ...appendToStrictDynamic,
-            ],
+            "script-src": withUnsafeEval(fallbackScriptSrc),
           },
           "override"
-        );
-      }
-      if (extendedCsp) {
-        pushCspToResponse(extendedCsp, res);
-      }
-    } catch (err) {
-      const errorCsp = extendCsp(
-        csp,
+        ),
+        res
+      );
+      return;
+    }
+
+    let extendedCsp: CspDirectives | undefined;
+    const getCsp = () => extendedCsp || csp;
+    const scriptSrcHashes = (await fetchHashes(
+      req,
+      "script-hashes.txt"
+    )) as ScriptSrcSources;
+    // if fetched hashes, it's a static page. Hash-based strict CSP
+    if (
+      scriptSrcHashes.length &&
+      supportsStrictDynamic &&
+      supportsSrcIntegrityCheck
+    ) {
+      extendedCsp = extendCsp(
+        getCsp(),
         {
-          "script-src": ["strict-dynamic", ...appendToStrictDynamic],
+          "script-src": [
+            "strict-dynamic",
+            ...appendToStrictDynamic,
+            ...scriptSrcHashes,
+          ],
         },
         "override"
       );
-      pushCspToResponse(errorCsp, res, true);
+      if (extendedCsp) {
+        pushCspToResponse(extendedCsp, res);
+      }
+    }
+    //
+    else {
       console.error(
-        "[strictDynamic]: Internal error. No hashes or nonce have been added to CSP. Switch to report-only mode to not break the app and to let you know about this.",
-        { errorCsp, err }
+        "[strictDynamic]: Couldn't fetch hashes. has your app static pages for Hash-based strict CSP?. If yes, this is unexpected",
+        {
+          supportsStrictDynamic,
+          supportsSrcIntegrityCheck,
+          browser: uaParser.getBrowser().name,
+          version: uaParser.getBrowser().version,
+        }
       );
+
+      extendedCsp = extendCsp(
+        getCsp(),
+        {
+          "script-src": [...withUnsafeEval(fallbackScriptSrc)],
+        },
+        "override"
+      );
+    }
+    if (extendedCsp) {
+      pushCspToResponse(extendedCsp, res);
     }
   });
 
 const tellSupported: TellSupported = (ua) => {
   const browserName = ua.getBrowser().name || "";
   const isFirefox = browserName.includes("Firefox");
-  const isSupportedSafari =
+  const isUnsupportedSafari =
     browserName.includes("Safari") && Number(ua.getBrowser().version) <= 15.4;
-  const supportsStrictDynamic = !isSupportedSafari;
+  const supportsStrictDynamic = !isUnsupportedSafari;
   const supportsSrcIntegrityCheck = !isFirefox;
 
   return {

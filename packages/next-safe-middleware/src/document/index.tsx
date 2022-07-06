@@ -7,13 +7,13 @@ import type {
 import Document, { Head, NextScript } from "next/document";
 import React from "react";
 import cheerio from "cheerio";
-import { CSP_NONCE_HEADER } from "../constants";
-import { extendCsp, fromCspContent, toCspContent } from "../utils";
+import { extendCsp } from "../utils";
 import {
-  getCspHeader,
-  getCtxHeader,
+  setCsp,
   integritySha256,
-  setCspHeader,
+  getCsp,
+  cspNonce,
+  applyNonceToCsp,
 } from "./utils";
 import { Head as NoncingHead } from "./NoncingHead";
 import {
@@ -29,7 +29,7 @@ export type {
   Source as CspSource,
   Sources as CspSources,
 } from "../types";
-export { pullCspFromCtx, pushCsptoCtx } from "./utils";
+export { getCsp, setCsp, cspNonce } from "./utils";
 export {
   extendCsp,
   filterCsp,
@@ -78,10 +78,11 @@ export const provideComponents = (props: DocumentProps): Provided => {
   const isStatic = NEXT_DATA.gsp;
 
   const isPure = !isDynamic && !isStatic;
+  const isProd = process.env.NODE_ENV === "production";
   const nonce = (props as any).nonce;
   const trustifyStyles = (props as any).trustifyStyles;
   const trustifyScripts = (props as any).trustifyScripts;
-  if (isDynamic && !!nonce) {
+  if (isProd && isDynamic && nonce) {
     return {
       Head: ({ children }) => (
         <NoncingHead
@@ -98,7 +99,7 @@ export const provideComponents = (props: DocumentProps): Provided => {
     };
   }
 
-  if ((isStatic || isPure) && process.env.NODE_ENV === "production") {
+  if (isProd && (isStatic || isPure)) {
     return {
       Head: ({ children }) => (
         <HashingHead
@@ -142,6 +143,29 @@ const trustifyStylesInHtml = (html: string, nonce?: string) => {
     styleElemHashes,
     styleAttrHashes,
   };
+};
+
+/**
+ *
+ * @param ctx the DocumentContext, as expected by Document.getInitialProps
+ *
+ * If you need to access the nonce in `pages/_app.js` for a React Provider,
+ * call this just before you call `getCspInitialProps`
+ *
+ */
+export const enhanceAppWithNonce = (ctx: DocumentContext) => {
+  const nonce = cspNonce(ctx);
+  if (nonce) {
+    const originalRenderPage = ctx.renderPage;
+    ctx.renderPage = () =>
+      originalRenderPage({
+        enhanceApp:
+          (App) =>
+          ({ pageProps, ...props }) => {
+            return <App pageProps={{ ...pageProps, nonce }} {...props} />;
+          },
+      });
+  }
 };
 
 export type CspDocumentInitialPropsOptions = {
@@ -199,28 +223,12 @@ export type CspDocumentInitialPropsOptions = {
     | string
     | ((initialProps: DocumentInitialProps) => string | string[])
   )[];
-
-  /**
-   * if you set this to `true`, your `_app.js` component will have an additional prop `ssrNonce`
-   * with the nonce during SSR. Useful if you use React Providers of 3rd party libs in your `_app.js`
-   * that can consume a nonce.
-   *
-   * For this to work, you can not call `Document.getInitialProps` before and use `passInitialProps`
-   *
-   * @example
-   * function MyApp({ Component, pageProps, ssrNonce }) {
-   *
-   *  const nonce = typeof window === 'undefined' ? ssrNonce : document.head.nonce;
-   *  ...
-   *
-   */
-  enhanceAppWithNonce?: boolean;
 };
 
 /**
  * A replacement for `Document.getInitialProps`to use in `getInitialProps` of your custom `_document.js` .
  * It sets up all different kinds of stuff so strict CSPs work with Next.js.
- * 
+ *
  * Must be used together with components returned from `provideComponents` to be in effect.
  * @requires `provideComponents`
  *
@@ -241,22 +249,8 @@ export const getCspInitialProps = async ({
   trustifyStyles = false,
   trustifyScripts = true,
   hashRawCss = [],
-  enhanceAppWithNonce = false,
 }: CspDocumentInitialPropsOptions) => {
-  const nonce = getCtxHeader(ctx, CSP_NONCE_HEADER);
-
-  if (nonce && enhanceAppWithNonce) {
-    const originalRenderPage = ctx.renderPage;
-    ctx.renderPage = () =>
-      originalRenderPage({
-        enhanceApp: (App) => (props) => {
-          // @ts-ignore
-          props.ssrNonce = nonce;
-          return <App {...props} />;
-        },
-      });
-  }
-
+  const nonce = applyNonceToCsp(ctx);
   const initialProps =
     passInitialProps || (await Document.getInitialProps(ctx));
 
@@ -284,21 +278,18 @@ export const getCspInitialProps = async ({
         ...styleElemHashes,
         ...styleAttrHashes,
       ];
-      const cspContent = getCspHeader(ctx);
-      if (cspContent) {
-        let csp = fromCspContent(cspContent);
-        if (styleHashes.length) {
-          csp = extendCsp(csp, {
-            "style-src": [
-              ...styleHashes.map((hash) => `'${hash}'`),
-              "unsafe-hashes",
-            ],
-          });
+      let { directives, reportOnly } = getCsp(ctx);
+      if (directives) {
+        if (directives["style-src"] && styleHashes.length) {
+          directives = extendCsp(
+            directives,
+            {
+              "style-src": [...styleHashes, "unsafe-hashes"],
+            },
+            "append"
+          );
         }
-        csp = extendCsp(csp, {
-          "style-src": `nonce-${nonce}`,
-        });
-        setCspHeader(toCspContent(csp), ctx);
+        setCsp(ctx, directives, reportOnly);
       }
     }
   }

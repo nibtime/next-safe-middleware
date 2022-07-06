@@ -1,5 +1,5 @@
 // eslint-disable-next-line @next/next/no-document-import-in-page
-import { Head as NextHead, NextScript } from "next/document";
+import { DocumentContext, Head as NextHead, NextScript } from "next/document";
 import { difference, F, flatten, partition, pipe } from "ramda";
 import React from "react";
 import type { Nullable } from "./types";
@@ -124,60 +124,74 @@ const nextScriptWithInjectedIntegrity = (el: JSX.Element) => {
 const getFs = () => {
   try {
     return require("fs");
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };
 
 type HashesKind = typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME;
 
-const writeRouteHashesToJson = (
-  route: string,
-  hashesKind: HashesKind,
-  hashes: string[] = []
-) => {
-  const dir = `${staticCspFolder()}${route}`;
-  const filename = hashesKind;
-  const filepath = `${dir}/${filename}`;
-  const fs = getFs();
-  try {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  } catch {
-    // expected to fail in ISR
-    return;
-  }
-
-  if (!fs.existsSync(filepath)) {
-    fs.writeFileSync(filepath, hashes.join("\n"), "utf8");
-    return;
-  }
-
+const writeHashesTxt = (filepath: string, hashes: string[] = [], fs?) => {
   const oldHashes: string[] = [];
-  try {
-    oldHashes.push(
-      ...fs
-        .readFileSync(filepath, "utf8")
-        .split("\n")
-        .map((line: string) => line.trim())
-        .filter(Boolean)
-    );
-  } catch {
-    try {
-      fs.appendFileSync(filepath, `\n${hashes.join("\n")}`, "utf8");
-      return;
-    } catch {
-      return;
-    }
-  }
-
+  oldHashes.push(
+    ...fs
+      .readFileSync(filepath, "utf8")
+      .split("\n")
+      .map((line: string) => line.trim())
+      .filter(Boolean)
+  );
   const newHashes = difference(hashes, oldHashes);
   if (newHashes.length) {
     fs.appendFileSync(filepath, `\n${newHashes.join("\n")}`);
   }
 };
 
+export const isEdgeISR = (fs) => {
+  if (!fs) return true;
+  try {
+    fs.mkdirSync(`${staticCspFolder()}/isnotedgeisr`);
+    return false;
+  } catch {
+    return true;
+  }
+};
+
+const writeHashesWithLock = (kind: HashesKind, hashes: string[] = []) => {
+  const fs = getFs();
+  // if (isEdgeISR(fs)) {
+  //   return;
+  // }
+  const dir = staticCspFolder();
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch {
+    return;
+  }
+
+  const filepath = `${dir}/${kind}`;
+  const lockfilepath = `${filepath}.lock`;
+  const { lock, unlock } = require("lockfile");
+  lock(lockfilepath, { wait: 10000 }, (err) => {
+    if (err) {
+      throw err;
+    }
+    try {
+      if (!fs.existsSync(filepath)) {
+        fs.writeFileSync(filepath, hashes.join("\n"), "utf8");
+        return;
+      }
+      writeHashesTxt(filepath, hashes, fs);
+    } finally {
+      unlock(lockfilepath, (err) => {
+        if (err) {
+          throw err;
+        }
+      });
+    }
+  });
+};
 const trustifyNextScripts = (els: Nullable<JSX.Element>[]) => {
   const nextScripts = els.filter(isScriptElement);
   // preemptively register a single proxy loader for ISR mode
@@ -194,21 +208,13 @@ const trustifyNextScripts = (els: Nullable<JSX.Element>[]) => {
 // to obtain the hash from NextScript.getInlineScriptSource
 const pushNextInlineScriptHash = (ctx: any) => {
   const nextInlineScript = NextScript.getInlineScriptSource(ctx);
-  const nextInlineScriptHash =
-    nextInlineScript && integritySha256(nextInlineScript);
-  if (
-    nextInlineScriptHash &&
-    !collectedScriptHashes.includes(nextInlineScriptHash)
-  ) {
+  if (!nextInlineScript) {
+    return;
+  }
+  const nextInlineScriptHash = integritySha256(nextInlineScript);
+  if (!collectedScriptHashes.includes(nextInlineScriptHash)) {
     collectedScriptHashes.push(nextInlineScriptHash);
   }
-};
-
-const writeScriptHashesToJson = (ctx: any, newHashes: string[]) => {
-  const route = ctx.__NEXT_DATA__.page;
-  // don't think this is needed, as it's type application/json and does not execute
-  // pushNextInlineScriptHash(ctx);
-  writeRouteHashesToJson(route, "script-hashes.txt", newHashes);
 };
 
 const collectStyleHashesFromChildren = (children: any): string[] => {
@@ -227,20 +233,20 @@ const collectStyleHashesFromChildren = (children: any): string[] => {
   return flatten(recurse(children));
 };
 
-export const writeStyleHashesToJson = (hashes: string[]) => {
-  writeRouteHashesToJson("/", "style-hashes.txt", hashes);
-};
-
 export const trustifyScriptChildren = (children: any) => {
   React.Children.forEach(children, (child) => {
     if (isScriptElement(child)) {
-      child.props = trustify([child])[0].props;
+      try {
+        child.props = trustify([child])[0].props;
+      } catch {}
     } else if (
       isElementWithChildren(child) &&
       Array.isArray(child.props.children) &&
       child.props.children.every(isScriptElement)
     ) {
-      child.props.children = trustify(child.props.children);
+      try {
+        child.props.children = trustify(child.props.children);
+      } catch {}
     } else if (isElementWithChildren(child)) {
       trustifyScriptChildren(child.props.children);
     } else if (Array.isArray(child)) {
@@ -282,7 +288,8 @@ export class Head extends NextHead {
   getScripts(files: any) {
     if (this.trustifyScripts()) {
       const scripts = trustifyNextScripts(super.getScripts(files));
-      writeScriptHashesToJson(this.context, pullScriptHashes());
+      pushNextInlineScriptHash(this.context);
+      writeHashesWithLock("script-hashes.txt", pullScriptHashes());
       return scripts;
     }
     return super.getScripts(files);
@@ -309,7 +316,7 @@ export class Head extends NextHead {
         ...pullStyleElemHashes(),
         ...pullStyleAttrHashes(),
       ];
-      writeStyleHashesToJson(styleHashes);
+      writeHashesWithLock("style-hashes.txt", styleHashes);
     }
     return super.render();
   }
