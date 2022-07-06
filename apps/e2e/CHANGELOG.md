@@ -1,5 +1,16 @@
 # e2e
 
+## 0.5.0
+
+### Minor Changes
+
+- [`75d4a3c`](https://github.com/nibtime/next-safe-middleware/commit/75d4a3c0cf6604a0bec7826b95b3acdb2b081903) Thanks [@nibtime](https://github.com/nibtime)! - extended setup with [Mantine](https://mantine.dev/) to better test strict inline styles
+
+### Patch Changes
+
+- Updated dependencies [[`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a), [`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a), [`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a), [`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a), [`c9d42e5`](https://github.com/nibtime/next-safe-middleware/commit/c9d42e5e9da2caaadb464cde6aba21e2ec0c50d8)]:
+  - @next-safe/middleware@0.7.0
+
 ## 0.4.0
 
 ### Minor Changes
