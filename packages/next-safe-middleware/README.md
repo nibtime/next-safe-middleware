@@ -1,6 +1,6 @@
 
 
-<div style="text-align:center">
+<div align="center">
   
   <img src=https://user-images.githubusercontent.com/52962482/177227813-b15198ca-2c36-4ba3-afec-efeb581a19a1.png height=75 width=75 />
   <h1><code>@next-safe/middleware</code></h1>
