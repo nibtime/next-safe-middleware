@@ -1,5 +1,29 @@
 # @next-safe/middleware
 
+## 0.7.0
+
+### Minor Changes
+
+- [#36](https://github.com/nibtime/next-safe-middleware/pull/36) [`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a) Thanks [@nibtime](https://github.com/nibtime)! - new `csp` middleware with extensive Typing for IntelliSense CSP configuration
+
+  - typing has been borrowed from the [SvelteKit CSP Integration](https://kit.svelte.dev/docs/configuration#csp), which is excellent
+  - handles annoying single quotes in the background, no need to think about them in code
+
+* [#36](https://github.com/nibtime/next-safe-middleware/pull/36) [`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a) Thanks [@nibtime](https://github.com/nibtime)! - versatile `getCspInitialProps` for `_document.js`
+
+  - flag to opt into styles trustification for CSP
+  - flag to opt out from script trustification for CSP
+  - option to pass external raw css text to hash for CSP. For instance needed for [Mantine](https://mantine.dev/), to pass `extractCritical(initialProps.html).css` (emotion)
+  - option to enhance `<App>` (`_app.js`) with nonce from SSR (needed for React Providers that can consume a nonce)
+
+- [#36](https://github.com/nibtime/next-safe-middleware/pull/36) [`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a) Thanks [@nibtime](https://github.com/nibtime)! - helper to set up [CSP violation reprting to Sentry](https://docs.sentry.io/product/security-policy-reporting/) with a one-liner
+
+### Patch Changes
+
+- [#36](https://github.com/nibtime/next-safe-middleware/pull/36) [`2c8c5cd`](https://github.com/nibtime/next-safe-middleware/commit/2c8c5cd6f7b6b744b4bc6af35371a38a8eccef5a) Thanks [@nibtime](https://github.com/nibtime)! - use base64 encoding for nonce instead of Hex
+
+* [#32](https://github.com/nibtime/next-safe-middleware/pull/32) [`c9d42e5`](https://github.com/nibtime/next-safe-middleware/commit/c9d42e5e9da2caaadb464cde6aba21e2ec0c50d8) Thanks [@boennemann](https://github.com/boennemann)! - fix: use open-ended peerDependency ranges
+
 ## 0.6.0
 
 ### Minor Changes
