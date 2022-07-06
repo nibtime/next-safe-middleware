@@ -1,10 +1,14 @@
 import crypto from "crypto";
 import { DocumentContext } from "next/document";
 import React from "react";
-import { CSP_HEADER, CSP_HEADER_REPORT_ONLY } from "../constants";
+import {
+  CSP_HEADER,
+  CSP_HEADER_REPORT_ONLY,
+  CSP_NONCE_HEADER,
+} from "../constants";
 import type { IterableScript, Primitve, Nullable } from "./types";
-import { fromCspContent, toCspContent } from '../utils'
-import { CspDirectives, CspDirectivesLenient } from "..";
+import { extendCsp, fromCspContent, toCspContent } from "../utils";
+import type { CspDirectives } from "../types";
 
 export const integritySha256 = (inlineScriptCode: string) => {
   const hash = crypto.createHash("sha256");
@@ -150,57 +154,136 @@ export const scriptWithPatchedCrossOrigin = (s: JSX.Element) => {
   return <script key={s.key} {...s.props} {...setCrossOrigin} />;
 };
 
-// weirdness: when running on Vercel, the response header set by middleware
-// will be found in req, when serving a prod build with next start, it will be in res
-export const getCtxHeader = (ctx: DocumentContext, header: string) => {
-  return (
-    ctx.res?.getHeader(header) ||
-    ctx.req?.headers[header] ||
-    ""
-  ).toString();
+const getCtxReqHeader = (ctx: DocumentContext, header: string) => {
+  if (ctx.req) {
+    return ctx.req.headers[header]?.toString() || "";
+  }
+  return "";
 };
 
-export const setCtxHeader = (
+const getCtxResHeader = (ctx: DocumentContext, header: string) => {
+  if (ctx.res) {
+    return ctx.res.getHeader(header)?.toString() || "";
+  }
+  return "";
+};
+
+const setCtxReqHeader = (
   ctx: DocumentContext,
   header: string,
   value: string
 ) => {
-  ctx.res.setHeader(header, value);
-  if (ctx.req.headers[header]) {
+  if (ctx.req) {
     ctx.req.headers[header] = value;
   }
 };
-
-export const deleteCtxHeader = (ctx: DocumentContext, header: string) => {
-  ctx.res.removeHeader(header);
-  if (ctx.req.headers[header]) {
-    delete ctx.req.headers[header];
+const setCtxResHeader = (
+  ctx: DocumentContext,
+  header: string,
+  value: string
+) => {
+  if (ctx.res && !ctx.res.headersSent) {
+    ctx.res.setHeader(header, value);
   }
 };
 
-export const getCspHeader = (ctx: DocumentContext) => {
-  return (
-    getCtxHeader(ctx, CSP_HEADER) || getCtxHeader(ctx, CSP_HEADER_REPORT_ONLY)
-  );
+const deleteCtxReqHeader = (ctx: DocumentContext, header: string) => {
+  try {
+    if (ctx.req) {
+      delete ctx.req.headers[header];
+      return true;
+    }
+  } finally {
+    return false;
+  }
+};
+const deleteCtxResHeader = (ctx: DocumentContext, header: string) => {
+  try {
+    if (ctx.res && !ctx.res.headersSent) {
+      ctx.res.removeHeader(header);
+      return true;
+    }
+  } finally {
+    return false;
+  }
 };
 
-export const setCspHeader = (cspContent: string, ctx: DocumentContext, reportOnly?: boolean) => {
-  const isReportOnly = reportOnly === undefined ? !!getCtxHeader(ctx, CSP_HEADER_REPORT_ONLY) : reportOnly
-  if (isReportOnly) {
-    deleteCtxHeader(ctx, CSP_HEADER);
-    setCtxHeader(ctx, CSP_HEADER_REPORT_ONLY, cspContent);
+const getCspFromHeader = (ctx: DocumentContext, getter) => {
+  if (ctx.req) {
+    const cspContent = getter(ctx, CSP_HEADER);
+    const cspContentReportOnly = getter(ctx, CSP_HEADER_REPORT_ONLY);
+    if (cspContent) {
+      return {
+        directives: fromCspContent(cspContent),
+        reportOnly: false,
+      };
+    }
+    if (cspContentReportOnly) {
+      return {
+        directives: fromCspContent(cspContent),
+        reportOnly: true,
+      };
+    }
+  }
+  return {};
+};
+
+const getCspFromReqHeader = (ctx: DocumentContext) =>
+  getCspFromHeader(ctx, getCtxReqHeader);
+const getCspFromResHeader = (ctx: DocumentContext) =>
+  getCspFromHeader(ctx, getCtxResHeader);
+
+export const getCsp = (ctx: DocumentContext) => {
+  const fromReq = getCspFromReqHeader(ctx);
+  return Object.keys(fromReq).length ? fromReq : getCspFromResHeader(ctx);
+};
+
+export const setCsp = (
+  ctx: DocumentContext,
+  directives: CspDirectives,
+  reportOnly: boolean
+) => {
+  if (reportOnly) {
+    deleteCtxReqHeader(ctx, CSP_HEADER);
+    deleteCtxResHeader(ctx, CSP_HEADER);
+    setCtxReqHeader(ctx, CSP_HEADER_REPORT_ONLY, toCspContent(directives));
+    setCtxResHeader(ctx, CSP_HEADER_REPORT_ONLY, toCspContent(directives));
   } else {
-    deleteCtxHeader(ctx, CSP_HEADER_REPORT_ONLY);
-    setCtxHeader(ctx, CSP_HEADER, cspContent);
+    deleteCtxReqHeader(ctx, CSP_HEADER_REPORT_ONLY);
+    deleteCtxResHeader(ctx, CSP_HEADER_REPORT_ONLY);
+    setCtxReqHeader(ctx, CSP_HEADER, toCspContent(directives));
+    setCtxResHeader(ctx, CSP_HEADER, toCspContent(directives));
   }
 };
 
-export const pullCspFromCtx = (ctx: DocumentContext): CspDirectives | undefined => {
-  const cspContent = getCspHeader(ctx)
-  return cspContent ? fromCspContent(cspContent) : undefined
+export const generateNonce = (bits = 128) => {
+  const crypto = require("crypto");
+  return crypto.randomBytes(Math.floor(bits / 8)).toString("base64");
 };
 
-export const pushCsptoCtx = (csp: CspDirectives | CspDirectivesLenient, ctx: DocumentContext, reportOnly?: boolean): void => {
-  const cspContent = toCspContent(csp);
-  setCspHeader(cspContent, ctx, reportOnly)
+export const cspNonce = (ctx: DocumentContext, bits = 128) => {
+  let nonce =
+    getCtxResHeader(ctx, CSP_NONCE_HEADER) ||
+    getCtxReqHeader(ctx, CSP_NONCE_HEADER);
+  if (!nonce) {
+    nonce = generateNonce(bits);
+    setCtxResHeader(ctx, CSP_NONCE_HEADER, nonce);
+    setCtxReqHeader(ctx, CSP_NONCE_HEADER, nonce);
+  }
+  return nonce;
+};
+
+export const applyNonceToCsp = (ctx: DocumentContext) => {
+  let nonce = cspNonce(ctx);
+  if (nonce) {
+    let { directives, reportOnly } = getCsp(ctx);
+    if (directives) {
+      directives = extendCsp(directives, {
+        ...(directives["script-src"] ? { "script-src": `nonce-${nonce}` } : {}),
+        ...(directives["style-src"] ? { "style-src": `nonce-${nonce}` } : {}),
+      });
+      setCsp(ctx, directives, reportOnly);
+    }
+  }
+  return nonce;
 };

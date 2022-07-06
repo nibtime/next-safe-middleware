@@ -153,6 +153,9 @@ export const cspDirectiveHas = (
   if (typeof directiveValues === "boolean") {
     return directiveValues;
   }
+  if (!directiveValues) {
+    return false;
+  }
   return directiveValues.some((v) =>
     typeof patternOrValue === "string"
       ? v.includes(patternOrValue)

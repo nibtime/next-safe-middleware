@@ -22,52 +22,42 @@ const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
     if (process.env.NODE_ENV === "development") {
       return;
     }
-    let fetchedHashes: string[] = [];
-    try {
-      fetchedHashes = await fetchHashes(req, "style-hashes.txt", "/");
-      if (fetchedHashes) {
-        const { extendStyleSrc } = await unpackConfig(req, res, cfg);
-        const mode = extendStyleSrc ? "append" : "override";
-        let csp = pullCspFromResponse(res) ?? {};
-        csp = extendCsp(
-          csp,
-          {
-            "style-src": [...fetchedHashes, "unsafe-hashes"],
-          },
-          mode
-        );
-        pushCspToResponse(csp, res);
-      }
-    } catch (err) {
-      console.error(
-        "[strictInlineStyles]: Internal error. No style hashes were added to CSP",
-        { err, fetchedHashes }
+    const fetchedHashes = await fetchHashes(req, "style-hashes.txt");
+    if (fetchedHashes.length) {
+      const { extendStyleSrc } = await unpackConfig(req, res, cfg);
+      const mode = extendStyleSrc ? "append" : "override";
+      let csp = pullCspFromResponse(res) ?? {};
+      csp = extendCsp(
+        csp,
+        {
+          "style-src": [...fetchedHashes, "unsafe-hashes"],
+        },
+        mode
       );
-    } finally {
-      if (!fetchedHashes.length) {
-        console.log(
-          "[strictInlineStyles]: No styles. Is your app using any inline styles at all?. If yes, this is unexpected"
-        );
-      }
+      pushCspToResponse(csp, res);
+    } else {
+      console.error(
+        "[strictInlineStyles]: No styles. Is your app using any inline styles at all?. If yes, this is unexpected"
+      );
     }
   });
 
-/** 
+/**
  * @param cfg a configuration object for strict inline styles within a Content Security Policy (CSP)
- * 
- * @returns a middleware that provides an augmented CSP with strict inline styles. 
+ *
+ * @returns a middleware that provides an augmented CSP with strict inline styles.
  * It will ensure to all style hashes (elem and attr) in the CSP that could be picked up during prerendering
- *  
+ *
  * @requires `@next-safe/middleware/dist/document`
  *
- * Must be used together with `getCspInitialProps` and `provideComponents` in `pages/_document.js` 
- * to wire stuff up with Next.js page prerendering. Additionally, you must pass 
+ * Must be used together with `getCspInitialProps` and `provideComponents` in `pages/_document.js`
+ * to wire stuff up with Next.js page prerendering. Additionally, you must pass
  * `{ trustifyStyles: true }` to `getCspInitialProps`.
  *
  * @example
  * import {
  *   chain,
- *   csp, 
+ *   csp,
  *   strictDynamic,
  *   strictInlineStyles,
  * } from "@next-safe/middleware";
@@ -77,7 +67,7 @@ const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
  *   strictDynamic(),
  *   strictInlineStyles(),
  * ];
- * 
+ *
  * export default chain(...securityMiddleware);
  */
 const strictInlineStyles = withDefaultConfig(_strictInlineStyles, {
