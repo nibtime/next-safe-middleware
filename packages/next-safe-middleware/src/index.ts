@@ -19,7 +19,8 @@ export {
 
 export type { Middleware, ChainableMiddleware } from "./middleware/types";
 
-export { default as chain } from "./middleware/chain";
+export * from "./middleware/chain";
+export * from "./middleware/matchers";
 export { pullCspFromResponse, pushCspToResponse } from "./middleware/utils";
 
 export * from "./middleware";

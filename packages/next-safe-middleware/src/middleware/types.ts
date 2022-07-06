@@ -43,3 +43,9 @@ export type WithoutBoolUnions<T extends object> = {
 export type MiddlewareBuilder<Config extends Record<string, unknown>> = (
   cfg: MiddlewareConfig<WithoutBoolUnions<Config>>
 ) => Middleware;
+
+export type MiddlewareChain = (
+  ...middlewares: (ChainableMiddleware | Promise<ChainableMiddleware>)[]
+) => NextMiddleware;
+
+export type ChainMatcher = (req: NextRequest) => boolean;
