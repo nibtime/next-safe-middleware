@@ -1214,6 +1214,7 @@ __metadata:
     "@swc/jest": ^0.2.20
     "@types/base-64": ^1
     "@types/jest": ^27.4.1
+    "@types/lockfile": ^1
     "@types/node": ^17.0.18
     "@types/ramda": ^0.27.64
     "@types/react": ^17.0.39
@@ -1221,6 +1222,7 @@ __metadata:
     base-64: ^1.0.0
     cheerio: ^1.0.0-rc.10
     jest: ^27.5.1
+    lockfile: ^1.0.4
     next: ^12.2.0
     next-safe: ^3.2.1
     ramda: ^0.28.0
@@ -1971,6 +1973,13 @@ __metadata:
   version: 7.0.9
   resolution: "@types/json-schema@npm:7.0.9"
   checksum: 259d0e25f11a21ba5c708f7ea47196bd396e379fddb79c76f9f4f62c945879dc21657904914313ec2754e443c5018ea8372362f323f30e0792897fdb2098a705
+  languageName: node
+  linkType: hard
+
+"@types/lockfile@npm:^1":
+  version: 1.0.2
+  resolution: "@types/lockfile@npm:1.0.2"
+  checksum: 65d1d7b37309d62ec81cb0a911207cec666df013223708ddd48c9145474463df4aa920d7b92c17ef5029c0539680dddbe667afc0df5b77edd93fd6b39ac0f560
   languageName: node
   linkType: hard
 
@@ -5309,6 +5318,15 @@ __metadata:
   dependencies:
     p-locate: ^5.0.0
   checksum: 72eb661788a0368c099a184c59d2fee760b3831c9c1c33955e8a19ae4a21b4116e53fa736dc086cdeb9fce9f7cc508f2f92d2d3aae516f133e16a2bb59a39f5a
+  languageName: node
+  linkType: hard
+
+"lockfile@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "lockfile@npm:1.0.4"
+  dependencies:
+    signal-exit: ^3.0.2
+  checksum: 8de35aace8acbe883cbca3cc3959e88904d57c79dccd4afffc64aea8f9cf7b4c63598d08b8add66fbf381f8fb3ce4fd4c518cd231c797c266b6c790eb7b33abc
   languageName: node
   linkType: hard
 

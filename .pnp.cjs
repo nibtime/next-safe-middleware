@@ -1969,6 +1969,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@swc/jest", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20"],\
             ["@types/base-64", "npm:1.0.0"],\
             ["@types/jest", "npm:27.4.1"],\
+            ["@types/lockfile", "npm:1.0.2"],\
             ["@types/next", null],\
             ["@types/node", "npm:17.0.21"],\
             ["@types/ramda", "npm:0.27.66"],\
@@ -1977,6 +1978,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["base-64", "npm:1.0.0"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
+            ["lockfile", "npm:1.0.4"],\
             ["next", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:12.2.0"],\
             ["next-safe", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:3.2.1"],\
             ["ramda", "npm:0.28.0"],\
@@ -2007,6 +2009,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@swc/jest", "virtual:c52a5741eecb7a8902af8b671823fd7925a73f7f076046de77a83140a092f006209169219aa70fb6757de34833bb317c3f4ef3c5d13970c68519dd11afc75332#npm:0.2.20"],\
             ["@types/base-64", "npm:1.0.0"],\
             ["@types/jest", "npm:27.4.1"],\
+            ["@types/lockfile", "npm:1.0.2"],\
             ["@types/node", "npm:17.0.21"],\
             ["@types/ramda", "npm:0.27.66"],\
             ["@types/react", "npm:17.0.39"],\
@@ -2014,6 +2017,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["base-64", "npm:1.0.0"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:27.5.1"],\
+            ["lockfile", "npm:1.0.4"],\
             ["next", "virtual:e334acf360f17c372bb9553f62bbdfde1631243f4c1e6329c46aa85ad33f680fe650e0f9f1b06235a44b78df3d908da2201d77b8e95342fa33b754433235fb18#npm:12.2.0"],\
             ["next-safe", "virtual:e334acf360f17c372bb9553f62bbdfde1631243f4c1e6329c46aa85ad33f680fe650e0f9f1b06235a44b78df3d908da2201d77b8e95342fa33b754433235fb18#npm:3.2.1"],\
             ["ramda", "npm:0.28.0"],\
@@ -3019,6 +3023,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-json-schema-npm-7.0.9-361918cff3-259d0e25f1.zip/node_modules/@types/json-schema/",\
           "packageDependencies": [\
             ["@types/json-schema", "npm:7.0.9"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/lockfile", [\
+        ["npm:1.0.2", {\
+          "packageLocation": "./.yarn/cache/@types-lockfile-npm-1.0.2-9edcfc87c9-65d1d7b373.zip/node_modules/@types/lockfile/",\
+          "packageDependencies": [\
+            ["@types/lockfile", "npm:1.0.2"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -6969,6 +6982,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["locate-path", "npm:6.0.0"],\
             ["p-locate", "npm:5.0.0"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["lockfile", [\
+        ["npm:1.0.4", {\
+          "packageLocation": "./.yarn/cache/lockfile-npm-1.0.4-00301b5723-8de35aace8.zip/node_modules/lockfile/",\
+          "packageDependencies": [\
+            ["lockfile", "npm:1.0.4"],\
+            ["signal-exit", "npm:3.0.7"]\
           ],\
           "linkType": "HARD"\
         }]\
