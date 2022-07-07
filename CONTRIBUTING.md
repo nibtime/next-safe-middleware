@@ -1,6 +1,8 @@
 ## Package development
 
-The repository has a [`gitpod.yml`](.gitpod.yml) and [GitPod](https://gitpod.io/) offers 50 hours/month for free for working on public repos. The easiest way to get started with development.
+The repository has a [`gitpod.yml`](.gitpod.yml) and [Gitpod](https://gitpod.io/) offers 50 hours/month for free for working on public repos. The easiest way to get started with development.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/nibtime/next-safe-middleware)
 
 ### Run an e2e app development server with local packages
 
