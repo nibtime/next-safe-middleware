@@ -1,15 +1,13 @@
 
 
 <div align="center">
-  
+  <br />
   <img src=https://user-images.githubusercontent.com/52962482/177227813-b15198ca-2c36-4ba3-afec-efeb581a19a1.png height=75 width=75 />
   <h1><code>@next-safe/middleware</code></h1>
   <p><strong>Strict Content-Security-Policy (CSP) for Next.js</strong></p>
   <p>Works for hybrid apps and supports pages with any data fetching method.</p>
   <p>Always sets CSP by HTTP Response header and enables easy setup of reporting.</p>
   <p>I want this: <a href="#getting-started">How can I get started?</a></p>
-
-<br>
 
 [![Version][version-badge]][package]
 [![Downloads][downloads-badge]][npmtrends]
@@ -22,6 +20,8 @@
 [![Forks on GitHub][github-forks-badge]][github-forks]
 
 </div>
+
+<br />
 
 [downloads-badge]: https://img.shields.io/npm/dm/next-safe.svg?style=flat-square
 [github-watch]: https://github.com/nibtime/next-safe-middleware/watchers
@@ -48,7 +48,7 @@ This package handles all strict CSP conundrums for you and works for:
 
 * pages with [`getServerSideProps`](https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props) - **Nonce-based** 
 
-*  pages with [`getStaticProps` + `revalidate` (ISR)]((https://vercel.com/docs/concepts/next.js/incremental-static-regeneration)) - **Hash-based**
+*  pages with [`getStaticProps` + `revalidate` (ISR)](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration) - **Hash-based**
   
 
 **This package always sets CSP as HTTP response header**. That enables violation reporting and report-only mode even for static pages. Plus, it provides a middleware and API handlers that make the setup of CSP violation reporting very easy. 
@@ -92,27 +92,21 @@ create a file `middleware.js` in your Next.js project folder (or `pages/_middlew
 
 ```js
 // middleware.js
-import {
-  chain,
-  csp,
-  strictDynamic,
-} from '@next-safe/middleware';
+import { chainMatch, isPageRequest, csp, strictDynamic } from '@next-safe/middleware';
 
- const securityMiddleware = [
-   csp({
-      // Your CSP base configuration.
-      // You have full IntelliSense here and don't need to pay attention 
-      // to single quotes for values like 'self' 
-      directives: {
-        'frame-src': ['self'],
-        'img-src': ['self', 'data:', 'https://images.unsplash.com'],
-        'font-src': ['self', 'https://fonts.gstatic.com'],
-      }
-   }),
-   strictDynamic()
- ];
+const securityMiddleware = [
+  csp({
+    // your CSP base configuration with IntelliSense 
+    // single quotes for values like 'self' are automatic
+    directives: {
+      'img-src': ['self', 'data:', 'https://images.unsplash.com'],
+      'font-src': ['self', 'https://fonts.gstatic.com'],
+    },
+  }),
+  strictDynamic(),
+];
 
-export default chain(...securityMiddleware);
+export default chainMatch(isPageRequest)(...securityMiddleware);
 ```
 
 create a file `pages/_document.js` in your Next.js project folder:
@@ -147,8 +141,34 @@ export default class MyDocument extends Document {
 
 Thats it. You should be all set now with a strict CSP for your Next.js app!
 
+### Default CSP directives
+I found this to be the most minimal yet sensible defaults
+as base for a strict CSP:
+
+```js
+const defaults = {
+  directives: {
+    'default-src': ['self'],
+    'object-src': ['none'],
+    'base-uri': ['none'],
+  },
+  isDev: process.env.NODE_ENV === 'development',
+  reportOnly: !!process.env.CSP_REPORT_ONLY,
+};
+```
+
+You can override a directive's default by setting values or unset it with an empty array:
+
+```js
+const cspMiddleware = csp({
+  directives: {
+    'default-src': [],
+  },
+});
+```
+
 ### Hash-based strict CSP for pages with Incremental Static Regeneration (ISR)
-Add the following code to the top of every route with `getStaticProps` that uses `revalidate` (including the new `res.unstable_revalidate`/`res.revalidate` of on-demand ISR, available since Next 12.1):
+Add the following code to the top of every route with `getStaticProps` that uses `revalidate` (including `res.revalidate` or `res.unstable_revalidate` (< 12.2) of on-demand ISR, available since Next 12.1):
 
 ```js
 export const config = {
@@ -166,8 +186,10 @@ Furthermore, most middlewares, functions, parameters and types have JSDoc that i
 add the `reporting` middleware to your middleware chain in `middleware.js` or `pages/_middleware.js`:
 
 ```js
+// middleware.js
 import {
-  chain,
+  chainMatch,
+  isPageRequest
   csp,
   reporting,
   strictDynamic,
@@ -192,7 +214,7 @@ const securityMiddleware = [
   }),
 ];
 
-export default chain(...securityMiddleware);
+export default chainMatch(isPageRequest)(...securityMiddleware);
 ```
 
 then, set up the reporting endpoint in `pages/api/reporting.js`:
@@ -201,7 +223,8 @@ then, set up the reporting endpoint in `pages/api/reporting.js`:
 import { reporting } from '@next-safe/middleware/dist/api';
 
 /** @type {import('@next-safe/middleware/dist/api').Reporter} */
-const consoleLogReporter = (data) => console.log(JSON.stringify(data));
+const consoleLogReporter = (data) =>
+  console.log(JSON.stringify(data, undefined, 2));
 
 export default reporting(consoleLogReporter);
 ```
@@ -213,7 +236,10 @@ If you use Sentry, there is a convenient helper `sentryCspReporterForEndpoint` t
 
 ```js
 // pages/api/reporting.js
-import { reporting, buildSentryCspReporter } from '@next-safe/middleware/dist/api';
+import {
+  reporting,
+  sentryCspReporterForEndpoint,
+} from '@next-safe/middleware/dist/api';
 
 // lookup at https://docs.sentry.io/product/security-policy-reporting/
 const sentryCspEndpoint = process.env.SENTRY_CSP_ENDPOINT;
@@ -225,20 +251,26 @@ export default reporting(sentryCspReporter);
 Sentry only supports the data format of the `report-uri` directive. It can't receive violation reports in `report-to` format (Google Chrome only serves `report-to`). `sentryCspReporterForEndpoint` does the necessary conversion, so you will receive violation reports from all major browsers in Sentry.
 
 ## How to add custom (inline) scripts that work with strict CSP?
-Just add them with `next/script` on the pages where you need them. If you want to include a script in all pages, add them to your `pages/app.js`. For examples, have a look at [`apps/e2e/pages/_app.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx).
+Just add them with `next/script` on the pages where you need them. If you want to include a script in all pages, add them to your `pages/app.js`. 
+
+The following files serve as examples for script usage:
+
+* [`apps/e2e/pages/_document.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx)
+
+* [`apps/e2e/pages/_app.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_app.tsx)
 
 ### How this behaves behind the scenes
-Scripts with strategies `afterInteractive` and `lazyOnLoad` will become trusted by transitive trust propagation of `strict-dynamic` and so will be all scripts that they load dynamically, etc. That should cover the majority of use cases.
+`<Script>`'s with strategies `afterInteractive` and `lazyOnLoad` will become trusted by transitive trust propagation of `strict-dynamic` and so will be all scripts that they load dynamically, etc. That should cover the majority of use cases.
 
-Scripts with strategy `beforeInteractive` and scripts that are placed as children of `<Head>` in `_document.js` are picked up for CSP by this package. 
+`<Script>`'s with strategy `beforeInteractive` you place in `_document.js`and inline `<script>`'s you place as children of `<Head>` in `_document.js` are automatically picked up for strict CSP by this package. 
 
 What this package will do with such scripts, depends:
 
 #### Pages with getServerSideProps (Nonce-based)
-the script element will eventually receive the nonce.
+the script will eventually receive the nonce.
   
 #### Pages with getStaticProps (Hash-based)
-1. The script loads from `src` has an integrity attribute: The integrity attribute/hash will be picked up for CSP.
+1. The script loads from `src` and has an integrity attribute: The integrity attribute/hash will be picked up for CSP. Don't forget to set `{crossOrigin: "anonymous"}` in `next.config.js`, else the [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) validation will fail.
    
 2. The script loads from `src` and doesn't have an integrity attribute: The script will be replaced by an inline proxy script that loads the script. The hash of this proxy script will be picked up for CSP. The actual script eventually becomes trusted by transitive trust propagation of `strict-dynamic`.
 
@@ -261,19 +293,20 @@ For this you can use the `nextSafe` middleware that wraps the [`next-safe`](http
 ```js
 // middleware.js
 import {
-  chain,
+  chainMatch,
+  isPageRequest,
   csp,
   nextSafe,
   strictDynamic,
 } from '@next-safe/middleware';
 
- const securityMiddleware = [
-   nextSafe({ disableCsp: true })
-   csp(),
-   strictDynamic(),
- ];
+const securityMiddleware = [
+  nextSafe({ disableCsp: true }),
+  csp(),
+  strictDynamic(),
+];
 
-export default chain(...securityMiddleware);
+export default chainMatch(isPageRequest)(...securityMiddleware);
 ```
 
 The configuration options of the `nextSafe` middleware are the same as documented at https://trezy.gitbook.io/next-safe/usage/configuration
@@ -324,7 +357,13 @@ Here's an example to show how you can combine security middleware from this pack
 
 ```js
 // middleware.js
-import { chain, csp, strictDynamic } from '@next-safe/middleware';
+import {
+  chain,
+  chainMatch,
+  isPageRequest,
+  csp,
+  strictDynamic,
+} from '@next-safe/middleware';
 
 /** @type {import('@next-safe/middleware').ChainableMiddleware} */
 const geoBlockMiddleware = (req) => {
@@ -334,45 +373,47 @@ const geoBlockMiddleware = (req) => {
   if (country === BLOCKED_COUNTRY) {
     const response = new Response('Blocked for legal reasons', { status: 451 });
     // returning response terminates the chain
-    return response
+    return response;
   }
-}
+};
 
-const securityMiddleware = [
-  csp(),
-  strictDynamic(),
-]
+const securityMiddleware = [csp(), strictDynamic()];
 
-// security middleware will only run on requests that didn't get geo-blocked
-export default chain(geoBlockMiddleware, ...securityMiddleware)
+// geoBlockMiddleware will run on all requests
+// securityMiddleware will only run on requests
+// that didn't get geo-blocked and only on requests for pages
+export default chain(
+  geoBlockMiddleware,
+  chainMatch(isPageRequest)(...securityMiddleware)
+);
 ```
 
 ### Can CSP/middleware configuration depend on request data?
 Yes. In fact every middleware of this package supports configuration with an (async) initializer function, that receives the request as 1st param (in `req`), the currently set response of the middleware chain as 2nd (in `res`) and for convenience, a `uaParser` instance prepared with the user agent of the request as 3rd (from [`ua-parser-js`](https://www.npmjs.com/package/ua-parser-js), prebundled and minified with this package, for IntelliSense install `@types/ua-parser-js` in your project.
 
 For example, you can use this capability to select different CSP configurations for different user agents:
+
 ```js
 // middleware.js
 import {
-  chain,
+  chainMatch,
+  isPageRequest,
   csp,
   strictDynamic,
-} from '@next-safe/middleware';
+} from "@next-safe/middleware";
 
-// CSP in always in report-only mode for Firefox and by env var for other browsers
+// CSP in always in report-only mode for Firefox
+// and by env var for other browsers
 const cspMiddleware = csp(async (req, res, uaParser) => {
-  const browserName = uaParser.getBrowser().name || '';
-  const reportOnly = !!process.env.CSP_REPORT_ONLY  || browserName.includes('Firefox');
+  const browserName = uaParser.getBrowser().name || "";
+  const reportOnly =
+    !!process.env.CSP_REPORT_ONLY || browserName.includes("Firefox");
   return {
-    reportOnly
+    reportOnly,
   };
-}),
+});
 
-const securityMiddleware = [
-  cspMiddleware,
-  strictDynamic(),
-];
+const securityMiddleware = [cspMiddleware, strictDynamic()];
 
-export default chain(...securityMiddleware);
-
+export default chainMatch(isPageRequest)(...securityMiddleware);;
 ```

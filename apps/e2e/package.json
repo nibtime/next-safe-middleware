@@ -4,13 +4,7 @@
   "private": true,
   "yarn.build": {
     "input": [
-      "pages",
-      "components",
-      "styles",
-      "next.config.js",
-      ".babelrc.js",
-      "stitches.config.ts",
-      "tailwind.config.js"
+      "."
     ],
     "output": ".next"
   },
