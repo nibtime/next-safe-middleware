@@ -66,7 +66,7 @@
   "bugs": {
     "url": "https://github.com/nibtime/next-safe-middleware/issues"
   },
-  "homepage": "https://github.com/nibtime/next-safe-middleware/tree/main/#readme",
+  "homepage": "https://next-safe-middleware.vercel.app/",
   "description": "Strict Content-Security-Policy (CSP) for Next.js",
   "keywords": [
     "nextjs",
@@ -74,9 +74,8 @@
     "content-security-policy",
     "strict-csp",
     "strict-dynamic",
-    "csp",
-    "content-security-policy-report-only",
-    "reportingapi",
-    "vercel"
+    "report-uri",
+    "report-to",
+    "reporting-api"
   ]
 }
