@@ -1,5 +1,23 @@
 # @next-safe/middleware
 
+## 0.8.0
+
+### Minor Changes
+
+- [#38](https://github.com/nibtime/next-safe-middleware/pull/38) [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827) Thanks [@nibtime](https://github.com/nibtime)! - Internal redesign for Next.js 12.2 (`req.page` deprecated) ([#37](https://github.com/nibtime/next-safe-middleware/issues/37))
+
+* [#38](https://github.com/nibtime/next-safe-middleware/pull/38) [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827) Thanks [@nibtime](https://github.com/nibtime)! - provide new middleware abstractions for Next.js 12.2 stable middleware
+
+  - `matchChain` function that allows to disable chain execution for certain requests with a matcher (predicate on `NextRequest`)
+  - `continued` function that allows to continue a middleware response to a middleware chain
+  - `isPageRequest` matcher that matches only requests to Next.js pages
+
+### Patch Changes
+
+- [#38](https://github.com/nibtime/next-safe-middleware/pull/38) [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827) Thanks [@nibtime](https://github.com/nibtime)! - fix: `enhanceAppWithNonce` as separate function.Must spread `nonce` into `pageProps`, else fails with Next 12.2
+
+* [#38](https://github.com/nibtime/next-safe-middleware/pull/38) [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827) Thanks [@nibtime](https://github.com/nibtime)! - fix: guard critical section with lockfile when writing out hashes for CSP to file at build time
+
 ## 0.7.0
 
 ### Minor Changes

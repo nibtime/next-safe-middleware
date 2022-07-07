@@ -1,5 +1,16 @@
 # e2e
 
+## 0.6.0
+
+### Minor Changes
+
+- [#38](https://github.com/nibtime/next-safe-middleware/pull/38) [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827) Thanks [@nibtime](https://github.com/nibtime)! - upgrade to Next 12.2. with stable root-level middleware
+
+### Patch Changes
+
+- Updated dependencies [[`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827), [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827), [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827), [`be1c950`](https://github.com/nibtime/next-safe-middleware/commit/be1c950e438ac52c463bbb3d70ab15d4014c1827)]:
+  - @next-safe/middleware@0.8.0
+
 ## 0.5.0
 
 ### Minor Changes
