@@ -48,7 +48,7 @@ This package handles all strict CSP conundrums for you and works for:
 
 * pages with [`getServerSideProps`](https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props) - **Nonce-based** 
 
-*  pages with [`getStaticProps` + `revalidate` (ISR)](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration) - **Hash-based**
+* pages with [`getStaticProps` + `revalidate` (ISR)](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration) - **Hash-based**
   
 
 **This package always sets CSP as HTTP response header**. That enables violation reporting and report-only mode even for static pages. Plus, it provides a middleware and API handlers that make the setup of CSP violation reporting very easy. 
@@ -279,7 +279,7 @@ the script will eventually receive the nonce.
 ## How to avoid the `unsafe-inline` keyword in `style-src` (with a CSS-in-JS framework)?
 This package tries to provide a best effort solution to this, with a `strictInlineStyles` middleware. The e2e test app of this package comes with a setup that uses both [twin.macro](https://github.com/ben-rogerson/twin.macro) + [Stitches](https://stitches.dev/) and [Mantine](https://mantine.dev/) (uses emotion under the hood) without `unsafe-inline` in `style-src`. The following files serve as the references for such setups:
 
-* [`apps/e2e/pages/_middleware.ts`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_middleware.ts)
+* [`apps/e2e/middleware.ts`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/middleware.ts)
 
 * [`apps/e2e/pages/_document.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx)
 
