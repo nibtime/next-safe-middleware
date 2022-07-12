@@ -48,4 +48,5 @@ export type MiddlewareChain = (
   ...middlewares: (ChainableMiddleware | Promise<ChainableMiddleware>)[]
 ) => NextMiddleware;
 
-export type ChainMatcher = (req: NextRequest) => boolean;
+export type NextRequestPredicate = (req: NextRequest) => boolean;
+export type ChainMatcher = NextRequestPredicate;
