@@ -217,7 +217,7 @@ const pushNextInlineScriptHash = (ctx: any) => {
   }
 };
 
-const collectStyleHashesFromChildren = (children: any): string[] => {
+export const collectStyleHashesFromChildren = (children: any): string[] => {
   const recurse = (child: any) => {
     if (isStyleElement(child) && child.props.dangerouslySetInnerHTML) {
       return [integritySha256(child.props.dangerouslySetInnerHTML.__html)];

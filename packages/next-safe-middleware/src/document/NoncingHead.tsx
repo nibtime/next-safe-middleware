@@ -10,7 +10,7 @@ import {
 import { pipe } from "ramda";
 import React from "react";
 
-const noncifyChildren = (
+export const noncifyChildren = (
   nonce: string,
   children: any,
   { trustifyStyles, trustifyScripts }
