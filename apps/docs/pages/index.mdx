@@ -1,0 +1,180 @@
+import tw, { styled } from "twin.macro";
+import Link from "next/link";
+import {
+  SupportIcon,
+  CubeTransparentIcon,
+  AdjustmentsIcon,
+  SpeakerphoneIcon,
+} from "@heroicons/react/solid";
+import Button from "components/Button";
+import Head from "next/head";
+import Image from "next/image";
+import { packageName } from "theme.config";
+
+<Head>
+  <title>{packageName}</title>
+</Head>
+
+<HeaderContainer>
+  <div css={tw`flex-none`}>
+    <Image
+      width={75}
+      height={75}
+      src="https://user-images.githubusercontent.com/52962482/177227813-b15198ca-2c36-4ba3-afec-efeb581a19a1.png"
+    />
+  </div>
+  # `@next-safe/middleware`
+
+**Strict Content-Security-Policy (CSP) for Next.js with composable middleware**
+
+Works for hybrid apps and supports pages with any data fetching method.
+
+Always sets CSP by HTTP Response header and enables easy setup of reporting.
+
+</HeaderContainer>
+
+<BadgesContainer>
+  <BadgesRow>
+    [![Version][version-badge]][package]
+
+    [![Downloads][downloads-badge]][npmtrends]
+
+    [![MIT][license-badge]][license]
+
+  </BadgesRow>
+  <BadgesRow>
+    [![Release][release-status-badge]][release-status]
+  </BadgesRow>
+  <BadgesRow dangerouslySetInnerHTML={{ __html: __html_ac_badge }} />
+  <BadgesRow>
+    [![Star on GitHub][github-star-badge]][github-star]
+
+    [![Watch on GitHub][github-watch-badge]][github-watch]
+
+    [![Forks on GitHub][github-forks-badge]][github-forks]
+
+  </BadgesRow>
+</BadgesContainer>
+
+[package]: https://npmjs.com/package/@next-safe/middleware
+[version-badge]: https://img.shields.io/npm/v/@next-safe/middleware.svg?style=flat-square
+[npmtrends]: https://www.npmtrends.com/@next-safe/middleware
+[downloads-badge]: https://img.shields.io/npm/dm/next-safe.svg?style=flat-square
+[license]: https://github.com/nibtime/next-safe-middleware/blob/main/LICENSE
+[license-badge]: https://img.shields.io/github/license/nibtime/next-safe-middleware?style=flat-square
+[release-status]: https://github.com/nibtime/next-safe-middleware/actions/workflows/release.yml
+[release-status-badge]: https://img.shields.io/github/workflow/status/nibtime/next-safe-middleware/Release?style=flat-square&label=release
+[github-watch]: https://github.com/nibtime/next-safe-middleware/watchers
+[github-watch-badge]: https://img.shields.io/github/watchers/nibtime/next-safe-middleware.svg?style=social
+[github-star]: https://github.com/nibtime/next-safe-middleware/stargazers
+[github-star-badge]: https://img.shields.io/github/stars/nibtime/next-safe-middleware.svg?style=social
+[github-forks]: https://github.com/nibtime/next-safe-middleware/network/members
+[github-forks-badge]: https://img.shields.io/github/forks/nibtime/next-safe-middleware.svg?style=social
+
+<ButtonContainer>
+  <Link href="/getting-started">
+    <Button Icon={SupportIcon}>Get Started</Button>
+  </Link>
+  <Link href="/guides/strict-csp-configuration">
+    <Button Icon={AdjustmentsIcon}>Configure Strict CSP</Button>
+  </Link>
+  <Link href="/guides/csp-violation-reporting">
+    <Button Icon={SpeakerphoneIcon}>Configure violation reporting</Button>
+  </Link>
+  <Link href="/guides/compose-middleware">
+    <Button Icon={CubeTransparentIcon}>Compose middleware</Button>
+  </Link>
+</ButtonContainer>
+
+## What
+
+This package strives to make the setup and deployment of a [strict Content Security Policy (CSP)
+](https://web.dev/strict-csp/) with Next.js an easy task. The design approach that makes this possible requires [Next.js Middleware](https://nextjs.org/docs/advanced-features/middleware), which has been introduced as Beta in [Next.js 12](https://nextjs.org/blog/next-12) and is stable since [Next.js 12.2](https://nextjs.org/blog/next-12-2).
+
+This package handles all Strict CSP conundrums for you and works for:
+
+- pages with [`getStaticProps`](https://nextjs.org/docs/basic-features/data-fetching/get-static-props) - **Hash-based**
+
+- pages with [`getServerSideProps`](https://nextjs.org/docs/basic-features/data-fetching/get-server-side-props) - **Nonce-based**
+
+- pages with [`getStaticProps` + `revalidate` (ISR)](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration) - **Hash-based**
+
+**This package always sets CSP as HTTP response header**. That enables violation reporting and report-only mode even for static pages. Plus, it provides a middleware and API handlers that make the setup of CSP violation reporting very easy.
+
+## Why
+
+Configuring and maintaining a [Content-Security-Policy (CSP)](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) can be a tedious and error prone task. Furthermore, classic CSPs with a whitelist approach don't give you the security you might think you get from them, because in a lot of cases, they are automatically bypassable.
+
+There is a much better option: a [**Hash-based/Nonce-based Strict CSP**](https://web.dev/strict-csp/).
+
+Such CSPs provide much better security and have always the same structure, so they don't need the maintenance that whitelist CSPs need, once they've been set up properly. But this setup is usually a a very big issue with Next.js (and with all web frameworks in general).
+
+This is where this package comes in: To make this setup easy, convenient and a lot less error-prone.
+
+## Good Resources about (Strict) Content-Security-Policy (CSP)
+
+- The best overview on Strict CSPs: https://web.dev/strict-csp/
+
+- Great slides from a conference talk, has lots of insights and field data: https://static.sched.com/hosted_files/locomocosec2019/db/CSP%20-%20A%20Successful%20Mess%20Between%20Hardening%20and%20Mitigation%20%281%29.pdf
+
+- Great view on CSPs from an attacker's perspective: https://book.hacktricks.xyz/pentesting-web/content-security-policy-csp-bypass
+
+- Good explanation of the `strict-dynamic` keyword: https://content-security-policy.com/strict-dynamic/
+
+- Indispensible for testing: [The CSP Evaluator Extension for Google Chrome](https://chrome.google.com/webstore/detail/csp-evaluator/fjohamlofnakbnbfjkohkbdigoodcejf?hl=de)
+
+## TypeScript and JSDoc
+
+This package is written with 100% TypeScript and provides typings for full IntelliSense with CSP and middleware configuration. The typing for CSP directives is borrowed from [the CSP integration of SvelteKit](https://kit.svelte.dev/docs/types#additional-types-cspdirectives).
+
+Furthermore, most middlewares, functions, parameters and types have JSDoc on them, with examples, explanations and links to related resources.
+
+## Contributors
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<ContributorsList dangerouslySetInnerHTML={{ __html: __html_ac_list }} />
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome! Check out the [contributing guide](/CONTRIBUTING) for getting started!
+
+
+export const HeaderContainer = styled("div", tw`flex flex-col text-center`);
+
+export const BadgesContainer = styled("div", {
+  ...tw`flex flex-col space-y-5 my-7`,
+});
+
+export const BadgesRow = styled("div", {
+  ...tw`flex justify-center`,
+  p: tw`m-0! space-x-3!`,
+});
+
+export const __html_ac_badge = `
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
+`;
+
+export const ButtonContainer = styled("div", {
+  ...tw`flex justify-center flex-col space-y-4 md:(space-y-0 grid grid-cols-2 gap-4) xl:px-8`,
+  button: tw`flex justify-center`,
+});
+
+export const __html_ac_list = `
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+`.replace(/<br\s\/?>/g, "");
+
+export const ContributorsList = styled("div", {
+  ...tw`my-10`,
+  tbody: tw`border-t border-l border-r border-sky-100 divide-y divide-sky-100 shadow-md shadow-sky-100 dark:(shadow-sky-800 shadow-sky-800 divide-sky-900 border-sky-900)`,
+  tr: tw`border-0 divide-x divide-sky-100 dark:(divide-sky-900)`,
+  td: {
+    ...tw`py-6! border-0`,
+    a: {
+      ...tw`no-underline!`,
+      ":not([title])": tw`block mb-3`,
+      img: tw`rounded-full mx-auto`,
+      "[title]": tw`inline`,
+    },
+  },
+});

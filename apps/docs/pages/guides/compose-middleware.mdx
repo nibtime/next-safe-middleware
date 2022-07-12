@@ -1,0 +1,201 @@
+import Callout from "nextra-theme-docs/callout";
+
+# Compose middleware
+
+In your `middleware.js` you might potentially want to do more interesting things than just setting security headers. However, Next.js doesn't offer an idiomatic abstraction for composing middlewares yet.
+
+<Callout emoji="ℹ️">
+  If you like to use this package for composing middleware only, there's a
+  bundle `@next-safe/middleware/dist/compose` for just that.
+</Callout>
+
+## `chain`
+
+This package provides a minimal and simple abstraction for composing/chaining multiple middlewares within the `middleware.js` file. For this, it provides a function **`chain`**, that accepts an array of type `ChainableMiddleware`.
+
+The `ChainableMiddleware` interface is compatible with the Next.js spec (what needs to be exported from `middleware.js`) and provides additional handles for composition of multiple middlewares with **`chain`**:
+
+```ts
+type NextMiddlewareResult = NextResponse | Response | null | undefined;
+
+// this is the Middleware spec of Next.js
+type NextMiddleware = (
+  request: NextRequest,
+  event: NextFetchEvent
+) => NextMiddlewareResult | Promise<NextMiddlewareResult>;
+
+// this is the extended spec this package uses
+type ChainableMiddleware = (
+  request: NextRequest,
+  event: NextFetchEvent
+  ctx?: MiddlewareChainContext
+) => NextMiddlewareResult | void | Promise<NextMiddlewareResult | void>;
+```
+
+**`request`**: https://vercel.com/docs/concepts/functions/edge-functions#nextrequest
+
+**`event`**: https://vercel.com/docs/concepts/functions/edge-functions#nextfetchevent
+
+**`ctx`** : a context object of type `MiddlewareChainContext`:
+
+```ts
+type MiddlewareChainContext<K, V> = {
+  res: {
+    readonly get: () => NextMiddlewareResult;
+    readonly set: (res: NextMiddlewareResult, override?: boolean) => void;
+  };
+  cache: {
+    readonly get: (key: K) => V | null | undefined;
+    readonly set: (key: K, value: V) => void;
+  };
+  finalize: {
+    readonly addCallback: (finalizer: ChainFinalizer<K, V>) => void;
+    readonly removeCallback: (finalizer: ChainFinalizer<K, V>) => void;
+    readonly terminatedByResponse: () => boolean;
+  };
+};
+```
+
+**`res`**: accessors for a continued response. `ChainableMiddleware`'s' can access and modify it (adding/changing headers, cookies etc.) or set it for middlewares to their right to pick up upon.
+
+**`cache`**: accessors for an object cache for the lifetime of `chain`.
+
+**`finalize`**: handles for `ChainableMiddleware`'s to (un)register callbacks to be executed before `chain`terminates.
+
+When executed in `chain`, the return value of `ChainableMiddleware` is interpreted as follows:
+
+- a `ChainableMiddleware` returns a response: `chain` gets terminated. Middlewares to its right in the chain don't execute
+- a `ChainableMiddleware` returns nothing: `chain` continues with the middleware to its right
+- a `ChainableMiddleware` passes a response with `ctx.res.set` and returns nothing: `chain` continues with the middleware to its right, which can retrieve this response with `ctx.res.get`.
+
+### Only match a subset of requests with `chainMatch`
+
+To execute a middleware chain only on a subset of requests, there's a variant `chainMatch`.
+
+It consumes a matcher function of type `NextRequestPredicate` as its argument and returns a matched variant of `chain`:
+
+```ts
+type NextRequestPredicate = (req: NextRequest) => boolean;
+type ChainMatcher = NextRequestPredicate;
+```
+
+The resulting middleware chain will only execute if the matcher function evaluates to `true` for a request. Other than that, it behaves like regular `chain`.
+
+```ts
+const isPageRequest: NextRequestPredicate = (req) => ...
+
+const chainableMiddlewares: ChainableMiddleware[] = [...]
+
+const chainOnPageRequests = chainMatch(isPageRequest)
+
+const middleware = chainOnPageRequests(...chainableMiddlewares)
+```
+
+<Callout type="warning" emoji="⚠️">
+  Stable root-level middleware of [Next.js
+  12.2](https://nextjs.org/blog/next-12-2) matches all requests by default,
+  including assets in `public` and files under `/_next`. Read the [middleware
+  upgrade guide](https://nextjs.org/docs/messages/middleware-upgrade-guide)
+  before you upgrade an existing setup with Beta middleware.
+</Callout>
+
+<Callout type="warning" emoji="⚠️">
+  The abstractions around `chain` are work in progress and an experiment to see
+  what works well for composition and they are necessary to ship CSP and
+  security middleware as modular and reusable pieces. As soon as something
+  simliar becomes part of Next.js, this package will use them and deprecate the
+  custom ones.
+</Callout>
+
+### Example: Security middleware with Geo-blocking
+
+```js
+// middleware.js
+import {
+  chain,
+  chainMatch,
+  isPageRequest,
+  csp,
+  strictDynamic,
+} from "@next-safe/middleware";
+
+/** @type {import('@next-safe/middleware').ChainableMiddleware} */
+const geoBlockMiddleware = (req) => {
+  const BLOCKED_COUNTRY = "GB";
+  const country = req.geo.country || "US";
+
+  if (country === BLOCKED_COUNTRY) {
+    const response = new Response("Blocked for legal reasons", { status: 451 });
+    // returning response terminates the chain
+    return response;
+  }
+};
+
+const securityMiddleware = [csp(), strictDynamic()];
+
+/**
+ * geoBlockMiddleware will be invoked on all requests
+ * from `BLOCKED_COUNTRY` and then block the request
+ * and terminate chain by returning a response with status 451
+ *
+ * securityMiddleware will only run on requests
+ * that didn't get geo-blocked and only on requests for pages
+ */
+export default chain(
+  geoBlockMiddleware,
+  chainMatch(isPageRequest)(...securityMiddleware)
+);
+```
+
+## Configurable middleware
+
+### Usage
+
+Every middleware of this package supports configuration with an (async) initializer function:
+
+```ts
+type ConfigInitializerParams = {
+  req: NextRequest;
+  evt: NextFetchEvent;
+  ctx: MiddlewareChainContext;
+  // from next/server
+  userAgent: UserAgent;
+};
+
+type ConfigInitalizer<Config> = (
+  params: ConfigInitializerParams
+) => Config | Promise<Config>;
+
+type MiddlewareConfig<Config> = Config | ConfigInitalizer<Config>;
+```
+
+For example, you can use this capability to select different CSP configurations for different user agents:
+
+```js
+// middleware.js
+import {
+  chainMatch,
+  isPageRequest,
+  csp,
+  strictDynamic,
+} from "@next-safe/middleware";
+
+// CSP in always in report-only mode for Firefox
+// and by env var for other browsers
+const cspMiddleware = csp(async ({ userAgent }) => {
+  const browserName = userAgent.browser.name || "";
+  const reportOnly =
+    !!process.env.CSP_REPORT_ONLY || browserName.includes("Firefox");
+  return {
+    reportOnly,
+  };
+});
+
+const securityMiddleware = [cspMiddleware, strictDynamic()];
+
+export default chainMatch(isPageRequest)(...securityMiddleware);
+```
+
+### Builder
+
+TBD

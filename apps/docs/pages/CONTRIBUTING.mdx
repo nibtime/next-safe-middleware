@@ -1,0 +1,100 @@
+# Contributing
+
+## Get started with Gitpod
+
+The repository has a [`gitpod.yml`](https://github.com/nibtime/next-safe-middleware/blob/main/.gitpod.yml) and [Gitpod](https://gitpod.io/) offers 50 hours/month for free for working on public repos. The easiest way to get started with development.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/nibtime/next-safe-middleware)
+
+After opening the repo in Gitpod you can instantly experiment with the e2e/docs apps, explore code etc.
+
+If you want to [submit a PR](#submit-prs), you can just create a new branch (e.g. `fix-123`) and start working on it. On the first time you try to push it, access will be denied and Gitpod will prompt you to fork the repository.
+
+## Package development
+
+### Run dev servers with local packages
+
+Run in repo root:
+
+```
+yarn dev
+```
+
+It will rebuild and rebundle packages on changes and run `next dev` of the [e2e app](https://github.com/nibtime/next-safe-middleware/tree/main/apps/e2e) and the [docs app](https://github.com/nibtime/next-safe-middleware/tree/main/apps/docs) in parallel.
+
+### Serve an e2e app production build with local packages
+
+Required to test and evaluate things around Strict CSPs. Run in repo root:
+
+```
+yarn start
+```
+
+It will (re)build all packages in the repo that have changed and serve a production build of the [e2e app](https://github.com/nibtime/next-safe-middleware/tree/main/apps/e2e) with `next start` and local package builds.
+
+### Deploy the e2e app with local packages to Vercel
+
+So see the behavior of the package in a production environment, you can deploy the [e2e app](https://github.com/nibtime/next-safe-middleware/tree/main/apps/e2e) to Vercel.
+It will always use the local packages built from the last commit you pushed/deployed.
+
+First, [fork this repo](https://github.com/nibtime/next-safe-middleware/fork). Then click the deploy button and import your fork:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/project)
+
+Afterwards, you need to customize commands in Vercel project settings to make it work with [Yarn 3 monorepo structure](#repository-structure).
+
+**In your Vercel project settings**:
+
+Set `apps/e2e` as _"Root Directory"_ and enable _"Include source files outside of the Root Directory in the Build Step."_
+
+In **_"Build & Development Settings"_**:
+
+Set _"Framework Preset"_ to `Next.js` and override the following commands:
+
+_Build Command:_
+
+```
+cd ../.. && yarn build:e2e:vercel
+```
+
+_Install Command:_
+
+```
+yarn install --immutable --immutable-cache
+```
+
+### Serve a docs app production build with local packages
+
+```
+yarn start:docs
+```
+
+It will (re)build all packages in the repo that have changed and serve a production build of the [docs app](https://github.com/nibtime/next-safe-middleware/tree/main/apps/docs) with `next start` and local package builds.
+
+## Submit PRs
+
+TODO
+
+## Report bugs
+
+TODO
+
+## Suggest features and enhancements
+
+TODO
+
+## Ask questions
+
+TODO
+
+## Commit and code conventions
+
+TODO + setup for ESLint, Prettier, husky and lint-staged will be provided at some point.
+
+## Repository structure
+
+TODO
+
+## Attributions
+
+Policy icon used as icon of this website and [README](https://github.com/nibtime/next-safe-middleware/blob/main/packages/next-safe-middleware/README.md) created by [Kiranshastry - Flaticon](https://www.flaticon.com/free-icons/policy)
