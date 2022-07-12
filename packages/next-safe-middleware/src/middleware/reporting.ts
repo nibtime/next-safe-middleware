@@ -33,7 +33,7 @@ export type ReportingCSP = {
    *
    * @see https://canhas.report/csp-report-to
    *
-   * Will be ommitted from CSP if no match for this group name is present in the Report-To header. 
+   * Will be ommitted from CSP if no match for this group name is present in the Report-To header.
    * To unset the `report-to` directive from CSP, set to empty string
    *
    */
@@ -133,11 +133,11 @@ const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
  * @param cfg a configuration object to set up reporting according to the Reporting API spec
  * @returns a middleware that sets response headers according to the configured reporting capabilites
  * @see https://developers.google.com/web/updates/2018/09/reportingapi
- * 
+ *
  * @example
  * import {
  *   chain,
- *   csp, 
+ *   csp,
  *   strictDynamic,
  *   reporting,
  * } from "@next-safe/middleware";
@@ -157,12 +157,17 @@ const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
  * ];
  *
  * export default chain(...securityMiddleware);
- * 
+ *
  */
 const reporting = withDefaultConfig(_reporting, {
   csp: {
     reportSample: true,
     reportTo: "default",
+    reportUri: "/api/reporting",
+  },
+  reportTo: {
+    max_age: 1800,
+    endpoints: [{ url: "/api/reporting" }],
   },
 });
 
