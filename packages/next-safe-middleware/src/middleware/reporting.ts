@@ -1,8 +1,8 @@
 import type { UriPath } from "../types";
-import type { MiddlewareBuilder } from "./types";
+import type { MiddlewareBuilder } from "./builder/types";
 import { extendCsp } from "../utils";
 import { ensureChainContext, unpackConfig, withDefaultConfig } from "./builder";
-import { pullCspFromResponse, pushCspToResponse } from "./utils";
+import type { CspCacheKey, CspCacheValue } from "./finalizers";
 
 /**
  * @see https://developers.google.com/web/updates/2018/09/reportingapi#fields
@@ -72,9 +72,18 @@ export type ReportingCfg = {
 const stringifyReportTo = (reportTo: ReportTo) =>
   JSON.stringify(reportTo).replace(/\\"/g, '"');
 
-const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
-  ensureChainContext(async (req, evt, res) => {
-    const { reportTo = [], csp: cspCfg } = await unpackConfig(req, res, cfg);
+const _reporting: MiddlewareBuilder<
+  ReportingCfg,
+  CspCacheKey,
+  CspCacheValue
+> = (cfg) =>
+  ensureChainContext(async (req, evt, ctx) => {
+    const { reportTo = [], csp: cspCfg } = await unpackConfig(
+      cfg,
+      req,
+      evt,
+      ctx
+    );
 
     const arrayReportTo = Array.isArray(reportTo) ? reportTo : [reportTo];
 
@@ -83,7 +92,7 @@ const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
       .join(",");
 
     if (reportToHeaderValue) {
-      res.headers.set("report-to", reportToHeaderValue);
+      ctx.res.get().headers.set("report-to", reportToHeaderValue);
     }
 
     if (!cspCfg) {
@@ -100,33 +109,34 @@ const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
       groupMatches(r.group)
     );
 
-    let csp = pullCspFromResponse(res);
-    if (!csp) {
-      return;
-    } else {
-      const { reportUri = "", reportSample } = cspCfg;
-      if (csp) {
-        csp = extendCsp(
-          csp,
-          {
-            ...(reportUri ? { "report-uri": [reportUri] } : {}),
-            ...(reportToHasCspGroup ? { "report-to": [cspGroup] } : {}),
-          },
-          "override"
-        );
-        if (reportSample) {
-          csp = extendCsp(
-            csp,
-            {
-              ...(csp["script-src"] ? { "script-src": ["report-sample"] } : {}),
-              ...(csp["style-src"] ? { "style-src": ["report-sample"] } : {}),
-            },
-            "append"
-          );
-        }
-      }
+    const csp = ctx.cache.get("csp");
+    if (!csp) return;
+
+    let { directives, reportOnly } = csp;
+    const { reportUri = "", reportSample } = cspCfg;
+    directives = extendCsp(
+      directives,
+      {
+        ...(reportUri ? { "report-uri": [reportUri] } : {}),
+        ...(reportToHasCspGroup ? { "report-to": [cspGroup] } : {}),
+      },
+      "override"
+    );
+    if (reportSample) {
+      directives = extendCsp(
+        directives,
+        {
+          ...(directives["script-src"]
+            ? { "script-src": ["report-sample"] }
+            : {}),
+          ...(directives["style-src"]
+            ? { "style-src": ["report-sample"] }
+            : {}),
+        },
+        "append"
+      );
     }
-    pushCspToResponse(csp, res);
+    ctx.cache.set("csp", { directives, reportOnly });
   });
 
 /**
@@ -136,7 +146,8 @@ const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
  *
  * @example
  * import {
- *   chain,
+ *   chainMatch,
+ *   isPageRequest,
  *   csp,
  *   strictDynamic,
  *   reporting,
@@ -156,7 +167,7 @@ const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
  *   }),
  * ];
  *
- * export default chain(...securityMiddleware);
+ * export default chainMatch(isPageRequest)(...securityMiddleware);
  *
  */
 const reporting = withDefaultConfig(_reporting, {

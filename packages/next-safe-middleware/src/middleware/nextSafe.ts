@@ -1,6 +1,9 @@
 import _nextSafe from "next-safe";
-import type { MiddlewareBuilder } from "./types";
+import type { MiddlewareBuilder } from "./builder/types";
 import { unpackConfig, withDefaultConfig, ensureChainContext } from "./builder";
+import { writeCspToResponse } from "./finalizers";
+import { NextResponse } from "next/server";
+import { extendCsp, fromCspContent } from "../utils";
 
 /**
  * A CSP Directive Poroperty
@@ -59,10 +62,10 @@ type NextSafeConfig = {
   contentTypeOptions?: HeaderConfig;
   /**
    * @deprecated  to configure a CSP, use the `csp` middleware instead and
-   * and set `disableCsp` to `true` in cfg,
+   * and set `disableCsp` to `true`.
    *
-   * next-safe adds CSP legacy headers and reporting cannot be set up properly
-   * (https://github.com/trezy/next-safe/issues/41)
+   * violation reporting cannot be set up properly for both directives
+   * @see https://github.com/trezy/next-safe/issues/41
    *
    */
   contentSecurityPolicy?: CSPConfig | false;
@@ -85,7 +88,6 @@ export type NextSafeCfg = NextSafeConfig & {
    * For CSPs, use the `csp` middleware instead and set this to `true`.
    * You can use `nextSafeMiddleware` for other security headers if you need them.
    *
-   * Defaults to `false` so no existing configs get broken.
    *
    * @default false
    */
@@ -96,18 +98,34 @@ export type NextSafeCfg = NextSafeConfig & {
 const nextSafe = _nextSafe as unknown as typeof _nextSafe.nextSafe;
 
 const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
-  ensureChainContext(async (req, evt, res) => {
-    const { disableCsp, uaParser, ...nextSafeCfg } = await unpackConfig(
+  ensureChainContext(async (req, evt, ctx) => {
+    const { disableCsp, userAgent, ...nextSafeCfg } = await unpackConfig(
+      cfg,
       req,
-      res,
-      cfg
+      evt,
+      ctx
     );
     if (disableCsp) {
-      (nextSafeCfg.contentSecurityPolicy as any) = false;
+      (nextSafeCfg as any).contentSecurityPolicy = false;
     }
-    nextSafe(nextSafeCfg).forEach((header) =>
-      res.headers.set(header.key, header.value)
-    );
+    ctx.res.set(NextResponse.next(), false);
+    nextSafe(nextSafeCfg).forEach((header) => {
+      if (
+        header.key.toLowerCase() === "content-security-policy" ||
+        header.key.toLowerCase() === "content-security-policy-report-only"
+      ) {
+        const { directives } = ctx.cache.get("csp") ?? {};
+        ctx.cache.set("csp", {
+          directives: !directives
+            ? fromCspContent(header.value)
+            : extendCsp(directives, fromCspContent(header.value), "append"),
+          reportOnly: nextSafeCfg.contentSecurityPolicy.reportOnly || false,
+        });
+        ctx.finalize.addCallback(writeCspToResponse);
+        return;
+      }
+      ctx.res.get().headers.set(header.key, header.value);
+    });
   });
 
 /**
@@ -123,7 +141,8 @@ const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
  *
  * @example
  * import {
- *   chain,
+ *   chainMatch,
+ *   isPageRequest,
  *   csp,
  *   nextSafe,
  *   strictDynamic,
@@ -135,8 +154,13 @@ const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
  *   strictDynamic(),
  * ];
  *
- * export default chain(...securityMiddleware);
+ * export default chainMatch(isPageRequest)(...securityMiddleware);
  *
  */
-const nextSafeMiddleware = withDefaultConfig(_nextSafeMiddleware, {});
+const nextSafeMiddleware = withDefaultConfig(_nextSafeMiddleware, {
+  isDev: process.env.NODE_ENV === "development",
+  contentSecurityPolicy: {
+    reportOnly: !!process.env.CSP_REPORT_ONLY,
+  },
+});
 export default nextSafeMiddleware;
