@@ -1,7 +1,8 @@
 import { extendCsp } from "../utils";
-import type { MiddlewareBuilder } from "./types";
-import { pullCspFromResponse, pushCspToResponse, fetchHashes } from "./utils";
+import type { MiddlewareBuilder } from "./builder/types";
+import { fetchHashes } from "./utils";
 import { withDefaultConfig, ensureChainContext, unpackConfig } from "./builder";
+import type { CspCacheKey, CspCacheValue } from "./finalizers";
 
 export type StrictInlineStylesCfg = {
   /**
@@ -17,24 +18,32 @@ export type StrictInlineStylesCfg = {
   extendStyleSrc?: boolean;
 };
 
-const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
-  ensureChainContext(async (req, evt, res) => {
+const _strictInlineStyles: MiddlewareBuilder<
+  StrictInlineStylesCfg,
+  CspCacheKey,
+  CspCacheValue
+> = (cfg) =>
+  ensureChainContext(async (req, evt, ctx) => {
     if (process.env.NODE_ENV === "development") {
       return;
     }
+    const csp = ctx.cache.get("csp");
+    if (!csp) return;
+
+    let { directives, reportOnly } = csp;
+
     const fetchedHashes = await fetchHashes(req, "style-hashes.txt");
     if (fetchedHashes.length) {
-      const { extendStyleSrc } = await unpackConfig(req, res, cfg);
+      const { extendStyleSrc } = await unpackConfig(cfg, req, evt, ctx);
       const mode = extendStyleSrc ? "append" : "override";
-      let csp = pullCspFromResponse(res) ?? {};
-      csp = extendCsp(
-        csp,
+      directives = extendCsp(
+        directives,
         {
           "style-src": [...fetchedHashes, "unsafe-hashes"],
         },
         mode
       );
-      pushCspToResponse(csp, res);
+      ctx.cache.set("csp", { directives, reportOnly });
     } else {
       console.error(
         "[strictInlineStyles]: No styles. Is your app using any inline styles at all?. If yes, this is unexpected"
@@ -56,7 +65,8 @@ const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
  *
  * @example
  * import {
- *   chain,
+ *   chainMatch,
+ *   isPageRequest,
  *   csp,
  *   strictDynamic,
  *   strictInlineStyles,
@@ -68,7 +78,7 @@ const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
  *   strictInlineStyles(),
  * ];
  *
- * export default chain(...securityMiddleware);
+ * export default chainMatch(isPageRequest)(...securityMiddleware);
  */
 const strictInlineStyles = withDefaultConfig(_strictInlineStyles, {
   extendStyleSrc: true,

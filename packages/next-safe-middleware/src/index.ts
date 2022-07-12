@@ -17,10 +17,8 @@ export {
   cspDirectiveHas,
 } from "./utils";
 
-export type { Middleware, ChainableMiddleware } from "./middleware/types";
-
-export * from "./middleware/chain";
-export * from "./middleware/matchers";
 export { pullCspFromResponse, pushCspToResponse } from "./middleware/utils";
 
+export * from "./middleware/compose/types";
+export * from "./middleware/compose";
 export * from "./middleware";

@@ -1,8 +1,9 @@
-import type { MiddlewareBuilder } from "./types";
+import type { MiddlewareBuilder } from "./builder/types";
 import { extendCsp } from "../utils";
 import { ensureChainContext, unpackConfig, withDefaultConfig } from "./builder";
-import { pushCspToResponse } from "./utils";
 import { CspDirectives } from "../types";
+import { NextResponse } from "next/server";
+import { writeCspToResponse, CspCacheKey, CspCacheValue } from "./finalizers";
 
 export type CspCfg = {
   /**
@@ -38,7 +39,7 @@ export type CspCfg = {
    * you can use the `reporting` middleware and API handler of this lib.
    *
    * @see https://web.dev/strict-csp/#step-2:-set-a-strict-csp-and-prepare-your-scripts
-   * 
+   *
    * It's most convienient to control this option with an env var flag. This is also the default behavior of this option
    * (checks if `process.env.CSP_REPORT_ONLY` is set). Set this flag to an arbitrary value to enable report-only or
    * unset for enforce mode. If you use this flag, you don't need this option.
@@ -50,18 +51,32 @@ export type CspCfg = {
   reportOnly?: boolean;
 };
 
-const _csp: MiddlewareBuilder<CspCfg> = (cfg) =>
-  ensureChainContext(async (req, evt, res) => {
-    let { reportOnly, directives, isDev } = await unpackConfig(req, res, cfg);
+
+const _csp: MiddlewareBuilder<CspCfg, CspCacheKey, CspCacheValue> = (cfg) =>
+  ensureChainContext(async (req, evt, ctx) => {
+    let { reportOnly, directives, isDev } = await unpackConfig(
+      cfg,
+      req,
+      evt,
+      ctx
+    );
 
     if (isDev) {
       directives = extendCsp(directives, {
-        "script-src": ["self", "unsafe-eval"],
+        "script-src": ["self", "unsafe-eval", "unsafe-inline"],
         "style-src": ["self", "unsafe-inline"],
         "font-src": ["self", "data:"],
       });
     }
-    pushCspToResponse(directives, res, reportOnly);
+    const { directives: cachedDirectives } = ctx.cache.get("csp") ?? {};
+    ctx.cache.set("csp", {
+      directives: !cachedDirectives
+        ? directives
+        : extendCsp(cachedDirectives, directives, "append"),
+      reportOnly,
+    });
+    ctx.finalize.addCallback(writeCspToResponse);
+    ctx.res.set(NextResponse.next(), false);
   });
 
 /**
@@ -72,13 +87,14 @@ const _csp: MiddlewareBuilder<CspCfg> = (cfg) =>
  * (`strictDynamic`, `strictInlineStyles`) that does more complex stuff.
  *
  * Comes with rich typing and is resistant towards the "I forgot the fucking single quotes again" problem.
- * 
+ *
  * You can use it together with the `nextSafe` middleware to set security headers other than CSP
  * @see https://trezy.gitbook.io/next-safe/usage/configuration
  *
  * @example
  * import {
- *   chain,
+ *   chainMatch,
+ *   isPageRequest,
  *   csp,
  *   nextSafe,
  *   strictDynamic,
@@ -97,7 +113,7 @@ const _csp: MiddlewareBuilder<CspCfg> = (cfg) =>
  *   strictDynamic(),
  *  ];
  *
- * export default chain(...securityMiddleware);
+ * export default chainMatch(isPageRequest)(...securityMiddleware);
  *
  */
 const csp = withDefaultConfig(_csp, {

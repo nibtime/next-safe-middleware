@@ -1,5 +1,4 @@
 import type { NextRequest } from "next/server";
-import { uniq } from "ramda";
 import {
   CSP_HEADER,
   CSP_HEADER_REPORT_ONLY,
@@ -49,7 +48,7 @@ export const pushCspToResponse = (
 
 export const fetchHashes = async (
   req: NextRequest,
-  hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME,
+  hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME
 ) => {
   const { origin } = req.nextUrl;
   const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
@@ -68,16 +67,13 @@ export const fetchHashes = async (
   } finally {
   }
 
-  if (!resHashes) {
+  if (!resHashes?.ok) {
     return [];
   }
   try {
     const hashesText = await resHashes.text();
-    const hashes = hashesText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
-    return uniq(hashes);
+    const hashes = hashesText.split("\n");
+    return hashes;
   } catch {
     return [];
   }

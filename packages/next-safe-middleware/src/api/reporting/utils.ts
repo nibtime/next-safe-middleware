@@ -55,7 +55,7 @@ const deepJsonParse = (x: unknown) => {
 
 /**
 
- * @param {unknown} x - unknown
+ * @param x - some unknown input
  * @returns a `ReportingData` object if the input represents
  * valid reporting data. Otherwise, it returns `undefined`.
  */

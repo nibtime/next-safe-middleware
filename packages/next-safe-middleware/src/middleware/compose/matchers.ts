@@ -37,4 +37,7 @@ export const isPageRequest: NextRequestPredicate = (req) => {
 export const isPreviewModeRequest: NextRequestPredicate = (req) =>
   !!req.cookies.get("__next_preview_data");
 
-export const isLiveModePageRequest = matchAnd(matchNot(isPreviewModeRequest), isPageRequest)
+export const isLiveModePageRequest = matchAnd(
+  matchNot(isPreviewModeRequest),
+  isPageRequest
+);

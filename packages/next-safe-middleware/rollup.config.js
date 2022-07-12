@@ -35,16 +35,16 @@ const documentCfg = defineRollupSwcOption(
 
 const apiCfg = swcBase;
 
+const composeCfg = swcBase;
+
 const resolve = [
   commonjs({}),
   nodeResolve({
     resolveOnly: [
-      "ua-parser-js",
       "@swc/helpers",
       "tslib",
       "next-safe",
       "ramda",
-      "base-64",
     ],
   }),
 ];
@@ -78,6 +78,7 @@ const main = [
     plugins: [dts()],
   },
 ];
+
 const document = [
   {
     input: "src/document/index.tsx",
@@ -109,6 +110,7 @@ const document = [
     plugins: [dts()],
   },
 ];
+
 const api = [
   {
     input: "src/api/index.ts",
@@ -139,4 +141,34 @@ const api = [
   },
 ];
 
-export default [...main, ...document, ...api];
+const compose = [
+  {
+    input: "src/middleware/compose/index.ts",
+    output: {
+      file: "dist/compose/index.js",
+      format: "cjs",
+      name: "compose",
+      sourcemap,
+    },
+    external: ["next"],
+    plugins: [...resolve, swc(composeCfg)],
+  },
+  {
+    input: "src/middleware/compose/index.ts",
+    output: {
+      file: "dist/compose/index.mjs",
+      format: "es",
+      name: "compose-mjs",
+      sourcemap,
+    },
+    external: ["next"],
+    plugins: [...resolve, swc(composeCfg)],
+  },
+  {
+    input: "src/middleware/compose/index.ts",
+    output: [{ file: "dist/compose/index.d.ts", format: "es", name: "compose-dts" }],
+    plugins: [dts()],
+  },
+];
+
+export default [...main, ...document, ...api, ...compose];
