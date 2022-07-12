@@ -17,8 +17,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "clean": "rm -rf .next",
-    "build": "next build",
+    "clean": "rm -rf .next .swc public/robots.txt public/sitemap*.xml",
+    "build:e2e": "next build",
     "test": "jest --runInBand",
     "start": "next start"
   },

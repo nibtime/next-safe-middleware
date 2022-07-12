@@ -19,8 +19,10 @@
   },
   "scripts": {
     "dev": "NODE_ENV=development rollup -c rollup.config.js --watch",
-    "clean": "rm -rf dist package.tgz",
-    "build": "NODE_ENV=production rollup -c rollup.config.js && yarn pack",
+    "clean": "rm -rf .swc dist package.tgz",
+    "build:pkg": "NODE_ENV=production rollup -c rollup.config.js && yarn pack",
+    "build:e2e": "yarn build:pkg",
+    "build:docs": "yarn build:pkg",
     "test": "jest --runInBand"
   },
   "peerDependencies": {
@@ -66,8 +68,8 @@
   "bugs": {
     "url": "https://github.com/nibtime/next-safe-middleware/issues"
   },
-  "homepage": "https://next-safe-middleware.vercel.app/",
-  "description": "Strict Content-Security-Policy (CSP) for Next.js",
+  "homepage": "https://next-safe-middleware.vercel.app",
+  "description": "Strict Content-Security-Policy (CSP) for Next.js with composable middleware",
   "keywords": [
     "nextjs",
     "security",
@@ -76,6 +78,9 @@
     "strict-dynamic",
     "report-uri",
     "report-to",
-    "reporting-api"
+    "reporting-api",
+    "middleware",
+    "chain",
+    "compose"
   ]
 }
