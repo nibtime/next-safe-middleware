@@ -17,8 +17,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "clean": "rm -rf .next",
-    "build": "next build && yarn postbuild",
+    "clean": "rm -rf .next .swc public/robots.txt public/sitemap*.xml",
+    "build:docs": "next build && yarn postbuild",
     "start": "next start",
     "postbuild": "next-sitemap"
   },
