@@ -1,0 +1,68 @@
+import Callout from "nextra-theme-docs/callout";
+
+# CSP violation reporting
+
+## Set up reporting endpoint
+
+add the `reporting` middleware to your middleware chain in `middleware.js`:
+
+```js
+// middleware.js
+import {
+  chainMatch,
+  isPageRequest
+  csp,
+  reporting,
+  strictDynamic,
+  strictInlineStyles,
+} from '@next-safe/middleware';
+
+const securityMiddleware = [
+  csp(),
+  strictDynamic(),
+  reporting(),
+];
+
+export default chainMatch(isPageRequest)(...securityMiddleware);
+```
+
+then, set up the reporting endpoint in `pages/api/reporting.js`:
+
+```js
+// pages/api/reporting.js
+import { reporting } from "@next-safe/middleware/dist/api";
+
+/** @type {import('@next-safe/middleware/dist/api').Reporter} */
+const consoleLogReporter = (data) =>
+  console.log(JSON.stringify(data, undefined, 2));
+
+export default reporting(consoleLogReporter);
+```
+
+CSP violation reports will be send to this endpoint, both from `report-uri` and `report-to` directives. The data shape of reports is slightly different between both directives. The API handler parses the data into a discriminated union and passes it to all reporter functions. You can pattern-match the data there with IntelliSense support.
+
+## Send violation reports to Sentry
+
+If you use [Sentry](https://sentry.io) for monitoring your app, there is a convenient helper `sentryCspReporterForEndpoint` to create a reporter, that ingests all CSP violations into your Sentry project:
+
+```jsx
+// pages/api/reporting.js
+import {
+  reporting,
+  sentryCspReporterForEndpoint,
+} from "@next-safe/middleware/dist/api";
+
+// lookup at https://docs.sentry.io/product/security-policy-reporting/
+const sentryCspEndpoint = process.env.SENTRY_CSP_ENDPOINT;
+const sentryCspReporter = sentryCspReporterForEndpoint(sentryCspEndpoint);
+
+export default reporting(sentryCspReporter);
+```
+
+<Callout emoji="ℹ️">
+  Sentry only supports the data format of the `report-uri` directive. It can't
+  receive violation reports in `report-to` format. However, all Chromium-based
+  browsers send violation reports in `report-to` format.
+  `sentryCspReporterForEndpoint` does the necessary conversion, so you will
+  receive reports from all major browsers in Sentry.
+</Callout>
