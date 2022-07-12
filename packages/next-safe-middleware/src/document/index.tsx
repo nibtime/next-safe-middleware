@@ -15,11 +15,15 @@ import {
   cspNonce,
   applyNonceToCsp,
 } from "./utils";
-import { Head as NoncingHead } from "./NoncingHead";
+import { Head as NoncingHead, noncifyChildren } from "./NoncingHead";
 import {
   Head as HashingHead,
   collectStyleElemHashes,
   collectStyleAttrHashes,
+  trustifyScriptChildren,
+  collectStyleHashesFromChildren,
+  pullStyleElemHashes,
+  pullStyleAttrHashes,
 } from "./HashingHead";
 
 export type {
@@ -254,11 +258,23 @@ export const getCspInitialProps = async ({
   const initialProps =
     passInitialProps || (await Document.getInitialProps(ctx));
 
+  if (trustifyScripts) {
+    trustifyScriptChildren(initialProps.head);
+  }
+
+  if (nonce) {
+    noncifyChildren(nonce, initialProps.head, {
+      trustifyStyles,
+      trustifyScripts,
+    });
+  }
+
   if (trustifyStyles) {
     const { html, styleElemHashes, styleAttrHashes } = trustifyStylesInHtml(
       initialProps.html,
       nonce
     );
+
     initialProps.html = html;
     const customElemHashes = hashRawCss.flatMap((el) => {
       if (typeof el === "string") {
@@ -269,14 +285,16 @@ export const getCspInitialProps = async ({
         ? [integritySha256(styleOrStyles)]
         : styleOrStyles.map(integritySha256);
     });
+    collectStyleElemHashes(
+      ...collectStyleHashesFromChildren(initialProps.head)
+    );
     collectStyleElemHashes(...customElemHashes);
     collectStyleElemHashes(...styleElemHashes);
     collectStyleAttrHashes(...styleAttrHashes);
     if (nonce) {
       const styleHashes = [
-        ...customElemHashes,
-        ...styleElemHashes,
-        ...styleAttrHashes,
+        ...pullStyleElemHashes(),
+        ...pullStyleAttrHashes(),
       ];
       let { directives, reportOnly } = getCsp(ctx);
       if (directives) {
