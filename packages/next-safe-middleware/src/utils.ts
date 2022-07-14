@@ -1,4 +1,4 @@
-import { mergeWithKey, uniq } from "ramda";
+import { mergeDeepWithKey, uniq, map } from "ramda";
 import type {
   BooleanDirectives,
   CspDirectives,
@@ -7,9 +7,11 @@ import type {
 } from "./types";
 
 const isBoolDirective = (directive: string) => {
-  return ["upgrade-insecure-requests", "block-all-mixed-content"].includes(
-    directive
-  );
+  return [
+    "upgrade-insecure-requests",
+    "block-all-mixed-content",
+    "sandbox",
+  ].includes(directive);
 };
 
 const singleQuotify = (directiveValue: string) => `'${directiveValue}'`;
@@ -37,38 +39,34 @@ const singleQuotifiedIfLiteral = (directiveValue: string) =>
     : directiveValue;
 
 const unquotify = (directiveValue: string) => {
-  if(directiveValue.startsWith("'") && directiveValue.endsWith("'")) {
-    return directiveValue.slice(1, -1)
+  if (directiveValue.startsWith("'") && directiveValue.endsWith("'")) {
+    return directiveValue.slice(1, -1);
   }
-  return directiveValue
-}
+  return directiveValue;
+};
 
 export const arrayifyCspValues = (
   values: string | string[] | boolean
 ): string[] | boolean => {
-  if (typeof values !== "string") {
+  if (typeof values === "boolean") {
     return values;
   }
-  return values
-    .trim()
-    .split(" ")
-    .map((v) => v.trim())
-    .filter(Boolean);
+  let arrayValues: string[];
+  if (typeof values === "string") {
+    arrayValues = values
+      .trim()
+      .split(" ")
+      .map((v) => v.trim());
+  } else {
+    arrayValues = values || [];
+  }
+  return arrayValues.filter(Boolean);
 };
 
 const arrayifyCspDirectives = (
   directives: CspDirectives | CspDirectivesLenient
 ): CspDirectives => {
-  const arrayifiedEntries = Object.entries(directives).map(
-    ([directive, values]) => {
-      return [directive, arrayifyCspValues(values)];
-    }
-  );
-  return Object.fromEntries(
-    arrayifiedEntries.filter(([k, v]) =>
-      k && v && Array.isArray(v) ? v.length : true
-    )
-  );
+  return map(arrayifyCspValues, directives) as CspDirectives;
 };
 
 export const toCspContent = (csp: CspDirectives | CspDirectivesLenient) =>
@@ -86,27 +84,33 @@ export const toCspContent = (csp: CspDirectives | CspDirectivesLenient) =>
 export const fromCspContent = (content: string): CspDirectives =>
   Object.fromEntries(
     content
-      .trim()
+      // split to directive lines
       .split(";")
-      .filter(Boolean)
       .map((line) =>
         line
+          // get rid of execess whitespace around line
+          .trim()
+          // line items are split by single space ...
           .split(" ")
+          // ... if there are multiple, get rid of them
           .map((lineItem) => lineItem.trim())
           .filter(Boolean)
       )
-      .filter(Boolean)
+      // map to CspDirectives
       .map((line) => {
         const directive = line[0];
         const values = line.slice(1);
         if (isBoolDirective(directive)) {
           return [directive, true];
         }
-        return (directive && values.length ? [directive, values.map(unquotify)] : []) as [
-          keyof CspDirectives,
-          string[]
-        ];
+        return (
+          directive && values.length
+            ? [directive, values.map(unquotify)]
+            : undefined
+        ) as [keyof CspDirectives, string[]];
       })
+      // get rid of anything undefined
+      .filter(Boolean)
   );
 
 export const extendCsp = (
@@ -114,11 +118,17 @@ export const extendCsp = (
   cspExtension: CspDirectives | CspDirectivesLenient,
   mode: "prepend" | "append" | "override" = "prepend"
 ): CspDirectives => {
-  const concatValues = (_k: string, l: string[], r: string[]) =>
-    mode !== "override"
+  const concatValues = (
+    _k: string,
+    l: string[] | boolean,
+    r: string[] | boolean
+  ) =>
+    Array.isArray(l) && Array.isArray(r) && mode !== "override"
       ? uniq(mode === "append" ? [...l, ...r] : [...r, ...l])
+      : !r
+      ? undefined
       : r;
-  return mergeWithKey(
+  return mergeDeepWithKey(
     concatValues,
     arrayifyCspDirectives(csp),
     arrayifyCspDirectives(cspExtension)
