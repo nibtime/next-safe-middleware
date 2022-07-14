@@ -45,7 +45,7 @@ export interface CspDirectives {
   "style-src-elem"?: Sources;
   "style-src-attr"?: Sources;
   "base-uri"?: Array<Source | ActionSource>;
-  sandbox?: Array<
+  sandbox?: boolean | Array<
     | "allow-downloads-without-user-activation"
     | "allow-forms"
     | "allow-modals"
