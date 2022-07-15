@@ -44,10 +44,11 @@ export {
 type ProvidedProps = {
   trustifyStyles?: boolean;
   trustifyScripts?: boolean;
+  children?: any
 };
 type Provided = {
-  Head: React.FC<ProvidedProps>;
-  NextScript: React.FC<ProvidedProps>;
+  Head: (props: ProvidedProps) => JSX.Element;
+  NextScript: (props: ProvidedProps) => JSX.Element;
 };
 
 /**
@@ -64,7 +65,6 @@ type Provided = {
  *     const initialProps = await getCspInitialProps({
  *       ctx,
  *       trustifyStyles: true,
- *       enhanceAppWithNonce: true
  *     });
  *     return initialProps;
  *   ...
