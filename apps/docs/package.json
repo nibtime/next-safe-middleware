@@ -29,19 +29,19 @@
     "@mdx-js/react": "^2.1.2",
     "@next-safe/middleware": "workspace:*",
     "@stitches/react": "^1.2.8",
-    "next": "^12.2.0",
+    "next": "^12.2.2",
     "next-sitemap": "^3.1.10",
     "nextra": "beta",
     "nextra-theme-docs": "beta",
     "ramda": "^0.28.0",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.3",
     "@types/node": "17.0.18",
     "@types/ramda": "^0.27.64",
-    "@types/react": "^17.0.39",
+    "@types/react": "^18.0.15",
     "babel-plugin-macros": "^3.1.0",
     "tailwindcss": "^3.1.6",
     "twin.macro": "rc",
