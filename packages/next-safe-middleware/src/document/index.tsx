@@ -47,8 +47,8 @@ type ProvidedProps = {
   children?: any
 };
 type Provided = {
-  Head: (props: ProvidedProps) => JSX.Element;
-  NextScript: (props: ProvidedProps) => JSX.Element;
+  Head: (props: ProvidedProps) => any;
+  NextScript: (props: ProvidedProps) => any;
 };
 
 /**
