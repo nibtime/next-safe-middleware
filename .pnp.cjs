@@ -2077,15 +2077,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@swc/core", "npm:1.2.144"],\
             ["@swc/helpers", "npm:0.3.3"],\
             ["@swc/jest", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:0.2.20"],\
-            ["@types/base-64", "npm:1.0.0"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/lockfile", "npm:1.0.2"],\
             ["@types/next", null],\
             ["@types/node", "npm:17.0.21"],\
             ["@types/ramda", "npm:0.27.66"],\
             ["@types/react", "npm:17.0.39"],\
-            ["@types/ua-parser-js", "npm:0.7.36"],\
-            ["base-64", "npm:1.0.0"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:27.5.1"],\
             ["lockfile", "npm:1.0.4"],\
@@ -2097,8 +2094,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["rollup-plugin-dts", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:4.1.0"],\
             ["rollup-plugin-swc3", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:0.2.0"],\
             ["tslib", "npm:2.4.0"],\
-            ["typescript", "patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=bda367"],\
-            ["ua-parser-js", "npm:1.0.2"]\
+            ["typescript", "patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=bda367"]\
           ],\
           "packagePeers": [\
             "@types/next",\
@@ -2117,14 +2113,11 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@swc/core", "npm:1.2.144"],\
             ["@swc/helpers", "npm:0.3.3"],\
             ["@swc/jest", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:0.2.20"],\
-            ["@types/base-64", "npm:1.0.0"],\
             ["@types/jest", "npm:27.4.1"],\
             ["@types/lockfile", "npm:1.0.2"],\
             ["@types/node", "npm:17.0.21"],\
             ["@types/ramda", "npm:0.27.66"],\
             ["@types/react", "npm:17.0.39"],\
-            ["@types/ua-parser-js", "npm:0.7.36"],\
-            ["base-64", "npm:1.0.0"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:27.5.1"],\
             ["lockfile", "npm:1.0.4"],\
@@ -2136,8 +2129,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["rollup-plugin-dts", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:4.1.0"],\
             ["rollup-plugin-swc3", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:0.2.0"],\
             ["tslib", "npm:2.4.0"],\
-            ["typescript", "patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=bda367"],\
-            ["ua-parser-js", "npm:1.0.2"]\
+            ["typescript", "patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=bda367"]\
           ],\
           "linkType": "SOFT"\
         }]\
@@ -3115,15 +3107,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
-      ["@types/base-64", [\
-        ["npm:1.0.0", {\
-          "packageLocation": "./.yarn/cache/@types-base-64-npm-1.0.0-425fbc008e-bcb1b52b40.zip/node_modules/@types/base-64/",\
-          "packageDependencies": [\
-            ["@types/base-64", "npm:1.0.0"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
       ["@types/debug", [\
         ["npm:4.1.7", {\
           "packageLocation": "./.yarn/cache/@types-debug-npm-4.1.7-f54c81f8db-0a7b89d8ed.zip/node_modules/@types/debug/",\
@@ -3469,15 +3452,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@types/testing-library__jest-dom", "npm:5.14.2"],\
             ["@types/jest", "npm:27.4.1"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["@types/ua-parser-js", [\
-        ["npm:0.7.36", {\
-          "packageLocation": "./.yarn/cache/@types-ua-parser-js-npm-0.7.36-f5ace9ead6-8c24d4dc12.zip/node_modules/@types/ua-parser-js/",\
-          "packageDependencies": [\
-            ["@types/ua-parser-js", "npm:0.7.36"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -4132,15 +4106,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/balanced-match-npm-1.0.2-a53c126459-9706c088a2.zip/node_modules/balanced-match/",\
           "packageDependencies": [\
             ["balanced-match", "npm:1.0.2"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["base-64", [\
-        ["npm:1.0.0", {\
-          "packageLocation": "./.yarn/cache/base-64-npm-1.0.0-0683a6b836-d10b64a1fc.zip/node_modules/base-64/",\
-          "packageDependencies": [\
-            ["base-64", "npm:1.0.0"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -12680,15 +12645,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/typescript-patch-1413b5712d-858c61fa63.zip/node_modules/typescript/",\
           "packageDependencies": [\
             ["typescript", "patch:typescript@npm%3A4.5.5#~builtin<compat/typescript>::version=4.5.5&hash=bda367"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["ua-parser-js", [\
-        ["npm:1.0.2", {\
-          "packageLocation": "./.yarn/cache/ua-parser-js-npm-1.0.2-c3376785e2-ff7f6d79a9.zip/node_modules/ua-parser-js/",\
-          "packageDependencies": [\
-            ["ua-parser-js", "npm:1.0.2"]\
           ],\
           "linkType": "HARD"\
         }]\
