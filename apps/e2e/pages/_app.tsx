@@ -25,6 +25,7 @@ function MyApp({ Component, pageProps }) {
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
 
   useHotkeys([["mod+J", () => toggleColorScheme()]]);
+  globalStyles()
   return (
     <>
       <Script
@@ -53,7 +54,6 @@ function MyApp({ Component, pageProps }) {
           theme={{ colorScheme }}
           emotionOptions={{ key: "mantine", nonce: pageProps.nonce }}
         >
-          {globalStyles()}
           <Component {...pageProps} />
         </MantineProvider>
       </ColorSchemeProvider>
