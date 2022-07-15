@@ -15,7 +15,8 @@
   [![Release][release-status-badge]][release-status]
 
   <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-  <!-- ALL-CONTRIBUTORS-BADGE:END -->
+<p><a href="#contributors"><img src="https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square"></img></a></p>
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
   [![Star on GitHub][github-star-badge]][github-star]
   [![Watch on GitHub][github-watch-badge]][github-watch]
@@ -271,6 +272,17 @@ If you only want to use the composition features from this package, there's an e
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/nibtime"><img src="https://avatars.githubusercontent.com/u/52962482?v=4?s=100" width="100px;" alt=""/><br /><sub><b>nibtime</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Code">💻</a> <a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Anibtime" title="Bug reports">🐛</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Documentation">📖</a> <a href="#infra-nibtime" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Tests">⚠️</a> <a href="#ideas-nibtime" title="Ideas, Planning, & Feedback">🤔</a> <a href="#example-nibtime" title="Examples">💡</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome! Check out the [contributing guide](https:next-safe-middleware.vercel.app/CONTRIBUTING) for getting started!
