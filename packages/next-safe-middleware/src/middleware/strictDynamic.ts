@@ -120,12 +120,22 @@ const _strictDynamic: MiddlewareBuilder<
       return;
     }
 
-    const scriptSrcHashes = (await fetchHashes(
-      req,
-      "script-hashes.txt"
-    )) as ScriptSrcSources;
-    // if fetched hashes, it's a static page. Hash-based strict CSP
-    if (
+    const scriptSrcHashes = (await fetchHashes(req, "script-hashes.txt")) as
+      | ScriptSrcSources
+      | string;
+    if (typeof scriptSrcHashes === "string") {
+      console.error(
+        `[strictDynamic]: No script hashes could be fetched. 
+  Did you call getCspInitialProps in _document?. If yes, this is unexpected`,
+        {
+          scriptHashesFetchStatus: scriptSrcHashes,
+          supportsStrictDynamic,
+          supportsSrcIntegrityCheck,
+          browser: userAgent.browser.name,
+          version: userAgent.browser.version,
+        }
+      );
+    } else if (
       scriptSrcHashes.length &&
       supportsStrictDynamic &&
       supportsSrcIntegrityCheck
@@ -144,13 +154,16 @@ const _strictDynamic: MiddlewareBuilder<
     }
     //
     else {
-      console.error(
-        "[strictDynamic]: Couldn't fetch hashes. has your app static pages for Hash-based strict CSP?. If yes, this is unexpected",
+      console.log(
+        `[strictDynamic]: browser with no proper support for strict-dynamic.
+  Either doesn't support the value or has buggy SRI validation
+  Applying fallback sources...`,
         {
-          supportsStrictDynamic,
-          supportsSrcIntegrityCheck,
+          fallbackScriptSrc,
           browser: userAgent.browser.name,
           version: userAgent.browser.version,
+          supportsStrictDynamic,
+          supportsSrcIntegrityCheck,
         }
       );
 
@@ -167,12 +180,12 @@ const _strictDynamic: MiddlewareBuilder<
 
 const tellSupported: TellSupported = (userAgent) => {
   const browserName = userAgent.browser.name || "";
-  const browserVersion = userAgent.browser.version || "";
+  const browserVersion = Number(userAgent.browser.version || "");
+  const isSafari = browserName.includes("Safari");
   const isFirefox = browserName.includes("Firefox");
-  const isUnsupportedSafari =
-    browserName.includes("Safari") && Number(browserVersion) <= 15.4;
-  const supportsStrictDynamic = !isUnsupportedSafari;
-  const supportsSrcIntegrityCheck = !isFirefox;
+  const isSafariWithoutStrictDynamic = isSafari && browserVersion <= 15.4;
+  const supportsStrictDynamic = !isSafariWithoutStrictDynamic;
+  const supportsSrcIntegrityCheck = !(isSafari || isFirefox);
 
   return {
     supportsStrictDynamic,

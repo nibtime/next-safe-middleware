@@ -1,4 +1,5 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
+import { deepFreeze } from "../utils";
 import type {
   ChainMatcher,
   MiddlewareChain,
@@ -9,13 +10,6 @@ import type {
   NextMiddleware,
 } from "./types";
 
-// https://www.30secondsofcode.org/js/s/deep-freeze
-const deepFreeze = (obj) => {
-  Object.keys(obj).forEach((prop) => {
-    if (typeof obj[prop] === "object") deepFreeze(obj[prop]);
-  });
-  return Object.freeze(obj);
-};
 /**
  *
  * @param middlewares the middlewares to chain in sequence
@@ -34,7 +28,7 @@ export const chain =
     let chainResponse: NextMiddlewareResult;
     let terminatedByResponse = null;
     const cache: Partial<Record<K, V>> = {};
-    let finalizers: ChainFinalizer[] = [];
+    const finalizers: ChainFinalizer[] = [];
 
     const ctx: Readonly<Ctx> = deepFreeze({
       res: {
@@ -57,19 +51,15 @@ export const chain =
             finalizers.push(f);
           }
         },
-        removeCallback: (f) => {
-          const fIndex = finalizers.indexOf(f);
-          if (fIndex !== -1) {
-            finalizers.splice(fIndex, 1);
-          }
-        },
         terminatedByResponse: () => terminatedByResponse,
       },
     });
 
     const finalize = async () => {
       try {
-        Promise.all(finalizers.map((f) => f(req, evt, ctx)));
+        for (const callback of finalizers.reverse()) {
+          await callback(req, evt, ctx);
+        }
       } catch (error) {
         console.error("[chain]: finalization error", { error });
       }
