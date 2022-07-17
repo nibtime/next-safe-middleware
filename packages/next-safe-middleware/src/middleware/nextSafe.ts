@@ -114,17 +114,23 @@ const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
         header.key.toLowerCase() === "content-security-policy" ||
         header.key.toLowerCase() === "content-security-policy-report-only"
       ) {
-        const { directives } = ctx.cache.get("csp") ?? {};
+        const { directives, reportOnly } = ctx.cache.get("csp") ?? {};
         ctx.cache.set("csp", {
           directives: !directives
             ? fromCspContent(header.value)
             : extendCsp(directives, fromCspContent(header.value), "append"),
-          reportOnly: nextSafeCfg.contentSecurityPolicy.reportOnly || false,
+          reportOnly: nextSafeCfg.contentSecurityPolicy.reportOnly || reportOnly,
         });
         ctx.finalize.addCallback(writeCspToResponse);
         return;
+      } else if (
+        !header.key.toLowerCase().includes("content-security-policy")
+        && !header.key.toLowerCase().includes('csp')
+      ) {
+        ctx.finalize.addCallback((req, evt, ctx) =>
+          ctx.res.get().headers.set(header.key, header.value)
+        );
       }
-      ctx.res.get().headers.set(header.key, header.value);
     });
   });
 
@@ -159,6 +165,7 @@ const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
  */
 const nextSafeMiddleware = withDefaultConfig(_nextSafeMiddleware, {
   isDev: process.env.NODE_ENV === "development",
+  disableCsp: false,
   contentSecurityPolicy: {
     reportOnly: !!process.env.CSP_REPORT_ONLY,
   },
