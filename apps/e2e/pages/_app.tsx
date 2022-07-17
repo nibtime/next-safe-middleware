@@ -19,13 +19,18 @@ function MyApp({ Component, pageProps }) {
     getInitialValueInEffect: true,
   });
 
-  console.log("Nonce from _document", { nonce: pageProps.nonce });
-  
+  // will be injected by gsspWithNonceAppliedToCsp
+  const nonce = pageProps.nonce;
+
+  if (nonce) {
+    console.log("Injected Nonce", { nonce });
+  }
+
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === "dark" ? "light" : "dark"));
 
   useHotkeys([["mod+J", () => toggleColorScheme()]]);
-  globalStyles()
+  globalStyles();
   return (
     <>
       <Script
@@ -52,7 +57,7 @@ function MyApp({ Component, pageProps }) {
       >
         <MantineProvider
           theme={{ colorScheme }}
-          emotionOptions={{ key: "mantine", nonce: pageProps.nonce }}
+          emotionOptions={{ key: "mantine", nonce }}
         >
           <Component {...pageProps} />
         </MantineProvider>

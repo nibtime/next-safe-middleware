@@ -1,5 +1,6 @@
 {
   "strict-csp-configuration": "Strict CSP configuration",
   "csp-violation-reporting": "CSP violation reporting",
-  "compose-middleware": "Composing middleware"
+  "compose-middleware": "Composing middleware",
+  "trace-middleware": "Trace middleware"
 }

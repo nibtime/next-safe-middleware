@@ -23,7 +23,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@builder.io/partytown": "^0.5.2",
+    "@builder.io/partytown": "^0.6.4",
     "@mantine/core": "^4.2.12",
     "@mantine/hooks": "^4.2.12",
     "@mantine/next": "^4.2.12",

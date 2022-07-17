@@ -3,6 +3,7 @@ import Callout from "nextra-theme-docs/callout";
 # Strict CSP configuration
 
 ## Base setup
+
 create a file `middleware.js` in your Next.js project folder:
 
 ```js
@@ -59,6 +60,29 @@ export default class MyDocument extends Document {
 }
 ```
 
+For every page under `pages` that uses `getServerSideProps` for data fetching:
+
+```js
+import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+
+// wrap data fetching with gsspWithNonceAppliedToCsp
+export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+  return { props: { message: "Hi, from getServerSideProps" } };
+});
+
+// the generated nonce also gets injected into page props
+const Page = ({ message, nonce }) => <h1>{`${message}. Nonce ${nonce}`}</h1>;
+
+export default Page;
+```
+
+<Callout type="warning" emoji="⚠️">
+  `gsspWithNonceAppliedToCsp` is necessary with Next.js 12.2 as there seems no
+  longer a way to automatically tell apart routes with `getStaticProps +
+  revalidate` (ISR) from routes with `getServerSideProps`. But that is needed to
+  make the right decision between Hash-based or Nonce-based Strict CSP.
+</Callout>
+
 ### Default CSP directives
 
 Those are the minimal and sensible defaults this package provides as the common base for Strict CSPs:
@@ -76,6 +100,7 @@ const defaults = {
 ```
 
 ### Hash-based Strict CSP and Incremental Static Regeneration (ISR)
+
 Add the following code to the top of every route with `getStaticProps` that uses `revalidate` (including `res.revalidate` or `res.unstable_revalidate` for [On-demand ISR](https://nextjs.org/blog/next-12-1#on-demand-incremental-static-regeneration-beta)):
 
 ```js
@@ -84,7 +109,7 @@ export const config = {
 };
 ```
 
-<Callout emoji="ℹ️">
+<Callout emoji="💡">
   If you like to know in detail what Incremental Static Regeneration (ISR) is
   and how it works, [read the docs from
   Vercel](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration)
@@ -92,19 +117,17 @@ export const config = {
 
 ## Add custom scripts
 
-Just add them with [`next/script`](https://nextjs.org/docs/basic-features/script) and strategies `afterInteractive` or `lazyOnLoad` on the pages where you need them. If you want to include a script in all pages, add it to your `pages/app.js`. 
+Just add them with [`next/script`](https://nextjs.org/docs/basic-features/script) and strategies `afterInteractive` or `lazyOnLoad` on the pages where you need them. If you want to include a script in all pages, add it to your `pages/app.js`.
 
-Custom scripts that must run before the page is interactive, have to be added to `pages/_document.js`, with `<Script strategy="beforeInteractive src="https:// ..." />`, if the script has a `src` attribute or with a regular `<script>{inlineCodeString}</script>` tag as child of `<Head>`, if the script is an inline script. 
+Custom scripts that must run before the page is interactive, have to be added to `pages/_document.js`, with `<Script strategy="beforeInteractive />` or with a regular `<script>{inlineCodeString}</script>` tag as child of `<Head>`.
 
 If you stick to those recommendations, all your script usage will work automatically with the hybrid Strict CSP capabilites provided by this package.
-
 
 The following files serve as examples for script usage:
 
 - [`apps/e2e/pages/_document.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx)
 
 - [`apps/e2e/pages/_app.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_app.tsx)
-
 
 <Callout type="error" emoji="🚫">
   **NEVER** add unsafe (inline) script code from dynamic data anywhere within `<Head>` of `pages/_document.js` / `next/head` or `<Script>` of `next/script`. Scripts in those places will be trustified for Strict CSP by this package during SSR.
@@ -125,15 +148,26 @@ the script will eventually receive the nonce.
 #### `getStaticProps` (Hash-based)
 
 1. The script loads from `src` and has an integrity attribute: The integrity attribute/hash will be picked up for CSP. Don't forget to set `{ crossOrigin: "anonymous" }` in `next.config.js`, else the [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) validation will fail.
+
+<Callout emoji="💡">
+  A nice tool to conveniently get the hash for such scripts:
+  https://www.srihash.org/.
+</Callout>
+
 2. The script loads from `src` and doesn't have an integrity attribute: The script will be replaced by an inline proxy script that loads the script. The hash of this proxy script will be picked up for CSP. The actual script eventually becomes trusted by transitive trust propagation of `strict-dynamic`.
 
 3. The script is an inline script: The inline code of the script will be hashed, the hash will be set as integrity attribute of the inline script and the hash will be picked up by CSP.
+
+<Callout type="warning" emoji="⚠️">
+  Hash-based Strict CSP doesn't really work for Firefox and Safari, as they seem to be not fully CSP-3 compliant yet. Using `strict-dynamic` messes up SRI validation for them, such that it doesn't work with scripts that have both a `src` and `integrity` attribute. The `strictDynamic` middleware handles this by opting out Firefox and Safari from Strict CSP for static routes (Hash-based) and uses the `fallbackSrc` instead, so visitors that use Safari or Firefox won't have Strict CSP protection when they enter your site/app via a static route. When they enter your site/app via a dynamic route, they have Strict CSP protection with Nonce-based Strict CSP. More details about that problem can be found [here](https://github.com/nibtime/next-safe-middleware/issues/5) and [here](https://github.com/nibtime/next-safe-middleware/pull/47).
+
+</Callout>
 
 ## Avoid unsafe inline styles (CSS-in-JS)
 
 This package tries to provide a best effort solution to this, with a `strictInlineStyles` middleware. The [e2e test app](https://e2e-next-safe-middleware.vercel.app) of this package comes with a setup that uses both [twin.macro](https://github.com/ben-rogerson/twin.macro) + [Stitches](https://stitches.dev/) and [Mantine](https://mantine.dev/) without `unsafe-inline` in `style-src`.
 
-<Callout emoji="ℹ️">
+<Callout emoji="💡">
   For more information, [visit a discussion on
   GitHub](https://github.com/nibtime/next-safe-middleware/issues/34) about
   problems and their solution for a setup with [Mantine](https://mantine.dev), a
@@ -157,7 +191,7 @@ The following files serve as the references for such setups:
 
 ## Set additional security headers
 
-<Callout emoji="ℹ️">
+<Callout emoji="💡">
   A good listing with explanations can be found in the [Next.js
   docs](https://nextjs.org/docs/advanced-features/security-headers)
 </Callout>
@@ -183,7 +217,7 @@ const securityMiddleware = [
 export default chainMatch(isPageRequest)(...securityMiddleware);
 ```
 
-<Callout emoji="ℹ️">
+<Callout emoji="💡">
   The configuration options of the `nextSafe` middleware are the same as
   documented at https://trezy.gitbook.io/next-safe/usage/configuration
 </Callout>

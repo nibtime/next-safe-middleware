@@ -397,12 +397,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@builder.io/partytown@npm:^0.5.2":
-  version: 0.5.2
-  resolution: "@builder.io/partytown@npm:0.5.2"
+"@builder.io/partytown@npm:^0.6.4":
+  version: 0.6.4
+  resolution: "@builder.io/partytown@npm:0.6.4"
   bin:
     partytown: bin/partytown.cjs
-  checksum: 88ca3f3e6e15039bf1e7319fbc580ba19cf0fc61136761dea82ab64e18eba5885f76b551d44102ac7e495e2c951815fc1fcf71629d2564097a81946912cd38a7
+  checksum: 000133b6ab1adcbe6ab9686a8d7af554449f68002ec7ff14cb069d5af674c172c44cd3fad5731939dea9fe7c817f8cd944458aa42c63e2ca954126f3e0f39403
   languageName: node
   linkType: hard
 
@@ -3930,7 +3930,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "docs@workspace:apps/docs"
   dependencies:
-    "@builder.io/partytown": ^0.5.2
+    "@builder.io/partytown": ^0.6.4
     "@heroicons/react": ^1.0.6
     "@mdx-js/loader": ^2.1.2
     "@mdx-js/react": ^2.1.2
@@ -4080,7 +4080,7 @@ __metadata:
   resolution: "e2e@workspace:apps/e2e"
   dependencies:
     "@babel/runtime": ^7.18.6
-    "@builder.io/partytown": ^0.5.2
+    "@builder.io/partytown": ^0.6.4
     "@mantine/core": ^4.2.12
     "@mantine/hooks": ^4.2.12
     "@mantine/next": ^4.2.12

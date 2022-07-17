@@ -1,0 +1,54 @@
+import Callout from "nextra-theme-docs/callout";
+
+# Trace middleware
+
+## Basic logging with `telemetry` wrapper
+
+```js
+// middleware.js
+
+import {
+  chainMatch,
+  isPageRequest,
+  csp,
+  strictDynamic,
+  telemetry,
+} from "@next-safe/middleware";
+
+const securityMiddleware = [
+  csp({
+    directives: {
+      "img-src": ["self", "data:", "https://images.unsplash.com"],
+      "font-src": ["self", "https://fonts.gstatic.com"],
+    },
+  }),
+  strictDynamic(),
+];
+
+const withTelemetry = telemetry({
+  middlewares: securityMiddleware,
+  profileLabel: "securityMiddleware",
+});
+
+export default chainMatch(isPageRequest)(withTelemetry);
+```
+
+With the default config, it will log middleware execution time + the request url:
+
+```
+1658625749330 [securityMiddleware]: 9.765ms
+1658625749330 [securityMiddleware]: {"url":"http://localhost:3000/isr/gsp"}
+```
+
+## Average CPU utilization with `autocannon` (Vercel)
+
+To benchmark average CPU utilization of your middleware, you can push/deploy and then hammer the preview deployment with `autocannon` to produce a large number of requests that trigger middleware invocations. Afterwards you can observe effects of those changes to average CPU utilization in the Vercel Dashboard.
+
+```
+npx autocannon <link_to_your_preview_deployment> -c 50 -d 60s
+```
+
+<Callout emoji="💡">
+  You can find an example with screenshots and more details in [this GitHub
+  issue](https://github.com/nibtime/next-safe-middleware/issues/45#issuecomment-1193102239)
+</Callout>

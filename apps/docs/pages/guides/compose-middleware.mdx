@@ -4,7 +4,7 @@ import Callout from "nextra-theme-docs/callout";
 
 In your `middleware.js` you might potentially want to do more interesting things than just setting security headers. However, Next.js doesn't offer an idiomatic abstraction for composing middlewares yet.
 
-<Callout emoji="ℹ️">
+<Callout emoji="💡">
   If you like to use this package for composing middleware only, there's a
   bundle `@next-safe/middleware/dist/compose` for just that.
 </Callout>
@@ -50,8 +50,7 @@ type MiddlewareChainContext<K, V> = {
   };
   finalize: {
     readonly addCallback: (finalizer: ChainFinalizer<K, V>) => void;
-    readonly removeCallback: (finalizer: ChainFinalizer<K, V>) => void;
-    readonly terminatedByResponse: () => boolean;
+    readonly terminatedByResponse: () => NextMiddlewareResult;
   };
 };
 ```
@@ -60,7 +59,7 @@ type MiddlewareChainContext<K, V> = {
 
 **`cache`**: accessors for an object cache for the lifetime of `chain`.
 
-**`finalize`**: handles for `ChainableMiddleware`'s to (un)register callbacks to be executed before `chain`terminates.
+**`finalize`**: handle for `ChainableMiddleware`'s to register callbacks to be executed before `chain`terminates.
 
 When executed in `chain`, the return value of `ChainableMiddleware` is interpreted as follows:
 
