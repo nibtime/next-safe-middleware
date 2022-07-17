@@ -18,3 +18,6 @@ export type { StrictInlineStylesCfg } from "./strictInlineStyles";
 
 export { default as csp } from "./csp";
 export type { CspCfg } from "./csp";
+
+export { default as telemetry } from "./telemetry";
+export type { TelemetryCfg } from "./telemetry";
