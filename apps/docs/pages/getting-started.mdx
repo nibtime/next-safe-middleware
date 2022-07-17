@@ -13,10 +13,13 @@ npm -i @next-safe/middleware
 yarn add @next-safe/middleware
 ```
 
-<Callout emoji="ℹ️">
-  Since version [`0.9.0`](https://github.com/nibtime/next-safe-middleware/releases/tag/%40next-safe%2Fmiddleware%400.9.0), support for Beta middleware has been dropped, so your project needs to use Next.js `>= 12.2` with Stable root-level middleware. 
-  
-  For migration to Stable middleware, have a look at the [middleware upgrade guide](https://nextjs.org/docs/messages/middleware-upgrade-guide)
+<Callout type="warning" emoji="⚠️">
+  Since version
+  [`0.9.0`](https://github.com/nibtime/next-safe-middleware/releases/tag/%40next-safe%2Fmiddleware%400.9.0),
+  support for Beta middleware has been dropped, so your project needs to use
+  Next.js `>= 12.2` with Stable root-level middleware. For migration to Stable
+  middleware, have a look at the [middleware upgrade
+  guide](https://nextjs.org/docs/messages/middleware-upgrade-guide)
 </Callout>
 
 ## Quickstart: Strict Content-Security-Policy (CSP)
@@ -77,9 +80,25 @@ export default class MyDocument extends Document {
 }
 ```
 
+For every page under `pages` that uses `getServerSideProps` for data fetching:
+
+```js
+import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+
+// wrap data fetching with gsspWithNonceAppliedToCsp
+export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+  return { props: { message: "Hi, from getServerSideProps" } };
+});
+
+// the generated nonce also gets injected into page props
+const Page = ({ message, nonce }) => <h1>{`${message}. Nonce ${nonce}`}</h1>;
+
+export default Page;
+```
+
 Thats it. You should be all set now with a Strict CSP for your Next.js app!
 
-<Callout emoji="ℹ️">
+<Callout emoji="💡">
   If you need additional guidance or details, have a look at the ["Strict CSP
   configuration" guide](/guides/strict-csp-configuration).
 </Callout>
@@ -123,9 +142,9 @@ export default reporting(consoleLogReporter);
 
 Thats it. Browsers will send CSP violation reports to this endpoint. You can easily react on validated reporting data by adding any number of custom reporters.
 
-<Callout emoji="ℹ️">
-  If you need additional guidance or details, have a look at the ["CSP
-  violation reporting" guide](/guides/csp-violation-reporting).
+<Callout emoji="💡">
+  If you need additional guidance or details, have a look at the ["CSP violation
+  reporting" guide](/guides/csp-violation-reporting).
 </Callout>
 
 ### Send violation reports to Sentry
@@ -172,11 +191,11 @@ const geoBlockMiddleware = (req) => {
 
 const securityMiddleware = [csp(), strictDynamic()];
 
-/** 
- * geoBlockMiddleware will be invoked on all requests 
- * from `BLOCKED_COUNTRY` and then block the request 
+/**
+ * geoBlockMiddleware will be invoked on all requests
+ * from `BLOCKED_COUNTRY` and then block the request
  * and terminate chain by returning a response with status 451
- * 
+ *
  * securityMiddleware will only run on requests
  * that didn't get geo-blocked and only on requests for pages
  */
@@ -185,7 +204,8 @@ export default chain(
   chainMatch(isPageRequest)(...securityMiddleware)
 );
 ```
-<Callout emoji="ℹ️">
+
+<Callout emoji="💡">
   If you need additional guidance or details, have a look at the ["Compose
   middleware" guide](/guides/compose-middleware).
 </Callout>

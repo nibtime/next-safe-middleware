@@ -6,6 +6,7 @@ import {
   strictDynamic,
   strictInlineStyles,
   reporting,
+  telemetry,
 } from "@next-safe/middleware";
 
 const securityMiddleware = [
@@ -18,15 +19,14 @@ const securityMiddleware = [
   }),
   strictDynamic(),
   strictInlineStyles(),
-  reporting({
-    csp: {
-      reportUri: "/api/reporting",
-    },
-    reportTo: {
-      max_age: 1800,
-      endpoints: [{ url: "/api/reporting" }],
-    },
-  }),
+  reporting(),
 ];
 
-export default chainMatch(isPageRequest)(...securityMiddleware);
+const withTelemetry = telemetry({
+  middlewares: securityMiddleware,
+  profileLabel: "securityMiddleware",
+  logHeaders: !!process.env.LOG_MIDDLEWARE_HEADERS,
+  logExecutionTime: !!process.env.LOG_MIDDLEWARE_TIME,
+});
+
+export default chainMatch(isPageRequest)(withTelemetry);

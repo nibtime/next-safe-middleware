@@ -4,17 +4,15 @@ import Layout from "components/Layout";
 import Hydrated from "components/Hydrated";
 import StyleElem from "components/StyleElem";
 import StyleAttr from "components/StyleAttr";
+import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
 
-export const getServerSideProps = async (ctx) => {
+export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
   return {
-    props: {
-      requestHeaders: ctx.req?.headers,
-      responseHeaders: ctx.res?.getHeaders(),
-    },
+    props: {},
   };
-};
+});
 
-const Page = ({ requestHeaders, responseHeaders }) => {
+const Page = () => {
   return (
     <Layout>
       <Prose>
@@ -34,8 +32,8 @@ const Page = ({ requestHeaders, responseHeaders }) => {
           trusted by CSP
         </StyleElem>
         <StyleAttr Tag="p" color="blue">
-          Hi, i am styled with by an inline style attribute, If I am{" "}
-          <b>blue</b>, I am trusted by CSP
+          Hi, i am styled with by an inline style attribute, If I am <b>blue</b>
+          , I am trusted by CSP
         </StyleAttr>
         <h2>Internal navigation to other pages</h2>
         <ul>
@@ -50,10 +48,6 @@ const Page = ({ requestHeaders, responseHeaders }) => {
             </Link>
           </li>
         </ul>
-        <h2>Request Headers</h2>
-        <pre>{JSON.stringify(requestHeaders, null, 2)}</pre>
-        <h2>Response Headers</h2>
-        <pre>{JSON.stringify(responseHeaders, null, 2)}</pre>
       </Prose>
     </Layout>
   );

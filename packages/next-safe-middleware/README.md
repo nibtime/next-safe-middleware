@@ -164,6 +164,22 @@ export default class MyDocument extends Document {
 }
 ```
 
+For every page under `pages` that uses `getServerSideProps` for data fetching:
+
+```js
+import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+
+// wrap data fetching with gsspWithNonceAppliedToCsp
+export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+  return { props: { message: "Hi, from getServerSideProps" } };
+});
+
+// the generated nonce also gets injected into page props
+const Page = ({ message, nonce }) => <h1>{`${message}. Nonce ${nonce}`}</h1>;
+
+export default Page;
+```
+
 Thats it. You should be all set now with a Strict CSP for your Next.js app!
 
 ### Quickstart: CSP Violation Reporting

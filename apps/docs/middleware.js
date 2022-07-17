@@ -1,6 +1,6 @@
 import {
   chainMatch,
-  isLiveModePageRequest,
+  isPageRequest,
   csp,
   nextSafe,
   strictDynamic,
@@ -26,7 +26,10 @@ const securityMiddleware = [
   }),
   strictDynamic(),
   strictInlineStyles(),
-  reporting(),
+  reporting()
 ];
 
-export default chainMatch(isLiveModePageRequest)(...securityMiddleware);
+export default chainMatch(
+  isPageRequest,
+  !!process.env.MIDDLEWARE_LOG_PERFORMANCE ? "securityMiddleware" : undefined
+)(...securityMiddleware);

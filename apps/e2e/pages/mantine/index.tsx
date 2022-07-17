@@ -191,7 +191,7 @@ const Brand = () => {
   );
 };
 
-const MantinePage = () => {
+const MantinePage = (props) => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   return (
@@ -210,7 +210,9 @@ const MantinePage = () => {
       header={
         <Header height={60}>
           <Group sx={{ height: "100%" }} px={20} position="apart">
-            <a href="/"><Logo colorScheme={colorScheme} /></a>
+            <a href="/">
+              <Logo colorScheme={colorScheme} />
+            </a>
             <ActionIcon
               variant="default"
               onClick={() => toggleColorScheme()}
@@ -244,6 +246,11 @@ const MantinePage = () => {
         <h2 tw="text-xl">
           Even together with twin.macro on Tailwind v3 and Stitches
         </h2>
+        {props?.message && (
+          <h3>{`Message from data fetching: ${props.message}.${
+            props?.nonce ? ` Nonce: ${props.nonce}` : ""
+          }`}</h3>
+        )}
       </div>
     </AppShell>
   );

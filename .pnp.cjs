@@ -986,10 +986,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@builder.io/partytown", [\
-        ["npm:0.5.2", {\
-          "packageLocation": "./.yarn/cache/@builder.io-partytown-npm-0.5.2-0bca2fc39a-88ca3f3e6e.zip/node_modules/@builder.io/partytown/",\
+        ["npm:0.6.4", {\
+          "packageLocation": "./.yarn/cache/@builder.io-partytown-npm-0.6.4-4819959e7b-000133b6ab.zip/node_modules/@builder.io/partytown/",\
           "packageDependencies": [\
-            ["@builder.io/partytown", "npm:0.5.2"]\
+            ["@builder.io/partytown", "npm:0.6.4"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -5461,7 +5461,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./apps/docs/",\
           "packageDependencies": [\
             ["docs", "workspace:apps/docs"],\
-            ["@builder.io/partytown", "npm:0.5.2"],\
+            ["@builder.io/partytown", "npm:0.6.4"],\
             ["@heroicons/react", "virtual:ba56dc173c7ece72e1480aefcd1d10cda1629de2daa7f61b603fae838675c08883d872a9392eb3e84cc530eed79a8c2786d69c2798b8351fc0bd584f41a8d550#npm:1.0.6"],\
             ["@mdx-js/loader", "virtual:ba56dc173c7ece72e1480aefcd1d10cda1629de2daa7f61b603fae838675c08883d872a9392eb3e84cc530eed79a8c2786d69c2798b8351fc0bd584f41a8d550#npm:2.1.2"],\
             ["@mdx-js/react", "virtual:ba56dc173c7ece72e1480aefcd1d10cda1629de2daa7f61b603fae838675c08883d872a9392eb3e84cc530eed79a8c2786d69c2798b8351fc0bd584f41a8d550#npm:2.1.2"],\
@@ -5629,7 +5629,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["e2e", "workspace:apps/e2e"],\
             ["@babel/runtime", "npm:7.18.6"],\
-            ["@builder.io/partytown", "npm:0.5.2"],\
+            ["@builder.io/partytown", "npm:0.6.4"],\
             ["@mantine/core", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:4.2.12"],\
             ["@mantine/hooks", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:4.2.12"],\
             ["@mantine/next", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:4.2.12"],\
