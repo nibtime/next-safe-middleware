@@ -50,8 +50,10 @@ export const fetchHashes = async (
   req: NextRequest,
   hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME
 ) => {
-  const { origin } = req.nextUrl;
-  const baseUrl = `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
+  const { origin, basePath } = req.nextUrl;
+  const baseUrl = basePath
+    ? `${origin}${basePath}/${CSP_LOCATION_MIDDLEWARE}`
+    : `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
 
   // req.page.name is the name of the route, e.g. `/` or `/blog/[slug]`
   // req.page DEPRECATED in 12.2.
@@ -68,13 +70,24 @@ export const fetchHashes = async (
   }
 
   if (!resHashes?.ok) {
-    return [];
+    return `${resHashes.status}: ${resHashes.statusText}`
   }
   try {
     const hashesText = await resHashes.text();
     const hashes = hashesText.split("\n");
     return hashes;
-  } catch {
-    return [];
+  } catch (err){
+    if(err instanceof Error) {
+      return `${err.name}: ${err.message}`;
+    }
+    return "";
   }
+};
+
+// https://www.30secondsofcode.org/js/s/deep-freeze
+export const deepFreeze = (obj) => {
+  Object.keys(obj).forEach((prop) => {
+    if (typeof obj[prop] === "object") deepFreeze(obj[prop]);
+  });
+  return Object.freeze(obj);
 };

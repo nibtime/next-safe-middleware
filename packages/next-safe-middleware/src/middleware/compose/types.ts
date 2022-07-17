@@ -25,7 +25,6 @@ export type MiddlewareChainContext<K extends string = string, V = any> = {
   }
   finalize: {
     readonly addCallback: (finalizer: ChainFinalizer<K, V>) => void
-    readonly removeCallback: (finalizer: ChainFinalizer<K, V>) => void
     readonly terminatedByResponse: () => NextMiddlewareResult
   }
 };

@@ -6,6 +6,7 @@ import {
   ChainableMiddleware,
   EnsuredChainableMiddleware,
 } from "../compose/types";
+import { deepFreeze } from "../utils";
 import {
   MiddlewareBuilder,
   MiddlewareConfig,
@@ -110,7 +111,7 @@ export const ensureChainContext = <K extends string = string, V = any>(
     if (ctx) {
       return middleware(req, evt, ctx);
     }
-    const mockCtx: Readonly<MiddlewareChainContext<K, V>> = Object.freeze({
+    const mockCtx: Readonly<MiddlewareChainContext<K, V>> = deepFreeze({
       res: {
         get: () => null,
         set: () => void 0,

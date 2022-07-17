@@ -33,7 +33,7 @@ const _strictInlineStyles: MiddlewareBuilder<
     let { directives, reportOnly } = csp;
 
     const fetchedHashes = await fetchHashes(req, "style-hashes.txt");
-    if (fetchedHashes.length) {
+    if (Array.isArray(fetchedHashes) && fetchedHashes.length) {
       const { extendStyleSrc } = await unpackConfig(cfg, req, evt, ctx);
       const mode = extendStyleSrc ? "append" : "override";
       directives = extendCsp(
@@ -46,7 +46,9 @@ const _strictInlineStyles: MiddlewareBuilder<
       ctx.cache.set("csp", { directives, reportOnly });
     } else {
       console.error(
-        "[strictInlineStyles]: No styles. Is your app using any inline styles at all?. If yes, this is unexpected"
+        `[strictInlineStyles]: No style hashes could be fetched. 
+  Did you call getCspInitialProps with trustifyStyles in _document?. If yes, this is unexpected`,
+        { styleHashesFetchStatus: fetchedHashes }
       );
     }
   });

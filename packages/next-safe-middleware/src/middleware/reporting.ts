@@ -91,8 +91,25 @@ const _reporting: MiddlewareBuilder<
       evt,
       ctx
     );
+    const { basePath } = req.nextUrl;
+    const withBasePath = (r: ReportTo[]) => {
+      if (basePath) {
+        return r.map(({ endpoints, ...rest }) => ({
+          ...rest,
+          endpoints: endpoints.map(({ url, ...rest }) => {
+            if (url.startsWith("/")) {
+              return { ...rest, url: `${basePath}${url}` };
+            }
+            return { ...rest, url };
+          }),
+        }));
+      }
+      return r;
+    };
+    const arrayReportTo = withBasePath(
+      Array.isArray(reportTo) ? reportTo : [reportTo]
+    );
 
-    const arrayReportTo = Array.isArray(reportTo) ? reportTo : [reportTo];
     if (arrayReportTo.length) {
       const cacheDifference = differenceWith(
         (r1, r2) => r1.group === r2.group,
@@ -125,7 +142,15 @@ const _reporting: MiddlewareBuilder<
     directives = extendCsp(
       directives,
       {
-        ...(reportUri ? { "report-uri": [reportUri] } : {}),
+        ...(reportUri
+          ? {
+              "report-uri": [
+                basePath && reportUri.startsWith("/")
+                  ? `${basePath}${reportUri}`
+                  : reportUri,
+              ],
+            }
+          : {}),
         ...(reportToHasCspGroup ? { "report-to": [cspGroup] } : {}),
       },
       "override"

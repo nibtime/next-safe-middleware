@@ -27,17 +27,21 @@ export const matchOr =
     return matches;
   };
 
-export const isPageRequest: NextRequestPredicate = (req) => {
-  const isUnderscoreNext = /^\/_next\//;
+export const isPagePathRequest: NextRequestPredicate = (req) => {
+  const isNonPagePathPrefix = /^\/(?:_next|api)\//;
   const isFile = /\..*$/;
   const { pathname } = req.nextUrl;
-  return !isUnderscoreNext.test(pathname) && !isFile.test(pathname);
+  return !isNonPagePathPrefix.test(pathname) && !isFile.test(pathname);
 };
 
 export const isPreviewModeRequest: NextRequestPredicate = (req) =>
   !!req.cookies.get("__next_preview_data");
 
-export const isLiveModePageRequest = matchAnd(
+export const isNextJsDataRequest: NextRequestPredicate = (req) =>
+  !!req.headers.get("x-nextjs-data");
+
+export const isPageRequest = matchAnd(
+  isPagePathRequest,
   matchNot(isPreviewModeRequest),
-  isPageRequest
+  matchNot(isNextJsDataRequest)
 );
