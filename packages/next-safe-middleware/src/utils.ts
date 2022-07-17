@@ -1,4 +1,4 @@
-import { mergeDeepWithKey, uniq, map } from "ramda";
+import { mergeDeepWithKey, difference, map } from "ramda";
 import type {
   BooleanDirectives,
   CspDirectives,
@@ -124,7 +124,9 @@ export const extendCsp = (
     r: string[] | boolean
   ) =>
     Array.isArray(l) && Array.isArray(r) && mode !== "override"
-      ? uniq(mode === "append" ? [...l, ...r] : [...r, ...l])
+      ? mode === "append"
+        ? [...l, ...difference(r, l)]
+        : [...difference(r, l), ...l]
       : !r
       ? undefined
       : r;

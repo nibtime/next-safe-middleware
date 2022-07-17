@@ -119,10 +119,10 @@ export const ensureChainContext = <K extends string = string, V = any>(
         get: () => null,
         set: () => void 0,
       },
-      finally: {
-        add: () => void 0,
-        remove: () => void 0,
-        terminatedByResponse: () => false,
+      finalize: {
+        addCallback: () => void 0,
+        removeCallback: () => void 0,
+        terminatedByResponse: () => null,
       },
     });
     return middleware(req, evt, mockCtx);

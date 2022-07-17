@@ -2,7 +2,14 @@ import type { UriPath } from "../types";
 import type { MiddlewareBuilder } from "./builder/types";
 import { extendCsp } from "../utils";
 import { ensureChainContext, unpackConfig, withDefaultConfig } from "./builder";
-import type { CspCacheKey, CspCacheValue } from "./finalizers";
+import {
+  CspCacheKey,
+  CspCacheValue,
+  ReportToCacheKey,
+  ReportToCacheValue,
+} from "./finalizers";
+import { writeReportToHeader } from "./finalizers";
+import { differenceWith } from "ramda";
 
 /**
  * @see https://developers.google.com/web/updates/2018/09/reportingapi#fields
@@ -60,7 +67,7 @@ export type ReportingCfg = {
    * configuration of CSP directives concerned with reporting
    * @see https://canhas.report/csp-report-to
    */
-  csp?: ReportingCSP;
+  csp?: ReportingCSP | false;
 };
 
 /**
@@ -69,13 +76,13 @@ export type ReportingCfg = {
  * @returns a stringifed value of the object to be set as header value
  * @see https://developers.google.com/web/updates/2018/09/reportingapi#example_server
  */
-const stringifyReportTo = (reportTo: ReportTo) =>
+export const stringifyReportTo = (reportTo: ReportTo) =>
   JSON.stringify(reportTo).replace(/\\"/g, '"');
 
 const _reporting: MiddlewareBuilder<
   ReportingCfg,
-  CspCacheKey,
-  CspCacheValue
+  CspCacheKey | ReportToCacheKey,
+  CspCacheValue | ReportToCacheValue
 > = (cfg) =>
   ensureChainContext(async (req, evt, ctx) => {
     const { reportTo = [], csp: cspCfg } = await unpackConfig(
@@ -86,13 +93,14 @@ const _reporting: MiddlewareBuilder<
     );
 
     const arrayReportTo = Array.isArray(reportTo) ? reportTo : [reportTo];
-
-    const reportToHeaderValue = arrayReportTo
-      .map((r) => stringifyReportTo(r))
-      .join(",");
-
-    if (reportToHeaderValue) {
-      ctx.res.get().headers.set("report-to", reportToHeaderValue);
+    if (arrayReportTo.length) {
+      const cacheDifference = differenceWith(
+        (r1, r2) => r1.group === r2.group,
+        (ctx.cache.get("report-to") as ReportTo[]) ?? [],
+        arrayReportTo
+      );
+      ctx.cache.set("report-to", [...cacheDifference, ...arrayReportTo]);
+      ctx.finalize.addCallback(writeReportToHeader);
     }
 
     if (!cspCfg) {
@@ -109,7 +117,7 @@ const _reporting: MiddlewareBuilder<
       groupMatches(r.group)
     );
 
-    const csp = ctx.cache.get("csp");
+    const csp = ctx.cache.get("csp") as CspCacheValue;
     if (!csp) return;
 
     let { directives, reportOnly } = csp;

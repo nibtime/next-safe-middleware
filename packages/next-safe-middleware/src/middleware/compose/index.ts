@@ -9,6 +9,13 @@ import type {
   NextMiddleware,
 } from "./types";
 
+// https://www.30secondsofcode.org/js/s/deep-freeze
+const deepFreeze = (obj) => {
+  Object.keys(obj).forEach((prop) => {
+    if (typeof obj[prop] === "object") deepFreeze(obj[prop]);
+  });
+  return Object.freeze(obj);
+};
 /**
  *
  * @param middlewares the middlewares to chain in sequence
@@ -25,11 +32,11 @@ export const chain =
     type Ctx = MiddlewareChainContext<K, V>;
 
     let chainResponse: NextMiddlewareResult;
-    let terminatedByResponse = false;
+    let terminatedByResponse = null;
     const cache: Partial<Record<K, V>> = {};
     let finalizers: ChainFinalizer[] = [];
 
-    const ctx: Readonly<Ctx> =  Object.freeze({ 
+    const ctx: Readonly<Ctx> = deepFreeze({
       res: {
         get: () => chainResponse,
         set: (res, override = true) => {
@@ -38,38 +45,40 @@ export const chain =
           } else if (!chainResponse) {
             chainResponse = res;
           }
-        }
+        },
       },
       cache: {
         get: (k) => cache[k],
-        set: (k, v) => (cache[k] = v)
+        set: (k, v) => (cache[k] = v),
       },
       finalize: {
-        addCallback:  (f) => {
+        addCallback: (f) => {
           if (!finalizers.includes(f)) {
             finalizers.push(f);
           }
         },
         removeCallback: (f) => {
           const fIndex = finalizers.indexOf(f);
-          if(fIndex !== -1) {
-            finalizers = finalizers.filter((_, idx) => idx !== fIndex)
+          if (fIndex !== -1) {
+            finalizers.splice(fIndex, 1);
           }
         },
-        terminatedByResponse: () => terminatedByResponse
-      }
-    })
+        terminatedByResponse: () => terminatedByResponse,
+      },
+    });
 
     const finalize = async () => {
-      for(const finalizer of finalizers) {
-        await finalizer(req, evt, ctx);
+      try {
+        Promise.all(finalizers.map((f) => f(req, evt, ctx)));
+      } catch (error) {
+        console.error("[chain]: finalization error", { error });
       }
-    }
+    };
 
     for await (const middleware of middlewares) {
       const mwRes = await middleware(req, evt, ctx);
       if (mwRes) {
-        terminatedByResponse = true;
+        terminatedByResponse = mwRes;
         await finalize();
         return mwRes;
       }
@@ -85,21 +94,17 @@ export const chain =
  * @returns
  * a matched chain function that will only run chained middlewares on matched requests
  * @example
- * import { csp, strictDynamic, chainMatch } from `@next-safe/middleware`
+ * import { csp, strictDynamic, chainMatch, isPageRequest } from `@next-safe/middleware`
  *
  * const securityMiddlewares = [csp(), strictDynamic()];
  *
- * const isPage = (req: NextRequest) => {
- *   const excluded = /^\/(_next|api|fonts)\//.test(req.nextUrl.pathname);
- *   const hasNoSlugParam = !req.nextUrl.searchParams.get('slug')
- *   return !excluded && hasNoSlugParam
- * }
- *
- * export default chainMatch(isPage)(...securityMiddlewares);
+ * export default chainMatch(isPageRequest)(...securityMiddlewares);
  *
  */
 export const chainMatch =
-  (matcher: ChainMatcher): MiddlewareChain =>
+  <K extends string = string, V = any>(
+    matcher: ChainMatcher
+  ): MiddlewareChain<K, V> =>
   (...middlewares) =>
   async (req, evt) => {
     if (matcher(req)) {
