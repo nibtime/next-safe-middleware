@@ -131,11 +131,4 @@ export const continued =
     }
   };
 
-export {
-  matchNot,
-  matchAnd,
-  matchOr,
-  isPageRequest,
-  isPreviewModeRequest,
-  isLiveModePageRequest,
-} from "./matchers";
+export * from "./matchers";
