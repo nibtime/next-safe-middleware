@@ -2,4 +2,9 @@
 "@next-safe/middleware": patch
 ---
 
-`isPreviewModeRequest` and `isLiveModePageRequest` matchers for easy exclusion of Preview Mode requests
+fix: better `isPageRequest` matcher
+
+* exclude only basepaths `/_next` and `/api`
+* exclude all paths with file endings
+* exclude `isPreviewModeRequest` and `isNextJsDataRequest` (new matchers)
+
