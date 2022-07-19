@@ -2,7 +2,7 @@
 "@next-safe/middleware": minor
 ---
 
-:boom: changes to `ChainableMiddleware` decrease resource utilization ([#45](https://github.com/nibtime/next-safe-middleware/issues/45))
+:boom: changes to `ChainableMiddleware` decrease resource utilization (fixes [#45](https://github.com/nibtime/next-safe-middleware/issues/45))
 
 - new `MiddlewareChainContext` interface
 
