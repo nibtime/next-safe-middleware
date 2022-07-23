@@ -4,6 +4,8 @@ import type {
   DocumentInitialProps,
   DocumentProps,
 } from "next/document";
+import type { GetServerSideProps, PreviewData, NextPageContext } from "next";
+import type { ParsedUrlQuery } from "querystring";
 import Document, { Head, NextScript } from "next/document";
 import React from "react";
 import cheerio from "cheerio";
@@ -12,19 +14,26 @@ import {
   setCsp,
   integritySha256,
   getCsp,
-  cspNonce,
   applyNonceToCsp,
+  getCtxHeader,
 } from "./utils";
-import { Head as NoncingHead, noncifyChildren } from "./NoncingHead";
+import {
+  Head as NoncingHead,
+  noncifyScriptChildren,
+  noncifyStyleChildren,
+} from "./NoncingHead";
+import { NextScript as NoncingScript } from "./NoncingScript";
 import {
   Head as HashingHead,
   collectStyleElemHashes,
   collectStyleAttrHashes,
-  trustifyScriptChildren,
+  hashifyScriptChildren,
   collectStyleHashesFromChildren,
   pullStyleElemHashes,
   pullStyleAttrHashes,
 } from "./HashingHead";
+import { NextScript as HashingScript } from "./HashingScript";
+import { CSP_NONCE_HEADER } from "../constants";
 
 export type {
   CspDirectives,
@@ -33,7 +42,13 @@ export type {
   Source as CspSource,
   Sources as CspSources,
 } from "../types";
-export { getCsp, setCsp, cspNonce } from "./utils";
+export {
+  getCsp,
+  setCsp,
+  cspNonce,
+  applyNonceToCsp,
+  logCtxHeaders,
+} from "./utils";
 export {
   extendCsp,
   filterCsp,
@@ -41,10 +56,11 @@ export {
   fromCspContent,
   toCspContent,
 } from "../utils";
+
 type ProvidedProps = {
   trustifyStyles?: boolean;
   trustifyScripts?: boolean;
-  children?: any
+  children?: any;
 };
 type Provided = {
   Head: (props: ProvidedProps) => any;
@@ -79,43 +95,56 @@ export const provideComponents = (props: DocumentProps): Provided => {
   // gip = getInitialProps, gssp = getServerSideProps
   const isDynamic = NEXT_DATA.gip || NEXT_DATA.gssp;
   // gsp = getStaticProps
-  const isStatic = NEXT_DATA.gsp;
-
-  const isPure = !isDynamic && !isStatic;
+  const isStatic = !isDynamic;
   const isProd = process.env.NODE_ENV === "production";
-  const nonce = (props as any).nonce;
-  const trustifyStyles = (props as any).trustifyStyles;
-  const trustifyScripts = (props as any).trustifyScripts;
-  if (isProd && isDynamic && nonce) {
+  const anyProps = props as any;
+  const trustifyStyles = anyProps.trustifyStyles;
+  const trustifyScripts = anyProps.trustifyScripts;
+  if (isProd && isDynamic) {
     return {
       Head: ({ children }) => (
         <NoncingHead
-          nonce={nonce}
-          {...{
+          nonce={anyProps.nonce}
+          {...({
             trustifyStyles,
             trustifyScripts,
-          }}
+          } as any)}
         >
           {children}
         </NoncingHead>
       ),
-      NextScript: () => <NextScript nonce={nonce} />,
+      NextScript: () => (
+        <NoncingScript
+          {...({
+            trustifyStyles,
+            trustifyScripts,
+          } as any)}
+          nonce={anyProps.nonce}
+        />
+      ),
     };
   }
 
-  if (isProd && (isStatic || isPure)) {
+  if (isProd && isStatic) {
     return {
       Head: ({ children }) => (
         <HashingHead
-          {...{
+          {...({
             trustifyStyles,
             trustifyScripts,
-          }}
+          } as any)}
         >
           {children}
         </HashingHead>
       ),
-      NextScript: () => <NextScript />,
+      NextScript: () => (
+        <HashingScript
+          {...({
+            trustifyStyles,
+            trustifyScripts,
+          } as any)}
+        />
+      ),
     };
   }
   return {
@@ -124,21 +153,16 @@ export const provideComponents = (props: DocumentProps): Provided => {
   };
 };
 
-const trustifyStylesInHtml = (html: string, nonce?: string) => {
+const hashStylesInHtml = (html: string, attributesOnly: boolean) => {
   const $ = cheerio.load(html, {}, false);
-  const styleElements = $("style").get();
-
-  if (nonce) {
-    styleElements.forEach((s) => {
-      s.attribs["nonce"] = nonce;
-    });
+  let styleElemHashes = [];
+  if (!attributesOnly) {
+    const styleElements = $("style").get();
+    styleElemHashes = styleElements
+      .map((el) => $.text(el.children))
+      .filter(Boolean)
+      .map(integritySha256);
   }
-
-  const styleElemHashes = styleElements
-    .map((el) => $.text(el.children))
-    .filter(Boolean)
-    .map(integritySha256);
-
   const styleAttrHashes = $("[style]")
     .get()
     .map((e) => integritySha256(e.attribs["style"]));
@@ -147,29 +171,6 @@ const trustifyStylesInHtml = (html: string, nonce?: string) => {
     styleElemHashes,
     styleAttrHashes,
   };
-};
-
-/**
- *
- * @param ctx the DocumentContext, as expected by Document.getInitialProps
- *
- * If you need to access the nonce in `pages/_app.js` for a React Provider,
- * call this just before you call `getCspInitialProps`
- *
- */
-export const enhanceAppWithNonce = (ctx: DocumentContext) => {
-  const nonce = cspNonce(ctx);
-  if (nonce) {
-    const originalRenderPage = ctx.renderPage;
-    ctx.renderPage = () =>
-      originalRenderPage({
-        enhanceApp:
-          (App) =>
-          ({ pageProps, ...props }) => {
-            return <App pageProps={{ ...pageProps, nonce }} {...props} />;
-          },
-      });
-  }
 };
 
 export type CspDocumentInitialPropsOptions = {
@@ -227,6 +228,22 @@ export type CspDocumentInitialPropsOptions = {
     | string
     | ((initialProps: DocumentInitialProps) => string | string[])
   )[];
+  /**
+   * To control whether to trustify stuff in initialProps.html
+   *
+   * This can be potentially dangerous if you server-render dynamic user data from `getStaticProps` or `getServerSideProps`
+   * in HTML. However if you turn it off, every inline style of every 3rd party lib (including even default Next.js 404) will
+   * be blocked by CSP with the only alternative being `style-src unsafe-inline`.
+   *
+   * Can be turned completely on/off with a boolean flag or with a config object for more granular control.
+   *
+   * @default true
+   */
+  htmlProcessing?:
+    | {
+        styles?: { attributesOnly?: boolean };
+      }
+    | boolean;
 };
 
 /**
@@ -253,29 +270,33 @@ export const getCspInitialProps = async ({
   trustifyStyles = false,
   trustifyScripts = true,
   hashRawCss = [],
+  htmlProcessing = true,
 }: CspDocumentInitialPropsOptions) => {
-  const nonce = applyNonceToCsp(ctx);
   const initialProps =
     passInitialProps || (await Document.getInitialProps(ctx));
-
-  if (trustifyScripts) {
-    trustifyScriptChildren(initialProps.head);
+  const isProd = process.env.NODE_ENV === "production";
+  const nonce = getCtxHeader(ctx, CSP_NONCE_HEADER);
+  if (isProd && trustifyScripts) {
+    if (nonce) {
+      noncifyScriptChildren(nonce, initialProps.head);
+    } else {
+      hashifyScriptChildren(initialProps.head);
+    }
   }
 
-  if (nonce) {
-    noncifyChildren(nonce, initialProps.head, {
-      trustifyStyles,
-      trustifyScripts,
-    });
-  }
-
-  if (trustifyStyles) {
-    const { html, styleElemHashes, styleAttrHashes } = trustifyStylesInHtml(
-      initialProps.html,
-      nonce
-    );
-
-    initialProps.html = html;
+  if (isProd && trustifyStyles) {
+    noncifyStyleChildren(nonce, initialProps.head);
+    if (htmlProcessing) {
+      const { html, styleElemHashes, styleAttrHashes } = hashStylesInHtml(
+        initialProps.html,
+        typeof htmlProcessing === "boolean"
+          ? false
+          : htmlProcessing.styles.attributesOnly
+      );
+      collectStyleElemHashes(...styleElemHashes);
+      collectStyleAttrHashes(...styleAttrHashes);
+      initialProps.html = html;
+    }
     const customElemHashes = hashRawCss.flatMap((el) => {
       if (typeof el === "string") {
         return [integritySha256(el)];
@@ -289,13 +310,9 @@ export const getCspInitialProps = async ({
       ...collectStyleHashesFromChildren(initialProps.head)
     );
     collectStyleElemHashes(...customElemHashes);
-    collectStyleElemHashes(...styleElemHashes);
-    collectStyleAttrHashes(...styleAttrHashes);
+
     if (nonce) {
-      const styleHashes = [
-        ...pullStyleElemHashes(),
-        ...pullStyleAttrHashes(),
-      ];
+      const styleHashes = [...pullStyleElemHashes(), ...pullStyleAttrHashes()];
       let { directives, reportOnly } = getCsp(ctx);
       if (directives) {
         if (directives["style-src"] && styleHashes.length) {
@@ -311,17 +328,40 @@ export const getCspInitialProps = async ({
       }
     }
   }
-  return { ...initialProps, nonce, trustifyStyles, trustifyScripts };
+  return {
+    ...initialProps,
+    nonce,
+    trustifyStyles,
+    trustifyScripts,
+  };
 };
 
-/**
- * @deprecated use the configurable `getCspInitialProps`
- *
- * uses `getCspInitialProps` under the hood with `trustifyStyles` set to `true`,
- * as this was the old behavior
- */
-export default class NextSafeDocument extends Document<{ nonce?: string }> {
-  static async getInitialProps(ctx: DocumentContext) {
-    return getCspInitialProps({ ctx, trustifyStyles: true });
-  }
+export function gsspWithNonceAppliedToCsp<
+  P extends { [key: string]: any } = { [key: string]: any },
+  Q extends ParsedUrlQuery = ParsedUrlQuery,
+  D extends PreviewData = PreviewData
+>(
+  getServerSideProps: GetServerSideProps<P, Q, D>
+): GetServerSideProps<P & { nonce: string }, Q, D> {
+  return async (ctx) => {
+    const nonce = applyNonceToCsp(ctx);
+    const gsspResult = await getServerSideProps(ctx);
+    if ("props" in gsspResult) {
+      const props = await gsspResult.props;
+      return { props: { ...props, nonce } };
+    }
+    return gsspResult;
+  };
+}
+
+export function gipWithNonceAppliedToCsp<
+  Props extends Record<string, any> = Record<string, any>
+>(
+  getInitialProps: (ctx: NextPageContext) => Promise<Props>
+): (ctx: NextPageContext) => Promise<Props & { nonce: string }> {
+  return async (ctx) => {
+    const nonce = applyNonceToCsp(ctx);
+    const props = await getInitialProps(ctx);
+    return { ...props, nonce };
+  };
 }

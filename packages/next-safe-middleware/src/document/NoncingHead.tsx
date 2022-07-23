@@ -1,42 +1,67 @@
 // eslint-disable-next-line @next/next/no-document-import-in-page
 import { Head as NextHead } from "next/document";
 import {
-  scriptWithPatchedCrossOrigin,
   withHashIfInlineScript,
   isStyleElement,
   isScriptElement,
   isElementWithChildren,
+  isPreloadScriptElement,
 } from "./utils";
-import { pipe } from "ramda";
 import React from "react";
+import { flatten } from "ramda";
 
-export const noncifyChildren = (
-  nonce: string,
-  children: any,
-  { trustifyStyles, trustifyScripts }
-) => {
+export const noncifyStyleChildren = (nonce: string, children: any) => {
   if (nonce) {
     React.Children.forEach(children, (child: any) => {
-      if (trustifyScripts && isScriptElement(child) && !child.props.nonce) {
-        const map = pipe(withHashIfInlineScript, scriptWithPatchedCrossOrigin);
-        const newProps = map(child).props;
-        try {
-          child.props = { ...newProps, nonce };
-        } catch {}
-      } else if (trustifyStyles && isStyleElement(child) && !child.props.nonce) {
+      if (isStyleElement(child)) {
         try {
           child.props.nonce = nonce;
         } catch {}
       } else if (isElementWithChildren(child)) {
-        noncifyChildren(nonce, child.props.children, {
-          trustifyStyles,
-          trustifyScripts,
-        });
+        noncifyStyleChildren(nonce, child.props.children);
       } else if (Array.isArray(child)) {
-        noncifyChildren(nonce, child, { trustifyStyles, trustifyScripts });
+        noncifyStyleChildren(nonce, child);
       }
     });
   }
+};
+
+export const noncifyScriptChildren = (nonce: string, children: any) => {
+  if (nonce) {
+    React.Children.forEach(children, (child: any) => {
+      if (isScriptElement(child)) {
+        try {
+          const props = {
+            ...withHashIfInlineScript(child).props,
+            nonce,
+            integrity: null,
+          };
+          child.props = props;
+        } catch {}
+      } else if (isElementWithChildren(child)) {
+        noncifyScriptChildren(nonce, child.props.children);
+      } else if (Array.isArray(child)) {
+        noncifyScriptChildren(nonce, child);
+      }
+    });
+  }
+};
+
+export const mapNoncifyScripts = (nonce: string, children: any) => {
+  if (nonce) {
+    const mapped = React.Children.map(children, (child: any) => {
+      if (isScriptElement(child)) {
+        const props = { ...withHashIfInlineScript(child).props, nonce };
+        return <script key={child.key} {...props} integrity={null} />;
+      } else if (isElementWithChildren(child)) {
+        return mapNoncifyScripts(nonce, child.props.children);
+      } else if (Array.isArray(child)) {
+        return mapNoncifyScripts(nonce, child);
+      }
+    });
+    return flatten(mapped);
+  }
+  return children;
 };
 
 export class Head extends NextHead {
@@ -46,27 +71,39 @@ export class Head extends NextHead {
   trustifyStyles(): boolean {
     return (this.props as any).trustifyStyles ?? false;
   }
+  getPreloadDynamicChunks() {
+    let preloadScripts = super.getPreloadDynamicChunks();
+    if (!this.trustifyScripts()) {
+      return preloadScripts;
+    }
+    preloadScripts = preloadScripts.filter(isPreloadScriptElement);
+    return preloadScripts;
+  }
+  getPreloadMainLinks(files) {
+    let preloadScripts = super.getPreloadMainLinks(files);
+    if (!this.trustifyScripts()) {
+      return preloadScripts;
+    }
+    preloadScripts = preloadScripts.filter(isPreloadScriptElement);
+    return preloadScripts;
+  }
   getPreNextScripts() {
-    const preNextScripts = super.getPreNextScripts();
-    noncifyChildren(this.props.nonce, preNextScripts, {
-      trustifyStyles: this.trustifyStyles(),
-      trustifyScripts: this.trustifyScripts(),
-    });
-    return preNextScripts;
+    let scripts = super.getPreNextScripts();
+    if (!this.trustifyScripts()) {
+      return scripts;
+    }
+    scripts = mapNoncifyScripts(this.props.nonce, scripts);
+    return <>{scripts}</>;
   }
   render() {
     const nonce = this.props.nonce;
-    const trustifyStyles = this.trustifyStyles();
-    const trustifyScripts = this.trustifyScripts();
-
-    noncifyChildren(nonce, this.context.styles, {
-      trustifyStyles,
-      trustifyScripts,
-    });
-    noncifyChildren(nonce, this.props.children, {
-      trustifyStyles,
-      trustifyScripts,
-    });
+    if (this.trustifyScripts()) {
+      noncifyScriptChildren(nonce, this.props.children);
+    }
+    if (this.trustifyStyles()) {
+      noncifyStyleChildren(nonce, this.context.styles);
+      noncifyStyleChildren(nonce, this.props.children);
+    }
     return super.render();
   }
 }
