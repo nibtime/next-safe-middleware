@@ -1,6 +1,6 @@
 {
   "name": "@next-safe/middleware",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "typings": "dist/index.d.ts",
