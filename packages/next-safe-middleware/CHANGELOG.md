@@ -1,5 +1,68 @@
 # @next-safe/middleware
 
+## 0.9.0
+
+### Minor Changes
+
+- [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`071f993`](https://github.com/nibtime/next-safe-middleware/commit/071f993866279d8d0920f348a0435f254ffe50fa) Thanks [@nibtime](https://github.com/nibtime)! - provide `gsspWithNonceAppliedToCsp` and `gipWithNonceAppliedToCsp` wrappers to inject nonce into pages with `getServerSideProps` / `getInitialProps`.
+
+  BREAKING CHANGE: nonce doesn't get applied to CSP automatically anymore. This extra step is neccessary
+  as there is no longer a way of reliably do that with Next 12.2.
+
+  BREAKING CHANGE: drop `enhanceAppWithNonce`, it's no longer needed as nonce is injected though `getServerSideProps` of routes/pages now. That's actually a good thing, because [customizing `renderPage` is discouranged](https://nextjs.org/docs/advanced-features/custom-document#customizing-renderpage)
+
+* [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`f9ecbe3`](https://github.com/nibtime/next-safe-middleware/commit/f9ecbe30fa047eed13958b5b74e38a248c7a23e4) Thanks [@nibtime](https://github.com/nibtime)! - :boom: changes to `ChainableMiddleware` decrease resource utilization (fixes [#45](https://github.com/nibtime/next-safe-middleware/issues/45))
+
+  - new `MiddlewareChainContext` interface
+
+  perf: decrease CPU utilization
+
+  - use `ctx.cache.get` and `ctx.cache.set` for caching CSP in middleware chain (no serialize/deserialize)
+  - write to repsonse only once from chain cache at the end
+  - remove unnecessary some double ops
+
+  perf: decrease deployed size
+
+  - use new built-in `userAgent` from `next/server`
+
+  BREAKING CHANGE: supports only Stable middleware from now on (needs `next >= 12.2`, as is specified in peerDeps)
+
+  BREAKING CHANGE: replace `ua-parser-js` with `userAgent` from `next/server` available since `12.2`
+
+  BREAKING CHANGE: `ChainableMiddleware` with `(ctx: MiddlewareChainContext)` as 3rd parameter.
+
+  BREAKING CHANGE: turn positional params into named params for `Configinitializer`
+
+### Patch Changes
+
+- [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`f9ecbe3`](https://github.com/nibtime/next-safe-middleware/commit/f9ecbe30fa047eed13958b5b74e38a248c7a23e4) Thanks [@nibtime](https://github.com/nibtime)! - fix(document): use `any` type (children and return value) for components of `provideComponents`(fixes [#46](https://github.com/nibtime/next-safe-middleware/issues/46))
+
+* [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`071f993`](https://github.com/nibtime/next-safe-middleware/commit/071f993866279d8d0920f348a0435f254ffe50fa) Thanks [@nibtime](https://github.com/nibtime)! - fix(document): support new script insertion behavior
+  - handle `getPreloadDynamicChunks` and `getPreloadMainLinks` in `<Head>`
+  - hash `beforeInteractiveInlineScripts` in `<Head>`
+  - handle scripts also in drop-in component for `<NextScript>`
+  - trustify scripts in `initialProps.head`
+
+- [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`071f993`](https://github.com/nibtime/next-safe-middleware/commit/071f993866279d8d0920f348a0435f254ffe50fa) Thanks [@nibtime](https://github.com/nibtime)! - fix(document): prevent application of nonce in production builds (fixes [#49](https://github.com/nibtime/next-safe-middleware/issues/49))
+
+* [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`f9ecbe3`](https://github.com/nibtime/next-safe-middleware/commit/f9ecbe30fa047eed13958b5b74e38a248c7a23e4) Thanks [@nibtime](https://github.com/nibtime)! - provide base logical operators for chain matchers (request predicates): `matchNot`, `matchAnd`, `matchOr`
+
+- [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`071f993`](https://github.com/nibtime/next-safe-middleware/commit/071f993866279d8d0920f348a0435f254ffe50fa) Thanks [@nibtime](https://github.com/nibtime)! - fix(strictDynamic): exclude Safari from Hash-based Strict CSP
+
+  - the problem is probably that Safari isn't truly CSP-3 compliant yet, like Firefox: https://bugzilla.mozilla.org/show_bug.cgi?id=1409200. `strict-dynamic` seems to mess up SRI validation there.
+
+* [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`071f993`](https://github.com/nibtime/next-safe-middleware/commit/071f993866279d8d0920f348a0435f254ffe50fa) Thanks [@nibtime](https://github.com/nibtime)! - fix: consider `basePath` from `next.config.js` for writing and fetching hashes (fixes [#48](https://github.com/nibtime/next-safe-middleware/issues/48))
+
+- [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`f9ecbe3`](https://github.com/nibtime/next-safe-middleware/commit/f9ecbe30fa047eed13958b5b74e38a248c7a23e4) Thanks [@nibtime](https://github.com/nibtime)! - fix: better `isPageRequest` matcher
+
+  - exclude only basepaths `/_next` and `/api`
+  - exclude all paths with file endings
+  - exclude `isPreviewModeRequest` and `isNextJsDataRequest` (new matchers)
+
+* [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`071f993`](https://github.com/nibtime/next-safe-middleware/commit/071f993866279d8d0920f348a0435f254ffe50fa) Thanks [@nibtime](https://github.com/nibtime)! - perf(middleware): `telemetry` wrapper to log basic measurements and infos from middleware execution
+
+- [#47](https://github.com/nibtime/next-safe-middleware/pull/47) [`f9ecbe3`](https://github.com/nibtime/next-safe-middleware/commit/f9ecbe30fa047eed13958b5b74e38a248c7a23e4) Thanks [@nibtime](https://github.com/nibtime)! - fix(csp): handle boolean directives correctly
+
 ## 0.8.0
 
 ### Minor Changes
