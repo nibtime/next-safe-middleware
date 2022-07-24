@@ -1,5 +1,5 @@
 ---
-"e2e": minor
+"@next-safe/middleware": minor
 ---
 
 provide `gsspWithNonceAppliedToCsp` and `gipWithNonceAppliedToCsp` wrappers to inject nonce into pages with `getServerSideProps` / `getInitialProps`.
