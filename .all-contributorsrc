@@ -37,6 +37,15 @@
         "doc",
         "ideas"
       ]
+    },
+    {
+      "login": "neki",
+      "name": "Benoît Faucon",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2143664?v=4",
+      "profile": "https://github.com/Neki",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 5,
