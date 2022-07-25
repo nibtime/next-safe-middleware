@@ -302,6 +302,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/DuCanhGH"><img src="https://avatars.githubusercontent.com/u/75556609?v=4?s=100" width="100px;" alt=""/><br /><sub><b>DuCanhGH</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3ADuCanhGH" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://uxsd.io/"><img src="https://avatars.githubusercontent.com/u/1551001?v=4?s=100" width="100px;" alt=""/><br /><sub><b>René Schubert</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Arenet" title="Bug reports">🐛</a></td>
     <td align="center"><a href="http://benhodgson.net"><img src="https://avatars.githubusercontent.com/u/189707?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ben Hodgson</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Abenhodgson87" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://sbw.one"><img src="https://avatars.githubusercontent.com/u/908178?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stephan Bönnemann-Walenta</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/commits?author=boennemann" title="Code">💻</a></td>
   </tr>
 </table>
 
