@@ -15,7 +15,7 @@
   [![Release][release-status-badge]][release-status]
 
   <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<p><a href="#contributors"><img src="https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square"></img></a></p>
+<p><a href="#contributors"><img src="https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square"></img></a></p>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
   [![Star on GitHub][github-star-badge]][github-star]
@@ -297,6 +297,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <table>
   <tr>
     <td align="center"><a href="https://github.com/nibtime"><img src="https://avatars.githubusercontent.com/u/52962482?v=4?s=100" width="100px;" alt=""/><br /><sub><b>nibtime</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Code">💻</a> <a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Anibtime" title="Bug reports">🐛</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Documentation">📖</a> <a href="#infra-nibtime" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Tests">⚠️</a> <a href="#ideas-nibtime" title="Ideas, Planning, & Feedback">🤔</a> <a href="#example-nibtime" title="Examples">💡</a></td>
+    <td align="center"><a href="https://github.com/alexturpin"><img src="https://avatars.githubusercontent.com/u/134339?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alex Turpin</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Aalexturpin" title="Bug reports">🐛</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=alexturpin" title="Documentation">📖</a> <a href="#ideas-alexturpin" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 

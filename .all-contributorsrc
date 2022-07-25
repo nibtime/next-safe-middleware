@@ -26,7 +26,19 @@
         "ideas",
         "example"
       ]
+    },
+    {
+      "login": "alexturpin",
+      "name": "Alex Turpin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/134339?v=4",
+      "profile": "https://github.com/alexturpin",
+      "contributions": [
+        "bug",
+        "doc",
+        "ideas"
+      ]
     }
   ],
-  "contributorsPerLine": 5
+  "contributorsPerLine": 5,
+  "skipCi": true
 }
