@@ -15,7 +15,7 @@
   [![Release][release-status-badge]][release-status]
 
   <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<p><a href="#contributors"><img src="https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square"></img></a></p>
+<p><a href="#contributors"><img src="https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square"></img></a></p>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
   [![Star on GitHub][github-star-badge]][github-star]
@@ -303,6 +303,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://uxsd.io/"><img src="https://avatars.githubusercontent.com/u/1551001?v=4?s=100" width="100px;" alt=""/><br /><sub><b>René Schubert</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Arenet" title="Bug reports">🐛</a></td>
     <td align="center"><a href="http://benhodgson.net"><img src="https://avatars.githubusercontent.com/u/189707?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ben Hodgson</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Abenhodgson87" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://sbw.one"><img src="https://avatars.githubusercontent.com/u/908178?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Stephan Bönnemann-Walenta</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/commits?author=boennemann" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://cian.ru/"><img src="https://avatars.githubusercontent.com/u/2459175?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Shamil Yakupov</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3AShamilik" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
