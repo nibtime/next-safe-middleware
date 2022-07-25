@@ -306,6 +306,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="https://cian.ru/"><img src="https://avatars.githubusercontent.com/u/2459175?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Shamil Yakupov</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3AShamilik" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="http://muskela.com"><img src="https://avatars.githubusercontent.com/u/3023861?v=4?s=100" width="100px;" alt=""/><br /><sub><b>MuskMuskMusk☠️</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Amuskela" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
