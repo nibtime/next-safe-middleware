@@ -24,13 +24,13 @@ import { packageName } from "theme.config";
     />
   </div>
 
-  # `@next-safe/middleware`
+# `@next-safe/middleware`
 
-  **Strict Content-Security-Policy (CSP) for Next.js with composable middleware**
+**Strict Content-Security-Policy (CSP) for Next.js with composable middleware**
 
-  Works for hybrid apps and supports pages with any data fetching method.
+Works for hybrid apps and supports pages with any data fetching method.
 
-  Always sets CSP by HTTP Response header and enables easy setup of reporting.
+Always sets CSP by HTTP Response header and enables easy setup of reporting.
 
 </HeaderContainer>
 
@@ -138,7 +138,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome! Check out the [contributing guide](/CONTRIBUTING) for getting started!
 
-
 export const HeaderContainer = styled("div", tw`flex flex-col text-center`);
 
 export const BadgesContainer = styled("div", {
@@ -177,19 +176,17 @@ export const __html_ac_list = `
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-`.replace(/<br\s\/?>/g, "");
+`
 
 export const ContributorsList = styled("div", {
   ...tw`my-10`,
   tbody: tw`border-t border-l border-r border-sky-100 divide-y divide-sky-100 shadow-md shadow-sky-100 dark:(shadow-sky-800 shadow-sky-800 divide-sky-900 border-sky-900)`,
   tr: tw`border-0 divide-x divide-sky-100 dark:(divide-sky-900)`,
   td: {
-    ...tw`py-6! border-0`,
+    ...tw`py-6 border-0`,
     a: {
       ...tw`no-underline!`,
-      ":not([title])": tw`block mb-3`,
       img: tw`rounded-full mx-auto`,
-      "[title]": tw`inline`,
     },
   },
 });
