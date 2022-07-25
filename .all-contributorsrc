@@ -48,15 +48,6 @@
       ]
     },
     {
-      "login": "DuCanhGH",
-      "name": "DuCanhGH",
-      "avatar_url": "https://avatars.githubusercontent.com/u/75556609?v=4",
-      "profile": "https://github.com/DuCanhGH",
-      "contributions": [
-        "bug"
-      ]
-    },
-    {
       "login": "renet",
       "name": "René Schubert",
       "avatar_url": "https://avatars.githubusercontent.com/u/1551001?v=4",
@@ -88,6 +79,15 @@
       "name": "Shamil Yakupov",
       "avatar_url": "https://avatars.githubusercontent.com/u/2459175?v=4",
       "profile": "https://cian.ru/",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "DuCanhGH",
+      "name": "DuCanhGH",
+      "avatar_url": "https://avatars.githubusercontent.com/u/75556609?v=4",
+      "profile": "https://github.com/DuCanhGH",
       "contributions": [
         "bug"
       ]
