@@ -73,6 +73,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "boennemann",
+      "name": "Stephan Bönnemann-Walenta",
+      "avatar_url": "https://avatars.githubusercontent.com/u/908178?v=4",
+      "profile": "https://sbw.one",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
