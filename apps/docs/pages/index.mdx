@@ -23,7 +23,8 @@ import { packageName } from "theme.config";
       src="https://user-images.githubusercontent.com/52962482/177227813-b15198ca-2c36-4ba3-afec-efeb581a19a1.png"
     />
   </div>
-  # `@next-safe/middleware`
+
+# `@next-safe/middleware`
 
 **Strict Content-Security-Policy (CSP) for Next.js with composable middleware**
 
@@ -137,7 +138,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome! Check out the [contributing guide](/CONTRIBUTING) for getting started!
 
-
 export const HeaderContainer = styled("div", tw`flex flex-col text-center`);
 
 export const BadgesContainer = styled("div", {
@@ -168,6 +168,7 @@ export const __html_ac_list = `
   <tr>
     <td align="center"><a href="https://github.com/nibtime"><img src="https://avatars.githubusercontent.com/u/52962482?v=4?s=100" width="100px;" alt=""/><br /><sub><b>nibtime</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Code">💻</a> <a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Anibtime" title="Bug reports">🐛</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Documentation">📖</a> <a href="#infra-nibtime" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=nibtime" title="Tests">⚠️</a> <a href="#ideas-nibtime" title="Ideas, Planning, & Feedback">🤔</a> <a href="#example-nibtime" title="Examples">💡</a></td>
     <td align="center"><a href="https://github.com/alexturpin"><img src="https://avatars.githubusercontent.com/u/134339?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Alex Turpin</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Aalexturpin" title="Bug reports">🐛</a> <a href="https://github.com/nibtime/next-safe-middleware/commits?author=alexturpin" title="Documentation">📖</a> <a href="#ideas-alexturpin" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/Neki"><img src="https://avatars.githubusercontent.com/u/2143664?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Benoît Faucon</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3Aneki" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
@@ -175,19 +176,17 @@ export const __html_ac_list = `
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-`.replace(/<br\s\/?>/g, "");
+`
 
 export const ContributorsList = styled("div", {
   ...tw`my-10`,
   tbody: tw`border-t border-l border-r border-sky-100 divide-y divide-sky-100 shadow-md shadow-sky-100 dark:(shadow-sky-800 shadow-sky-800 divide-sky-900 border-sky-900)`,
   tr: tw`border-0 divide-x divide-sky-100 dark:(divide-sky-900)`,
   td: {
-    ...tw`py-6! border-0`,
+    ...tw`py-6 border-0`,
     a: {
       ...tw`no-underline!`,
-      ":not([title])": tw`block mb-3`,
       img: tw`rounded-full mx-auto`,
-      "[title]": tw`inline`,
     },
   },
 });
