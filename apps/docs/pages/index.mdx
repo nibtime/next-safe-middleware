@@ -186,11 +186,10 @@ export const __html_ac_list = `
 `
 
 export const ContributorsList = styled("div", {
-  ...tw`my-10`,
-  tbody: tw`border-t border-l border-r border-sky-100 divide-y divide-sky-100 shadow-md shadow-sky-100 dark:(shadow-sky-800 shadow-sky-800 divide-sky-900 border-sky-900)`,
-  tr: tw`border-0 divide-x divide-sky-100 dark:(divide-sky-900)`,
+  ...tw`my-10 border-t border-l border-r border-sky-100 shadow-lg shadow-sky-100 dark:(border-sky-900 shadow-sky-900)`,
+  tr: tw`border-0 border-sky-100 dark:border-sky-900 not-last:border-b`,
   td: {
-    ...tw`py-6 border-0`,
+    ...tw`py-6 border-0 border-sky-100 dark:border-sky-900 not-last:border-r`,
     a: {
       ...tw`no-underline!`,
       img: tw`rounded-full mx-auto`,
