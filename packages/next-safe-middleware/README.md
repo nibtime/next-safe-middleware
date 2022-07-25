@@ -31,6 +31,8 @@
   
   <a href="https://next-safe-middleware.vercel.app" target="_blank" rel="noopener noreferrer">Read the docs</a>
 
+  <a href="#contributors" target="_blank" rel="noopener noreferrer">Contribute</a>
+
   </h2>
 
   <br />
@@ -43,7 +45,7 @@
 
 [version-badge]: https://img.shields.io/npm/v/@next-safe/middleware.svg?style=flat-square
 [downloads-badge]: https://img.shields.io/npm/dm/next-safe.svg?style=flat-square
-[license]: https://github.com/nibtime/next-safe-middleware/blob/main/LICENSE
+[license]: LICENSE
 [license-badge]: https://img.shields.io/github/license/nibtime/next-safe-middleware?style=flat-square
 
 [release-status]: https://github.com/nibtime/next-safe-middleware/actions/workflows/release.yml
@@ -287,6 +289,8 @@ If you only want to use the composition features from this package, there's an e
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
+<br />
+
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
@@ -301,4 +305,6 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome! Check out the [contributing guide](https:next-safe-middleware.vercel.app/CONTRIBUTING) for getting started!
+<br />
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome! Check out the [contributing guide](https://next-safe-middleware.vercel.app/CONTRIBUTING) for getting started!
