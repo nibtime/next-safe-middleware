@@ -2135,13 +2135,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/lockfile", "npm:1.0.2"],\
             ["@types/next", null],\
             ["@types/node", "npm:17.0.21"],\
-            ["@types/ramda", "npm:0.27.66"],\
+            ["@types/ramda", "npm:0.28.15"],\
             ["@types/react", "npm:18.0.15"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:28.1.3"],\
             ["lockfile", "npm:1.0.4"],\
             ["next", "virtual:ba56dc173c7ece72e1480aefcd1d10cda1629de2daa7f61b603fae838675c08883d872a9392eb3e84cc530eed79a8c2786d69c2798b8351fc0bd584f41a8d550#npm:12.2.2"],\
             ["next-safe", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:3.2.1"],\
+            ["p-retry", "npm:5.1.1"],\
             ["ramda", "npm:0.28.0"],\
             ["react", "npm:18.2.0"],\
             ["rollup", "npm:2.68.0"],\
@@ -2170,13 +2171,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/jest", "npm:28.1.5"],\
             ["@types/lockfile", "npm:1.0.2"],\
             ["@types/node", "npm:17.0.21"],\
-            ["@types/ramda", "npm:0.27.66"],\
+            ["@types/ramda", "npm:0.28.15"],\
             ["@types/react", "npm:18.0.15"],\
             ["cheerio", "npm:1.0.0-rc.10"],\
             ["jest", "virtual:c57901b81743156616f1f2fb3d4af0b9e12dda2678cbb4417fc4c861bb96ec13dc34297fbe9d649cd0e7a449db9853da51d33f851944116b22f24ad825197d4d#npm:28.1.3"],\
             ["lockfile", "npm:1.0.4"],\
             ["next", "virtual:e334acf360f17c372bb9553f62bbdfde1631243f4c1e6329c46aa85ad33f680fe650e0f9f1b06235a44b78df3d908da2201d77b8e95342fa33b754433235fb18#npm:12.2.2"],\
             ["next-safe", "virtual:e334acf360f17c372bb9553f62bbdfde1631243f4c1e6329c46aa85ad33f680fe650e0f9f1b06235a44b78df3d908da2201d77b8e95342fa33b754433235fb18#npm:3.2.1"],\
+            ["p-retry", "npm:5.1.1"],\
             ["ramda", "npm:0.28.0"],\
             ["react", "npm:18.2.0"],\
             ["rollup", "npm:2.68.0"],\
@@ -3442,10 +3444,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@types/ramda", [\
-        ["npm:0.27.66", {\
-          "packageLocation": "./.yarn/cache/@types-ramda-npm-0.27.66-b6f7950b84-eea577e4a0.zip/node_modules/@types/ramda/",\
+        ["npm:0.28.15", {\
+          "packageLocation": "./.yarn/cache/@types-ramda-npm-0.28.15-dbd409376b-f96576c78a.zip/node_modules/@types/ramda/",\
           "packageDependencies": [\
-            ["@types/ramda", "npm:0.27.66"],\
+            ["@types/ramda", "npm:0.28.15"],\
             ["ts-toolbelt", "npm:6.15.5"]\
           ],\
           "linkType": "HARD"\
@@ -3489,6 +3491,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@types/responselike", "npm:1.0.0"],\
             ["@types/node", "npm:17.0.21"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@types/retry", [\
+        ["npm:0.12.1", {\
+          "packageLocation": "./.yarn/cache/@types-retry-npm-0.12.1-05f3303aac-5f46b25560.zip/node_modules/@types/retry/",\
+          "packageDependencies": [\
+            ["@types/retry", "npm:0.12.1"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -5469,7 +5480,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@stitches/react", "virtual:ba56dc173c7ece72e1480aefcd1d10cda1629de2daa7f61b603fae838675c08883d872a9392eb3e84cc530eed79a8c2786d69c2798b8351fc0bd584f41a8d550#npm:1.2.8"],\
             ["@tailwindcss/typography", "virtual:ba56dc173c7ece72e1480aefcd1d10cda1629de2daa7f61b603fae838675c08883d872a9392eb3e84cc530eed79a8c2786d69c2798b8351fc0bd584f41a8d550#npm:0.5.3"],\
             ["@types/node", "npm:17.0.18"],\
-            ["@types/ramda", "npm:0.27.66"],\
+            ["@types/ramda", "npm:0.28.15"],\
             ["@types/react", "npm:18.0.15"],\
             ["babel-plugin-macros", "npm:3.1.0"],\
             ["next", "virtual:ba56dc173c7ece72e1480aefcd1d10cda1629de2daa7f61b603fae838675c08883d872a9392eb3e84cc530eed79a8c2786d69c2798b8351fc0bd584f41a8d550#npm:12.2.2"],\
@@ -5639,7 +5650,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@testing-library/jest-dom", "npm:5.16.4"],\
             ["@testing-library/react", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:13.3.0"],\
             ["@types/node", "npm:17.0.18"],\
-            ["@types/ramda", "npm:0.27.66"],\
+            ["@types/ramda", "npm:0.28.15"],\
             ["@types/react", "npm:18.0.15"],\
             ["@types/testing-library__jest-dom", "npm:5.14.5"],\
             ["autoprefixer", "virtual:bd0615ff260070d536fca5beccdec3205e40bc839285afc4db8dc20f3a709e50f7aaf2705b8ad5959a5a09fa6f9d753f23d15197638c71649ab87855283ed77c#npm:10.4.7"],\
@@ -10349,6 +10360,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["p-retry", [\
+        ["npm:5.1.1", {\
+          "packageLocation": "./.yarn/cache/p-retry-npm-5.1.1-b0a2d61213-59502d9f2c.zip/node_modules/p-retry/",\
+          "packageDependencies": [\
+            ["p-retry", "npm:5.1.1"],\
+            ["@types/retry", "npm:0.12.1"],\
+            ["retry", "npm:0.13.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["p-timeout", [\
         ["npm:2.0.1", {\
           "packageLocation": "./.yarn/cache/p-timeout-npm-2.0.1-cd74d88327-9205a66117.zip/node_modules/p-timeout/",\
@@ -11450,6 +11472,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/retry-npm-0.12.0-72ac7fb4cc-623bd7d2e5.zip/node_modules/retry/",\
           "packageDependencies": [\
             ["retry", "npm:0.12.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:0.13.1", {\
+          "packageLocation": "./.yarn/cache/retry-npm-0.13.1-89eb100ab6-47c4d5be67.zip/node_modules/retry/",\
+          "packageDependencies": [\
+            ["retry", "npm:0.13.1"]\
           ],\
           "linkType": "HARD"\
         }]\
