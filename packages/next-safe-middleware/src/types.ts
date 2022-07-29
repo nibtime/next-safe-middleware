@@ -89,6 +89,22 @@ export interface CspDirectives {
   >;
 }
 
-export type BooleanDirectives = "upgrade-insecure-requests" | "block-all-mixed-content";
-export type CspDirectivesLenient = Partial<Record<keyof CspDirectives, string | string[] | boolean>>
-export type CspFilter = Partial<Record<Exclude<keyof CspDirectives, BooleanDirectives>, RegExp>>;
+export type BooleanDirectives =
+  | "upgrade-insecure-requests"
+  | "block-all-mixed-content";
+export type CspDirectivesLenient = Partial<
+  Partial<Record<keyof CspDirectives, string | string[] | boolean>>
+>;
+export type CspFilter = {
+  [K in Exclude<keyof CspDirectives, BooleanDirectives>]?:
+    | RegExp
+    | CspDirectives[K];
+};
+
+export type CspManifest = {
+  scripts: { src?: string; hash: string }[];
+  styles: {
+    elem: string[];
+    attr: string[];
+  };
+};
