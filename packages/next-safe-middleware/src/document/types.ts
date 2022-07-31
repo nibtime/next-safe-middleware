@@ -1,4 +1,5 @@
-export type Primitve = string | number | boolean;
-export type Nullable<T = null> = T | null;
-// a script as simple data (pair of its attributes)
-export type IterableScript = [string, Primitve][];
+export type { CspInitialProps } from "./initialProps";
+export type {
+  CspDocumentInitialPropsOptions,
+  ProcessHtmlOptions as ProcessInitialPropsHtmlOptions,
+} from "./initialProps/types";

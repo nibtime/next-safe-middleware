@@ -1,22 +1,21 @@
 import type { CspDirectives } from "../types";
-import { extendCsp } from "../utils";
 import type { MiddlewareBuilder, NextUserAgent } from "./builder/types";
-import type { CspCacheKey, CspCacheValue } from "./finalizers";
-
-import { fetchHashes } from "./utils";
-import { unpackConfig, withDefaultConfig, ensureChainContext } from "./builder";
+import { chainableMiddleware } from "./compose";
+import { unpackConfig, withDefaultConfig } from "./builder";
+import { mergeRight } from "ramda";
+import { cachedCspBuilder, cachedCspManifest } from "./utils";
 
 export type SupportInfo = {
   /**
    * Whether the browser supports`strict-dynamic`.
    */
-  supportsStrictDynamic: boolean;
+  supportsStrictDynamic?: boolean;
   /**
    * Whether the browser supports the `integrity` attribute on <script>` tags
    * in combination with `src` attribute. If a browser doesn't
    * support this, it can't use a Hash-based strict CSP on pages with `getStaticProps`
    */
-  supportsSrcIntegrityCheck: boolean;
+  supportsSrcIntegrityCheck?: boolean;
 };
 
 export type TellSupported = (userAgent: NextUserAgent) => SupportInfo;
@@ -76,22 +75,16 @@ export type StrictDynamicCfg = {
    * @default true
    */
   inclusiveFallback?: boolean;
+  extendScriptSrc?: boolean;
 };
 
-const _strictDynamic: MiddlewareBuilder<
-  StrictDynamicCfg,
-  CspCacheKey,
-  CspCacheValue
-> = (cfg) =>
-  ensureChainContext(async (req, evt, ctx) => {
-    if (process.env.NODE_ENV === "development") {
-      return;
-    }
-
-    const csp = ctx.cache.get("csp");
-    if (!csp) return;
-
-    let { directives, reportOnly } = csp;
+const _strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
+  chainableMiddleware(async (req, evt, ctx) => {
+    const [cspManifest, cspBuilder, config] = await Promise.all([
+      cachedCspManifest(req),
+      cachedCspBuilder(ctx),
+      unpackConfig(cfg, req, evt, ctx),
+    ]);
 
     const {
       fallbackScriptSrc,
@@ -99,83 +92,42 @@ const _strictDynamic: MiddlewareBuilder<
       tellSupported,
       userAgent,
       inclusiveFallback,
-    } = await unpackConfig(cfg, req, evt, ctx);
+      extendScriptSrc,
+    } = config;
+
     const withUnsafeEval = (values: ScriptSrcSources): ScriptSrcSources =>
       allowUnsafeEval ? [...values, "unsafe-eval"] : values;
     const appendToStrictDynamic = withUnsafeEval(
       inclusiveFallback ? fallbackScriptSrc : []
     );
+
     const { supportsSrcIntegrityCheck, supportsStrictDynamic } =
       tellSupported(userAgent);
 
-    if (!supportsStrictDynamic) {
-      directives = extendCsp(
-        directives,
+    const isHashBasedByProxy = () =>
+      !cspManifest.scripts.some((script) => !!script.src);
+
+    const mode = extendScriptSrc ? "append" : "override";
+
+    if (
+      !cspManifest ||
+      !supportsStrictDynamic ||
+      !(supportsSrcIntegrityCheck || isHashBasedByProxy())
+    ) {
+      cspBuilder.withDirectives(
         {
           "script-src": withUnsafeEval(fallbackScriptSrc),
         },
-        "override"
+        mode
       );
-      ctx.cache.set("csp", { directives, reportOnly });
       return;
     }
-
-    const scriptSrcHashes = (await fetchHashes(req, "script-hashes.txt")) as
-      | ScriptSrcSources
-      | string;
-    if (typeof scriptSrcHashes === "string") {
-      console.error(
-        `[strictDynamic]: No script hashes could be fetched. 
-  Did you call getCspInitialProps in _document?. If yes, this is unexpected`,
-        {
-          scriptHashesFetchStatus: scriptSrcHashes,
-          supportsStrictDynamic,
-          supportsSrcIntegrityCheck,
-          browser: userAgent.browser.name,
-          version: userAgent.browser.version,
-        }
-      );
-    } else if (
-      scriptSrcHashes.length &&
-      supportsStrictDynamic &&
-      supportsSrcIntegrityCheck
-    ) {
-      directives = extendCsp(
-        directives,
-        {
-          "script-src": [
-            "strict-dynamic",
-            ...appendToStrictDynamic,
-            ...scriptSrcHashes,
-          ],
-        },
-        "override"
-      );
-    }
-    //
-    else {
-      console.log(
-        `[strictDynamic]: browser with no proper support for strict-dynamic.
-  Either doesn't support the value or has buggy SRI validation
-  Applying fallback sources...`,
-        {
-          fallbackScriptSrc,
-          browser: userAgent.browser.name,
-          version: userAgent.browser.version,
-          supportsStrictDynamic,
-          supportsSrcIntegrityCheck,
-        }
-      );
-
-      directives = extendCsp(
-        directives,
-        {
-          "script-src": [...withUnsafeEval(fallbackScriptSrc)],
-        },
-        "override"
-      );
-    }
-    ctx.cache.set("csp", { directives, reportOnly });
+    const scriptSrcHashes = cspManifest.scripts.map(({ hash }) => hash);
+    cspBuilder.withStrictDynamic(
+      scriptSrcHashes,
+      appendToStrictDynamic,
+      extendScriptSrc
+    );
   });
 
 const tellSupported: TellSupported = (userAgent) => {
@@ -223,9 +175,19 @@ const tellSupported: TellSupported = (userAgent) => {
  * export default chainMatch(isPageRequest)(...securityMiddleware);
  *
  */
-const strictDynamic = withDefaultConfig(_strictDynamic, {
-  fallbackScriptSrc: ["https:", "unsafe-inline"],
-  tellSupported,
-  inclusiveFallback: true,
-});
+const strictDynamic = withDefaultConfig(
+  _strictDynamic,
+  {
+    fallbackScriptSrc: ["https:", "unsafe-inline"],
+    tellSupported,
+    inclusiveFallback: true,
+    extendScriptSrc: process.env.NODE_ENV === "development",
+  },
+  (k, l, r) =>
+    k === "tellSupported" && typeof l === "function" && typeof r === "function"
+      ? (ua) => {
+          mergeRight(l(ua), r(ua));
+        }
+      : undefined
+);
 export default strictDynamic;

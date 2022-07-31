@@ -1,9 +1,9 @@
 import _nextSafe from "next-safe";
 import type { MiddlewareBuilder } from "./builder/types";
-import { unpackConfig, withDefaultConfig, ensureChainContext } from "./builder";
-import { writeCspToResponse } from "./finalizers";
-import { NextResponse } from "next/server";
-import { extendCsp, fromCspContent } from "../utils";
+import { chainableMiddleware } from "./compose";
+import { unpackConfig, withDefaultConfig } from "./builder";
+import { cachedCspBuilder } from "./utils";
+import { CSP_HEADER } from "../constants";
 
 /**
  * A CSP Directive Poroperty
@@ -98,40 +98,26 @@ export type NextSafeCfg = NextSafeConfig & {
 const nextSafe = _nextSafe as unknown as typeof _nextSafe.nextSafe;
 
 const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
-  ensureChainContext(async (req, evt, ctx) => {
-    const { disableCsp, userAgent, ...nextSafeCfg } = await unpackConfig(
-      cfg,
-      req,
-      evt,
-      ctx
-    );
-    if (disableCsp) {
-      (nextSafeCfg as any).contentSecurityPolicy = false;
-    }
-    ctx.res.set(NextResponse.next(), false);
+  chainableMiddleware(async (req, evt, ctx) => {
+    const [cspBuilder, config] = await Promise.all([
+      cachedCspBuilder(ctx),
+      unpackConfig(cfg, req, evt, ctx),
+    ]);
+    const { disableCsp, userAgent, ...nextSafeCfg } = config;
+    const isNoCspSecurityHeader = (header) =>
+      !header.key.toLowerCase().includes(CSP_HEADER) &&
+      !header.key.toLowerCase().includes("csp");
+
     nextSafe(nextSafeCfg).forEach((header) => {
-      if (
-        header.key.toLowerCase() === "content-security-policy" ||
-        header.key.toLowerCase() === "content-security-policy-report-only"
-      ) {
-        const { directives, reportOnly } = ctx.cache.get("csp") ?? {};
-        ctx.cache.set("csp", {
-          directives: !directives
-            ? fromCspContent(header.value)
-            : extendCsp(directives, fromCspContent(header.value), "append"),
-          reportOnly: nextSafeCfg.contentSecurityPolicy.reportOnly || reportOnly,
-        });
-        ctx.finalize.addCallback(writeCspToResponse);
-        return;
-      } else if (
-        !header.key.toLowerCase().includes("content-security-policy")
-        && !header.key.toLowerCase().includes('csp')
-      ) {
-        ctx.finalize.addCallback((req, evt, ctx) =>
-          ctx.res.get().headers.set(header.key, header.value)
-        );
+      if (isNoCspSecurityHeader(header)) {
+        ctx.res.get().headers.set(header.key, header.value);
       }
     });
+    if (disableCsp || nextSafeCfg.contentSecurityPolicy === false) {
+      return;
+    }
+    const { reportOnly, ...directives } = nextSafeCfg.contentSecurityPolicy;
+    cspBuilder.withDirectives(directives).withReportOnly(reportOnly);
   });
 
 /**

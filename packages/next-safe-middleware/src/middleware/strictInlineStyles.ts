@@ -1,56 +1,21 @@
-import { extendCsp } from "../utils";
 import type { MiddlewareBuilder } from "./builder/types";
-import { fetchHashes } from "./utils";
-import { withDefaultConfig, ensureChainContext, unpackConfig } from "./builder";
-import type { CspCacheKey, CspCacheValue } from "./finalizers";
+import { withDefaultConfig } from "./builder";
+import { chainableMiddleware } from "./compose";
+import { cachedCspBuilder, cachedCspManifest } from "./utils";
 
-export type StrictInlineStylesCfg = {
-  /**
-   * if set to true, it will extend an existing style-src directive
-   * from further left in the middleware chain
-   *
-   * Default: `true`. This respects an existing `style-src` configuration
-   * that relies on additonal stylesheets on top of inline styles.
-   *
-   * Set to `false` if you use a CSS-in-JS solution like Stitches that relies on
-   * inline styles and don't need to include any further stylesheet for your app.
-   */
-  extendStyleSrc?: boolean;
-};
+export type StrictInlineStylesCfg = {};
 
-const _strictInlineStyles: MiddlewareBuilder<
-  StrictInlineStylesCfg,
-  CspCacheKey,
-  CspCacheValue
-> = (cfg) =>
-  ensureChainContext(async (req, evt, ctx) => {
-    if (process.env.NODE_ENV === "development") {
+const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
+  chainableMiddleware(async (req, evt, ctx) => {
+    const [cspManifest, cspBuilder] = await Promise.all([
+      cachedCspManifest(req),
+      cachedCspBuilder(ctx),
+    ]);
+    if (!cspManifest) {
       return;
     }
-    const csp = ctx.cache.get("csp");
-    if (!csp) return;
-
-    let { directives, reportOnly } = csp;
-
-    const fetchedHashes = await fetchHashes(req, "style-hashes.txt");
-    if (Array.isArray(fetchedHashes) && fetchedHashes.length) {
-      const { extendStyleSrc } = await unpackConfig(cfg, req, evt, ctx);
-      const mode = extendStyleSrc ? "append" : "override";
-      directives = extendCsp(
-        directives,
-        {
-          "style-src": [...fetchedHashes, "unsafe-hashes"],
-        },
-        mode
-      );
-      ctx.cache.set("csp", { directives, reportOnly });
-    } else {
-      console.error(
-        `[strictInlineStyles]: No style hashes could be fetched. 
-  Did you call getCspInitialProps with trustifyStyles in _document?. If yes, this is unexpected`,
-        { styleHashesFetchStatus: fetchedHashes }
-      );
-    }
+    const { elem, attr } = cspManifest.styles;
+    cspBuilder.withStyleHashes(elem, attr);
   });
 
 /**
@@ -82,8 +47,6 @@ const _strictInlineStyles: MiddlewareBuilder<
  *
  * export default chainMatch(isPageRequest)(...securityMiddleware);
  */
-const strictInlineStyles = withDefaultConfig(_strictInlineStyles, {
-  extendStyleSrc: true,
-});
+const strictInlineStyles = withDefaultConfig(_strictInlineStyles, {});
 
 export default strictInlineStyles;

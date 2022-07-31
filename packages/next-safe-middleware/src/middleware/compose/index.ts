@@ -1,5 +1,4 @@
 import type { NextFetchEvent, NextRequest } from "next/server";
-import { deepFreeze } from "../utils";
 import type {
   ChainMatcher,
   MiddlewareChain,
@@ -10,6 +9,16 @@ import type {
   NextMiddleware,
 } from "./types";
 
+import { NextResponse } from "next/server";
+
+// https://www.30secondsofcode.org/js/s/deep-freeze
+const deepFreeze = <T>(obj: T): T => {
+  Object.keys(obj).forEach((prop) => {
+    if (typeof obj[prop] === "object") deepFreeze(obj[prop]);
+  });
+  return Object.freeze(obj);
+};
+
 /**
  *
  * @param middlewares the middlewares to chain in sequence
@@ -19,27 +28,21 @@ import type {
  *
  */
 export const chain =
-  <K extends string = string, V = any>(
-    ...middlewares: Parameters<MiddlewareChain<K, V>>
-  ): NextMiddleware =>
+  (...middlewares: Parameters<MiddlewareChain>): NextMiddleware =>
   async (req: NextRequest, evt: NextFetchEvent) => {
-    type Ctx = MiddlewareChainContext<K, V>;
-
     let chainResponse: NextMiddlewareResult;
-    let terminatedByResponse = null;
-    const cache: Partial<Record<K, V>> = {};
+    const cache: Partial<Record<string, any>> = {};
     const finalizers: ChainFinalizer[] = [];
 
-    const ctx: Readonly<Ctx> = deepFreeze({
+    const ctx = deepFreeze<MiddlewareChainContext>({
       res: {
-        get: () => chainResponse,
-        set: (res, override = true) => {
-          if (override) {
-            chainResponse = res;
-          } else if (!chainResponse) {
-            chainResponse = res;
+        get: () => {
+          if (!chainResponse) {
+            chainResponse = NextResponse.next();
           }
+          return chainResponse;
         },
+        set: (res) => (chainResponse = res),
       },
       cache: {
         get: (k) => cache[k],
@@ -51,15 +54,14 @@ export const chain =
             finalizers.push(f);
           }
         },
-        terminatedByResponse: () => terminatedByResponse,
       },
     });
 
     const finalize = async () => {
       try {
-        for (const callback of finalizers.reverse()) {
-          await callback(req, evt, ctx);
-        }
+        return Promise.all(
+          finalizers.map((finalize) => finalize(req, evt, ctx))
+        );
       } catch (error) {
         console.error("[chain]: finalization error", { error });
       }
@@ -68,8 +70,6 @@ export const chain =
     for await (const middleware of middlewares) {
       const mwRes = await middleware(req, evt, ctx);
       if (mwRes) {
-        terminatedByResponse = mwRes;
-        await finalize();
         return mwRes;
       }
     }
@@ -92,15 +92,24 @@ export const chain =
  *
  */
 export const chainMatch =
-  <K extends string = string, V = any>(
-    matcher: ChainMatcher
-  ): MiddlewareChain<K, V> =>
+  (matcher: ChainMatcher): MiddlewareChain =>
   (...middlewares) =>
   async (req, evt) => {
     if (matcher(req)) {
       return chain(...middlewares)(req, evt);
     }
   };
+
+export const chainableMiddleware = (
+  middleware: ChainableMiddleware
+): ChainableMiddleware => {
+  return async (req, evt, ctx) => {
+    if (ctx) {
+      return middleware(req, evt, ctx);
+    }
+    return chain(middleware)(req, evt);
+  };
+};
 
 /**
  *
@@ -110,15 +119,15 @@ export const chainMatch =
  * a chainable middleware that continues
  * the response (if any) of `nextMiddleware` to a chain context
  */
-export const continued =
-  <K extends string = string, V = any>(
-    nextMiddleware: NextMiddleware
-  ): ChainableMiddleware<K, V> =>
-  async (req, evt, ctx) => {
+export const continued = (
+  nextMiddleware: NextMiddleware
+): ChainableMiddleware =>
+  chainableMiddleware(async (req, evt, ctx) => {
     const mwRes = await nextMiddleware(req, evt);
-    if (mwRes && ctx) {
+    if (mwRes) {
       ctx.res.set(mwRes);
     }
-  };
+  });
 
+export * from "./cache";
 export * from "./matchers";

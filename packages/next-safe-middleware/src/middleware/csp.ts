@@ -1,9 +1,8 @@
 import type { MiddlewareBuilder } from "./builder/types";
-import { extendCsp } from "../utils";
-import { ensureChainContext, unpackConfig, withDefaultConfig } from "./builder";
+import { chainableMiddleware } from "./compose";
+import { unpackConfig, withDefaultConfig } from "./builder";
 import { CspDirectives } from "../types";
-import { NextResponse } from "next/server";
-import { writeCspToResponse, CspCacheKey, CspCacheValue } from "./finalizers";
+import { cachedCspBuilder } from "./utils";
 
 export type CspCfg = {
   /**
@@ -51,32 +50,24 @@ export type CspCfg = {
   reportOnly?: boolean;
 };
 
+export type CspCached = Pick<CspCfg, "directives" | "reportOnly"> | null;
 
-const _csp: MiddlewareBuilder<CspCfg, CspCacheKey, CspCacheValue> = (cfg) =>
-  ensureChainContext(async (req, evt, ctx) => {
-    let { reportOnly, directives, isDev } = await unpackConfig(
-      cfg,
-      req,
-      evt,
-      ctx
-    );
+const _csp: MiddlewareBuilder<CspCfg> = (cfg) =>
+  chainableMiddleware(async (req, evt, ctx) => {
+    const [cspBuilder, config] = await Promise.all([
+      cachedCspBuilder(ctx),
+      unpackConfig(cfg, req, evt, ctx),
+    ]);
+    let { reportOnly, directives, isDev } = config;
 
     if (isDev) {
-      directives = extendCsp(directives, {
+      cspBuilder.withDirectives({
         "script-src": ["self", "unsafe-eval", "unsafe-inline"],
         "style-src": ["self", "unsafe-inline"],
         "font-src": ["self", "data:"],
       });
     }
-    const { directives: cachedDirectives } = ctx.cache.get("csp") ?? {};
-    ctx.cache.set("csp", {
-      directives: !cachedDirectives
-        ? directives
-        : extendCsp(cachedDirectives, directives, "append"),
-      reportOnly,
-    });
-    ctx.finalize.addCallback(writeCspToResponse);
-    ctx.res.set(NextResponse.next(), false);
+    cspBuilder.withDirectives(directives).withReportOnly(reportOnly);
   });
 
 /**

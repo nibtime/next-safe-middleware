@@ -8,42 +8,37 @@ import type {
 export type NextMiddlewareResult = NextResponse | Response | null | undefined;
 export type { NextMiddleware };
 
-export type ChainFinalizer<K extends string = string, V = any> = (
+export type ChainFinalizer = (
   req: NextRequest,
   evt: NextFetchEvent,
-  ctx: MiddlewareChainContext<K, V>
+  ctx: Readonly<MiddlewareChainContext>
 ) => void | Promise<void>;
 
-export type MiddlewareChainContext<K extends string = string, V = any> = {
-  res: {
-    readonly get: () => NextMiddlewareResult;
-    readonly set: (res: NextMiddlewareResult, override?: boolean) => void
-  }
-  cache: {
-    readonly get: (key: K) => V | null | undefined;
-    readonly set: (key: K, value: V) => void;
-  }
-  finalize: {
-    readonly addCallback: (finalizer: ChainFinalizer<K, V>) => void
-    readonly terminatedByResponse: () => NextMiddlewareResult
-  }
+export type MiddlewareChainContext = {
+  readonly res: {
+    readonly get: () => Response | NextResponse;
+    readonly set: (res: Response | NextResponse) => void;
+  };
+  readonly cache: {
+    readonly get: (key: string) => unknown;
+    readonly set: (key: string, value: unknown) => void;
+  };
+  readonly finalize: {
+    readonly addCallback: (finalizer: ChainFinalizer) => void;
+  };
 };
 
-export type ChainableMiddleware<K extends string = string, V = any> = (
+export type ChainableMiddleware = (
   ...params: [
     ...spec: Parameters<NextMiddleware>,
-    ctx?: Readonly<MiddlewareChainContext<K, V>>
+    ctx: MiddlewareChainContext
   ]
 ) => NextMiddlewareResult | void | Promise<NextMiddlewareResult | void>;
 
 export type Middleware = ChainableMiddleware;
 
-export type EnsuredChainableMiddleware<K extends string = string, V = any> = (
-  ...params: Required<Parameters<ChainableMiddleware<K, V>>>
-) => ReturnType<ChainableMiddleware<K, V>>;
-
-export type MiddlewareChain<K extends string = string, V = any> = (
-  ...middlewares: (ChainableMiddleware<K, V> | Promise<ChainableMiddleware>)[]
+export type MiddlewareChain = (
+  ...middlewares: (ChainableMiddleware | Promise<ChainableMiddleware>)[]
 ) => NextMiddleware;
 
 export type NextRequestPredicate = (req: NextRequest) => boolean;
