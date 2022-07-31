@@ -1,9 +1,8 @@
 import type { MiddlewareBuilder } from "./builder/types";
 import type { ChainableMiddleware } from "./compose/types";
 
-import { ensureChainContext, unpackConfig, withDefaultConfig } from "./builder";
-import { chain, continued } from "./compose";
-import { timeStamp } from "console";
+import { unpackConfig, withDefaultConfig } from "./builder";
+import { chain, continued, chainableMiddleware } from "./compose";
 
 export type TelemetryCfg = {
   middlewares: (ChainableMiddleware | Promise<ChainableMiddleware>)[];
@@ -14,7 +13,7 @@ export type TelemetryCfg = {
 };
 
 const _telemetry: MiddlewareBuilder<TelemetryCfg> = (cfg) =>
-  ensureChainContext(async (req, evt, ctx) => {
+  chainableMiddleware(async (req, evt, ctx) => {
     let { logHeaders, logExecutionTime, middlewares, profileLabel, logUrl } =
       await unpackConfig(cfg, req, evt, ctx);
     if (!middlewares.length) {
@@ -52,7 +51,7 @@ const telemetry = withDefaultConfig(_telemetry, {
   profileLabel: "middleware",
   logHeaders: false,
   logExecutionTime: true,
-  logUrl: true,
+  logUrl: false,
 });
 
 export default telemetry;

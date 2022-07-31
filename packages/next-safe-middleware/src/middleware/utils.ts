@@ -1,93 +1,80 @@
 import type { NextRequest } from "next/server";
+import type { ChainFinalizer, MiddlewareChainContext } from "./compose/types";
+import pRetry from "p-retry";
 import {
   CSP_HEADER,
   CSP_HEADER_REPORT_ONLY,
   CSP_LOCATION_MIDDLEWARE,
-  SCRIPT_HASHES_FILENAME,
-  STYLE_HASHES_FILENAME,
+  CSP_MANIFEST_FILENAME,
 } from "../constants";
-import type { CspDirectives, CspDirectivesLenient } from "../types";
-import { fromCspContent, toCspContent } from "../utils";
+import type {
+  CspManifest,
+} from "../types";
+import { CspBuilder } from "../utils";
+import { memoizeInChainCache, memoizeInGlobalCache } from "./compose";
 
-export const setCspHeader = (
-  cspContent: string,
-  res: Response,
-  reportOnly?: boolean
-) => {
-  const isReportOnly = reportOnly ?? !!res.headers.get(CSP_HEADER_REPORT_ONLY);
-  if (isReportOnly) {
-    res.headers.delete(CSP_HEADER);
-    res.headers.set(CSP_HEADER_REPORT_ONLY, cspContent);
-  } else {
-    res.headers.delete(CSP_HEADER_REPORT_ONLY);
-    res.headers.set(CSP_HEADER, cspContent);
-  }
-};
 
-export const getCspHeader = (res: Response) => {
-  return res.headers.get(CSP_HEADER) || res.headers.get(CSP_HEADER_REPORT_ONLY);
-};
+const cspBuilderFromCtx = (ctx: MiddlewareChainContext): CspBuilder => {
+  const headers = ctx.res.get().headers;
+  const cspContent = headers.get(CSP_HEADER);
+  const cspContentReportOnly = headers.get(CSP_HEADER_REPORT_ONLY);
 
-export const pullCspFromResponse: (
-  res: Response
-) => CspDirectives | undefined = (res) => {
-  const cspContent = getCspHeader(res);
   if (cspContent) {
-    return fromCspContent(cspContent);
+    return new CspBuilder([CSP_HEADER, cspContent]);
   }
-  return undefined;
+
+  if (cspContentReportOnly) {
+    return new CspBuilder([CSP_HEADER_REPORT_ONLY, cspContentReportOnly]);
+  }
+  return new CspBuilder();
 };
 
-export const pushCspToResponse = (
-  csp: CspDirectives | CspDirectivesLenient,
-  res: Response,
-  reportOnly?: boolean
-) => {
-  setCspHeader(toCspContent(csp), res, reportOnly);
+const memoizedCspBuilder = memoizeInChainCache(
+  "csp-builder",
+  cspBuilderFromCtx
+);
+
+const builderToResponse: ChainFinalizer = async (_req, _evt, ctx) => {
+  const builder = await memoizedCspBuilder(ctx)();
+  const headers = ctx.res.get().headers;
+  headers.delete(CSP_HEADER);
+  headers.delete(CSP_HEADER_REPORT_ONLY);
+  headers.set(...builder.toHeaderKeyValue());
 };
 
-export const fetchHashes = async (
-  req: NextRequest,
-  hashesKind: typeof SCRIPT_HASHES_FILENAME | typeof STYLE_HASHES_FILENAME
-) => {
+export const cachedCspBuilder = async (ctx: MiddlewareChainContext) => {
+  ctx.finalize.addCallback(builderToResponse);
+  return memoizedCspBuilder(ctx)();
+};
+
+const fetchCspManifest = async (req: NextRequest): Promise<CspManifest> => {
   const { origin, basePath } = req.nextUrl;
   const baseUrl = basePath
     ? `${origin}${basePath}/${CSP_LOCATION_MIDDLEWARE}`
     : `${origin}/${CSP_LOCATION_MIDDLEWARE}`;
 
-  // req.page.name is the name of the route, e.g. `/` or `/blog/[slug]`
-  // req.page DEPRECATED in 12.2.
-  // dececided to collect script hashes of all routes in single file so route info not needed
-  // that solution is backwards compatible and wont break exisiting setup < 12.2
-  const route = "/";
+  const manifestUrl = encodeURI(`${baseUrl}/${CSP_MANIFEST_FILENAME}`);
 
-  let resHashes: Response | undefined;
-  const hashesUrl = encodeURI(`${baseUrl}${route}${hashesKind}`);
-
-  try {
-    resHashes = await fetch(hashesUrl);
-  } finally {
-  }
-
-  if (!resHashes?.ok) {
-    return `${resHashes.status}: ${resHashes.statusText}`
-  }
-  try {
-    const hashesText = await resHashes.text();
-    const hashes = hashesText.split("\n");
-    return hashes;
-  } catch (err){
-    if(err instanceof Error) {
-      return `${err.name}: ${err.message}`;
-    }
-    return "";
-  }
+  const res = await fetch(manifestUrl);
+  return res.json();
 };
 
-// https://www.30secondsofcode.org/js/s/deep-freeze
-export const deepFreeze = (obj) => {
-  Object.keys(obj).forEach((prop) => {
-    if (typeof obj[prop] === "object") deepFreeze(obj[prop]);
-  });
-  return Object.freeze(obj);
-};
+const fetchCspManifestWithRetry = (
+  req: NextRequest,
+  retries = 5
+): Promise<CspManifest | undefined> =>
+  pRetry(
+    async () => {
+      if (process.env.NODE_ENV === "development") {
+        return undefined;
+      }
+      const result = await fetchCspManifest(req);
+      return result;
+    },
+    { retries }
+  );
+
+export const cachedCspManifest = memoizeInGlobalCache(
+  "csp-manifest",
+  fetchCspManifestWithRetry
+);

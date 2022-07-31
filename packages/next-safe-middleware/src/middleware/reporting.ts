@@ -1,15 +1,9 @@
 import type { UriPath } from "../types";
 import type { MiddlewareBuilder } from "./builder/types";
-import { extendCsp } from "../utils";
-import { ensureChainContext, unpackConfig, withDefaultConfig } from "./builder";
-import {
-  CspCacheKey,
-  CspCacheValue,
-  ReportToCacheKey,
-  ReportToCacheValue,
-} from "./finalizers";
-import { writeReportToHeader } from "./finalizers";
 import { differenceWith } from "ramda";
+import { memoizeResponseHeader, chainableMiddleware } from "./compose";
+import { unpackConfig, withDefaultConfig } from "./builder";
+import { cachedCspBuilder } from "./utils";
 
 /**
  * @see https://developers.google.com/web/updates/2018/09/reportingapi#fields
@@ -71,54 +65,54 @@ export type ReportingCfg = {
 };
 
 /**
- *
  * @param reportTo an object representing a valid Report-To header
  * @returns a stringifed value of the object to be set as header value
  * @see https://developers.google.com/web/updates/2018/09/reportingapi#example_server
  */
-export const stringifyReportTo = (reportTo: ReportTo) =>
+const stringifyReportTo = (reportTo: ReportTo) =>
   JSON.stringify(reportTo).replace(/\\"/g, '"');
 
-const _reporting: MiddlewareBuilder<
-  ReportingCfg,
-  CspCacheKey | ReportToCacheKey,
-  CspCacheValue | ReportToCacheValue
-> = (cfg) =>
-  ensureChainContext(async (req, evt, ctx) => {
-    const { reportTo = [], csp: cspCfg } = await unpackConfig(
-      cfg,
-      req,
-      evt,
-      ctx
-    );
-    const { basePath } = req.nextUrl;
-    const withBasePath = (r: ReportTo[]) => {
-      if (basePath) {
-        return r.map(({ endpoints, ...rest }) => ({
-          ...rest,
-          endpoints: endpoints.map(({ url, ...rest }) => {
-            if (url.startsWith("/")) {
-              return { ...rest, url: `${basePath}${url}` };
-            }
-            return { ...rest, url };
-          }),
-        }));
-      }
-      return r;
-    };
-    const arrayReportTo = withBasePath(
-      Array.isArray(reportTo) ? reportTo : [reportTo]
-    );
+const reportToCached = memoizeResponseHeader<ReportTo[]>(
+  "report-to",
+  (x: string) => (x ? x.split(",").map((y) => JSON.parse(y)) : []),
+  (x: ReportTo[]) => x.map(stringifyReportTo).join(","),
+  (r1: ReportTo[], r2: ReportTo[]) => {
+    const r1Diff = differenceWith((r1, r2) => r1.group === r2.group, r1, r2);
+    return [...r1Diff, ...r2];
+  }
+);
 
+const withBasePath = (reportTo: ReportTo[], basePath?: string) => {
+  if (basePath) {
+    return reportTo.map(({ endpoints, ...rest }) => ({
+      ...rest,
+      endpoints: endpoints.map(({ url, ...rest }) => {
+        if (url.startsWith("/")) {
+          return { ...rest, url: `${basePath}${url}` };
+        }
+        return { ...rest, url };
+      }),
+    }));
+  }
+  return reportTo;
+};
+
+const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
+  chainableMiddleware(async (req, evt, ctx) => {
+    const [config] = await Promise.all([unpackConfig(cfg, req, evt, ctx)]);
+    const { reportTo = [], csp: cspCfg } = config;
+
+    const { basePath } = req.nextUrl;
+    const arrayReportTo = withBasePath(
+      Array.isArray(reportTo) ? reportTo : [reportTo],
+      basePath
+    );
     if (arrayReportTo.length) {
-      const cacheDifference = differenceWith(
-        (r1, r2) => r1.group === r2.group,
-        (ctx.cache.get("report-to") as ReportTo[]) ?? [],
-        arrayReportTo
-      );
-      ctx.cache.set("report-to", [...cacheDifference, ...arrayReportTo]);
-      ctx.finalize.addCallback(writeReportToHeader);
+      const [, setMergeReportTo] = reportToCached(ctx);
+      setMergeReportTo(arrayReportTo);
     }
+
+    const [reportToCache] = reportToCached(ctx);
 
     if (!cspCfg) {
       return;
@@ -130,46 +124,38 @@ const _reporting: MiddlewareBuilder<
       (!group && cspGroup === "default") ||
       (cspGroup ? group === cspGroup : false);
 
-    const reportToHasCspGroup = !!arrayReportTo.find((r) =>
+    const reportToHasCspGroup = !!reportToCache.find((r) =>
       groupMatches(r.group)
     );
 
-    const csp = ctx.cache.get("csp") as CspCacheValue;
-    if (!csp) return;
-
-    let { directives, reportOnly } = csp;
+    let cspBuilder = await cachedCspBuilder(ctx);
     const { reportUri = "", reportSample } = cspCfg;
-    directives = extendCsp(
-      directives,
-      {
-        ...(reportUri
-          ? {
-              "report-uri": [
-                basePath && reportUri.startsWith("/")
-                  ? `${basePath}${reportUri}`
-                  : reportUri,
-              ],
-            }
-          : {}),
-        ...(reportToHasCspGroup ? { "report-to": [cspGroup] } : {}),
-      },
-      "override"
-    );
-    if (reportSample) {
-      directives = extendCsp(
-        directives,
-        {
-          ...(directives["script-src"]
-            ? { "script-src": ["report-sample"] }
-            : {}),
-          ...(directives["style-src"]
-            ? { "style-src": ["report-sample"] }
-            : {}),
-        },
-        "append"
-      );
+    if (reportUri) {
+      cspBuilder.withDirectives({
+        "report-uri": [
+          basePath && reportUri.startsWith("/")
+            ? `${basePath}${reportUri}`
+            : reportUri,
+        ],
+      });
     }
-    ctx.cache.set("csp", { directives, reportOnly });
+    if (reportToHasCspGroup) {
+      cspBuilder.withDirectives({ "report-to": [cspGroup] });
+    }
+    if (reportSample) {
+      if (cspBuilder.hasDirective("script-src")) {
+        cspBuilder.withDirectives({ "script-src": ["report-sample"] });
+      }
+      if (cspBuilder.hasDirective("style-src")) {
+        cspBuilder.withDirectives({ "style-src": ["report-sample"] });
+      }
+      if (cspBuilder.hasDirective("style-src-elem")) {
+        cspBuilder.withDirectives({ "style-src-elem": ["report-sample"] });
+      }
+      if (cspBuilder.hasDirective("style-src-attr")) {
+        cspBuilder.withDirectives({ "style-src-attr": ["report-sample"] });
+      }
+    }
   });
 
 /**

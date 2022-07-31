@@ -1,5 +1,5 @@
 // CSP typing taken and adapted from SvelteKit CSP integration
-// https://kit.svelte.dev/docs/types#additional-types-csp 
+// https://kit.svelte.dev/docs/types#additional-types-csp
 
 type ActionSource = "strict-dynamic" | "report-sample";
 type BaseSource =
@@ -24,7 +24,9 @@ type SchemeSource =
   | "filesystem:";
 export type Source = HostSource | SchemeSource | CryptoSource | BaseSource;
 export type Sources = Source[];
-export type UriPath = `${HttpDelineator}${string}` | `${HostSource}${HttpDelineator}${string}`;
+export type UriPath =
+  | `${HttpDelineator}${string}`
+  | `${HostSource}${HttpDelineator}${string}`;
 
 export interface CspDirectives {
   "child-src"?: Sources;
@@ -45,21 +47,23 @@ export interface CspDirectives {
   "style-src-elem"?: Sources;
   "style-src-attr"?: Sources;
   "base-uri"?: Array<Source | ActionSource>;
-  sandbox?: boolean | Array<
-    | "allow-downloads-without-user-activation"
-    | "allow-forms"
-    | "allow-modals"
-    | "allow-orientation-lock"
-    | "allow-pointer-lock"
-    | "allow-popups"
-    | "allow-popups-to-escape-sandbox"
-    | "allow-presentation"
-    | "allow-same-origin"
-    | "allow-scripts"
-    | "allow-storage-access-by-user-activation"
-    | "allow-top-navigation"
-    | "allow-top-navigation-by-user-activation"
-  >;
+  sandbox?:
+    | boolean
+    | Array<
+        | "allow-downloads-without-user-activation"
+        | "allow-forms"
+        | "allow-modals"
+        | "allow-orientation-lock"
+        | "allow-pointer-lock"
+        | "allow-popups"
+        | "allow-popups-to-escape-sandbox"
+        | "allow-presentation"
+        | "allow-same-origin"
+        | "allow-scripts"
+        | "allow-storage-access-by-user-activation"
+        | "allow-top-navigation"
+        | "allow-top-navigation-by-user-activation"
+      >;
   "form-action"?: Array<Source | ActionSource>;
   "frame-ancestors"?: Array<HostSource | SchemeSource | FrameSource>;
   "navigate-to"?: Array<Source | ActionSource>;

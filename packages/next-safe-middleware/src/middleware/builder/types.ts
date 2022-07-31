@@ -30,24 +30,20 @@ export interface NextUserAgent {
   };
 }
 
-export type ConfigInitializerParams<K extends string = string, V = any> = {
+export type ConfigInitializerParams = {
   req: NextRequest;
   evt: NextFetchEvent;
-  ctx?: MiddlewareChainContext<K, V>;
+  ctx: MiddlewareChainContext;
   userAgent: NextUserAgent;
 };
 
-export type ConfigInitalizer<
-  Config extends Record<string, unknown>,
-  K extends string = string,
-  V = any
-> = (params: ConfigInitializerParams<K, V>) => Config | Promise<Config>;
+export type ConfigInitalizer<Config extends Record<string, unknown>> = (
+  params: ConfigInitializerParams
+) => Config | Promise<Config>;
 
-export type MiddlewareConfig<
-  Config extends Record<string, unknown>,
-  K extends string = string,
-  V = any
-> = Config | ConfigInitalizer<Config, K, V>;
+export type MiddlewareConfig<Config extends Record<string, unknown>> =
+  | Config
+  | ConfigInitalizer<Config>;
 
 export type WithoutBoolUnions<T extends object> = {
   [P in keyof T]: T[P] extends boolean
@@ -57,10 +53,11 @@ export type WithoutBoolUnions<T extends object> = {
     : Exclude<T[P], boolean>;
 };
 
-export type MiddlewareBuilder<
-  Config extends Record<string, unknown>,
-  K extends string = string,
-  V = any
-> = (
-  cfg: MiddlewareConfig<WithoutBoolUnions<Config>, K, V>
-) => ChainableMiddleware<K, V>;
+export type ConfigurableMiddleware<Config extends Record<string, unknown>> = (
+  cfg: MiddlewareConfig<WithoutBoolUnions<Config>>
+) => ChainableMiddleware;
+
+export type MiddlewareBuilder<Config extends Record<string, unknown>> = (
+  cfg: MiddlewareConfig<WithoutBoolUnions<Config>>
+) => ChainableMiddleware;
+

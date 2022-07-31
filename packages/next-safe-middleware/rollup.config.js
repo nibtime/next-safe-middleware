@@ -45,6 +45,8 @@ const resolve = [
       "tslib",
       "next-safe",
       "ramda",
+      "p-retry",
+      "retry",
     ],
   }),
 ];
@@ -81,7 +83,7 @@ const main = [
 
 const document = [
   {
-    input: "src/document/index.tsx",
+    input: "src/document/index.ts",
     output: {
       file: "dist/document/index.js",
       format: "cjs",
@@ -92,7 +94,7 @@ const document = [
     plugins: [...resolve, swc(documentCfg)],
   },
   {
-    input: "src/document/index.tsx",
+    input: "src/document/index.ts",
     output: {
       file: "dist/document/index.mjs",
       format: "es",
@@ -103,7 +105,7 @@ const document = [
     plugins: [...resolve, swc(documentCfg)],
   },
   {
-    input: "src/document/index.tsx",
+    input: "src/document/index.ts",
     output: [
       { file: "dist/document/index.d.ts", format: "es", name: "document-dts" },
     ],

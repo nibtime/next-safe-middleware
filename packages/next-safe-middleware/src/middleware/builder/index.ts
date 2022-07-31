@@ -4,9 +4,7 @@ import { mergeDeepWithKey } from "ramda";
 import {
   MiddlewareChainContext,
   ChainableMiddleware,
-  EnsuredChainableMiddleware,
 } from "../compose/types";
-import { deepFreeze } from "../utils";
 import {
   MiddlewareBuilder,
   MiddlewareConfig,
@@ -14,15 +12,11 @@ import {
   NextUserAgent,
 } from "./types";
 
-export const unpackConfig = async <
-  Config extends Record<string, unknown>,
-  K extends string = string,
-  V = any
->(
-  cfg: MiddlewareConfig<Config, K, V>,
+export const unpackConfig = async <Config extends Record<string, unknown>>(
+  cfg: MiddlewareConfig<Config>,
   req: NextRequest,
   evt: NextFetchEvent,
-  ctx: MiddlewareChainContext<K, V>
+  ctx: MiddlewareChainContext
 ) => {
   const userAgent: NextUserAgent = nextUserAgent({ headers: req.headers });
   return typeof cfg === "function"
@@ -42,10 +36,10 @@ type KeyMerger = (k: string, x: any, z: any) => any;
 
 const mergeConfigs =
   <Config extends Record<string, unknown>, K extends string = string, V = any>(
-    left: MiddlewareConfig<WithoutBoolUnions<Config>, K, V>,
-    right: MiddlewareConfig<Config, K, V>,
+    left: MiddlewareConfig<WithoutBoolUnions<Config>>,
+    right: MiddlewareConfig<Config>,
     keyMerger: KeyMerger = (k, l, r) => r
-  ): MiddlewareConfig<WithoutBoolUnions<Config>, K, V> =>
+  ): MiddlewareConfig<WithoutBoolUnions<Config>> =>
   async ({ req, evt, ctx }) => {
     const leftCfg = await unpackConfig(left, req, evt, ctx);
     const rightCfg = await unpackConfig(right, req, evt, ctx);
@@ -77,14 +71,14 @@ const chainMergers =
     );
 
 export const withDefaultConfig =
-  <Config extends Record<string, unknown>, K extends string = string, V = any>(
-    builder: MiddlewareBuilder<Config, K, V>,
+  <Config extends Record<string, unknown>>(
+    builder: MiddlewareBuilder<Config>,
     defaultCfg:
       | WithoutBoolUnions<Config>
       | ((cfg: Partial<Config>) => WithoutBoolUnions<Config>),
     ...keyMergers: KeyMerger[]
   ) =>
-  (cfg?: MiddlewareConfig<Config, K, V>): ChainableMiddleware<K, V> =>
+  (cfg?: MiddlewareConfig<Config>): ChainableMiddleware =>
   async (req, evt, ctx) => {
     if (cfg) {
       const unpackedCfg = await unpackConfig(cfg, req, evt, ctx);
@@ -103,29 +97,3 @@ export const withDefaultConfig =
       )(req, evt, ctx);
     }
   };
-
-export const ensureChainContext = <K extends string = string, V = any>(
-  middleware: EnsuredChainableMiddleware<K, V>
-): ChainableMiddleware<K, V> => {
-  return async (req, evt, ctx) => {
-    if (ctx) {
-      return middleware(req, evt, ctx);
-    }
-    const mockCtx: Readonly<MiddlewareChainContext<K, V>> = deepFreeze({
-      res: {
-        get: () => null,
-        set: () => void 0,
-      },
-      cache: {
-        get: () => null,
-        set: () => void 0,
-      },
-      finalize: {
-        addCallback: () => void 0,
-        removeCallback: () => void 0,
-        terminatedByResponse: () => null,
-      },
-    });
-    return middleware(req, evt, mockCtx);
-  };
-};

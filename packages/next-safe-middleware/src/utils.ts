@@ -133,8 +133,8 @@ export const extendCsp = (
       : r;
   return mergeDeepWithKey(
     concatValues,
-    arrayifyCspDirectives(csp),
-    arrayifyCspDirectives(cspExtension)
+    arrayifyCspDirectives(csp ?? {}),
+    arrayifyCspDirectives(cspExtension ?? {})
   );
 };
 
