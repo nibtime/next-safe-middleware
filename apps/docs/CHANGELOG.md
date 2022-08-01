@@ -1,5 +1,16 @@
 # docs
 
+## 0.2.0
+
+### Minor Changes
+
+- [#64](https://github.com/nibtime/next-safe-middleware/pull/64) [`02ca36f`](https://github.com/nibtime/next-safe-middleware/commit/02ca36f3c609b4fd43871e48e5796341b313a282) Thanks [@nibtime](https://github.com/nibtime)! - feat: CSP object Converter for converting external tool output
+
+### Patch Changes
+
+- Updated dependencies [[`02ca36f`](https://github.com/nibtime/next-safe-middleware/commit/02ca36f3c609b4fd43871e48e5796341b313a282), [`02ca36f`](https://github.com/nibtime/next-safe-middleware/commit/02ca36f3c609b4fd43871e48e5796341b313a282), [`02ca36f`](https://github.com/nibtime/next-safe-middleware/commit/02ca36f3c609b4fd43871e48e5796341b313a282)]:
+  - @next-safe/middleware@0.10.0
+
 ## 0.1.0
 
 ### Minor Changes
