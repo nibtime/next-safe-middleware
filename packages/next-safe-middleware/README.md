@@ -96,6 +96,8 @@ This is where this package comes in: To make this setup easy, convenient and a l
 
 * Indispensible for testing: [The CSP Evaluator Extension for Google Chrome](https://chrome.google.com/webstore/detail/csp-evaluator/fjohamlofnakbnbfjkohkbdigoodcejf?hl=de)
 
+* Great tool to record CSP sources by browsing your site: [The Laboratory Extension for Mozilla Firefox](https://addons.mozilla.org/en-US/firefox/addon/laboratory-by-mozilla/)
+
 ## Getting started
 
 Install `@next-safe/middleware` from NPM
@@ -169,10 +171,11 @@ export default class MyDocument extends Document {
 For every page under `pages` that uses `getServerSideProps` for data fetching:
 
 ```js
-import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@next-safe/middleware/dist/document";
 
-// wrap data fetching with gsspWithNonceAppliedToCsp
-export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+// wrap data fetching with gsspWithNonce 
+// to generate a nonce for CSP
+export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return { props: { message: "Hi, from getServerSideProps" } };
 });
 

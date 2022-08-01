@@ -6,7 +6,6 @@ const nextConfig = {
   experimental: {
     workerThreads: true,
     urlImports: ["https://unpkg.com"],
-    nextScriptWorkers: true,
   },
   images: {
     domains: ['user-images.githubusercontent.com'],
