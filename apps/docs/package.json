@@ -29,7 +29,7 @@
     "@mdx-js/react": "^2.1.2",
     "@next-safe/middleware": "workspace:*",
     "@stitches/react": "^1.2.8",
-    "next": "^12.2.2",
+    "next": "v12.2.4-canary.8",
     "next-sitemap": "^3.1.10",
     "nextra": "beta",
     "nextra-theme-docs": "beta",
