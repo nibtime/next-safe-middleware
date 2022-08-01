@@ -11,25 +11,27 @@ import {
 const securityMiddleware = [
   nextSafe({ disableCsp: true }),
   csp({
-    directives: {
+    "directives": {
+      "font-src": [
+        "https://rsms.me"
+      ],
       "img-src": [
         "self",
         "data:",
-        "https://vercel.com",
-        "https://img.shields.io",
-        "https://*.githubusercontent.com",
+        "https://avatars.githubusercontent.com",
         "https://gitpod.io",
+        "https://img.shields.io",
+        "https://vercel.com"
       ],
-      "font-src": ["self", "https://rsms.me"],
-      "style-src": ["self", "https://rsms.me"],
-    },
+      "style-src": [
+        "self",
+        "https://rsms.me/inter/"
+      ],
+    }
   }),
   strictDynamic(),
   strictInlineStyles(),
-  reporting()
+  reporting(),
 ];
 
-export default chainMatch(
-  isPageRequest,
-  !!process.env.MIDDLEWARE_LOG_PERFORMANCE ? "securityMiddleware" : undefined
-)(...securityMiddleware);
+export default chainMatch(isPageRequest)(...securityMiddleware);

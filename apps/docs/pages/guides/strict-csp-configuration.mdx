@@ -1,4 +1,5 @@
 import Callout from "nextra-theme-docs/callout";
+import CspConverter from "components/CspConverter";
 
 # Strict CSP configuration
 
@@ -63,10 +64,11 @@ export default class MyDocument extends Document {
 For every page under `pages` that uses `getServerSideProps` for data fetching:
 
 ```js
-import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@next-safe/middleware/dist/document";
 
-// wrap data fetching with gsspWithNonceAppliedToCsp
-export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+// wrap data fetching with gsspWithNonce 
+// to generate a nonce for CSP
+export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return { props: { message: "Hi, from getServerSideProps" } };
 });
 
@@ -77,7 +79,7 @@ export default Page;
 ```
 
 <Callout type="warning" emoji="⚠️">
-  `gsspWithNonceAppliedToCsp` is necessary with Next.js 12.2 as there seems no
+  `gsspWithNonce` is necessary with Next.js 12.2 as there seems no
   longer a way to automatically tell apart routes with `getStaticProps +
   revalidate` (ISR) from routes with `getServerSideProps`. But that is needed to
   make the right decision between Hash-based or Nonce-based Strict CSP.
@@ -99,21 +101,15 @@ const defaults = {
 };
 ```
 
-### Hash-based Strict CSP and Incremental Static Regeneration (ISR)
+### CSP Converter
 
-Add the following code to the top of every route with `getStaticProps` that uses `revalidate` (including `res.revalidate` or `res.unstable_revalidate` for [On-demand ISR](https://nextjs.org/blog/next-12-1#on-demand-incremental-static-regeneration-beta)):
-
-```js
-export const config = {
-  unstable_includeFiles: [".next/static/chunks/**/*.js"],
-};
-```
+This is a litte tool to convert CSP header values to the object format expected by this lib. This can be used when working with tools that can record CSP header values from browsing your site.
 
 <Callout emoji="💡">
-  If you like to know in detail what Incremental Static Regeneration (ISR) is
-  and how it works, [read the docs from
-  Vercel](https://vercel.com/docs/concepts/next.js/incremental-static-regeneration)
+  One such tool is the Laboratory Extension for Firefox: https://addons.mozilla.org/en-US/firefox/addon/laboratory-by-mozilla/. It allows you to detect and record sources from browsing your site.
 </Callout>
+
+<CspConverter />
 
 ## Add custom scripts
 
@@ -156,12 +152,11 @@ the script will eventually receive the nonce.
 
 2. The script loads from `src` and doesn't have an integrity attribute: The script will be replaced by an inline proxy script that loads the script. The hash of this proxy script will be picked up for CSP. The actual script eventually becomes trusted by transitive trust propagation of `strict-dynamic`.
 
-3. The script is an inline script: The inline code of the script will be hashed, the hash will be set as integrity attribute of the inline script and the hash will be picked up by CSP.
-
-<Callout type="warning" emoji="⚠️">
-  Hash-based Strict CSP doesn't really work for Firefox and Safari, as they seem to be not fully CSP-3 compliant yet. Using `strict-dynamic` messes up SRI validation for them, such that it doesn't work with scripts that have both a `src` and `integrity` attribute. The `strictDynamic` middleware handles this by opting out Firefox and Safari from Strict CSP for static routes (Hash-based) and uses the `fallbackSrc` instead, so visitors that use Safari or Firefox won't have Strict CSP protection when they enter your site/app via a static route. When they enter your site/app via a dynamic route, they have Strict CSP protection with Nonce-based Strict CSP. More details about that problem can be found [here](https://github.com/nibtime/next-safe-middleware/issues/5) and [here](https://github.com/nibtime/next-safe-middleware/pull/47).
-
+<Callout emoji="💡">
+  The default behavior is to replace all scripts with a `src` attribute by an inline loading proxy during SSR to support Firefox and Safari (they mess up SRI validation with `strict-dynamic`, see [here](https://github.com/nibtime/next-safe-middleware/issues/5) and [here](https://github.com/nibtime/next-safe-middleware/pull/47)). To opt-out from this behavior, you can set `hashBasedByProxy: false` in `getCspInitialProps`.
 </Callout>
+
+3. The script is an inline script: The inline code of the script will be hashed, the hash will be set as integrity attribute of the inline script and the hash will be picked up by CSP.
 
 ## Avoid unsafe inline styles (CSS-in-JS)
 
