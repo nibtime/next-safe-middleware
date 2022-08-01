@@ -1,8 +1,8 @@
 import type { InferGetServerSidePropsType, NextPage } from "next";
-import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@next-safe/middleware/dist/document";
 import MantinePage from "./index";
 
-export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return { props: { message: "Hi, from getServerSideProps" } };
 });
 

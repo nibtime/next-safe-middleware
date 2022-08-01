@@ -1,9 +1,9 @@
 import { useRouter } from "next/router";
 import Page from "./index";
 import "twin.macro";
-import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@next-safe/middleware/dist/document";
 
-export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return {
     props: {},
   };

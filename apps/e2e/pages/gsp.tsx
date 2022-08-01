@@ -9,11 +9,6 @@ import Button from "components/Button";
 import StyleElem from "components/StyleElem";
 import StyleAttr from "components/StyleAttr";
 
-// required for Hash-based CSP to work with ISR on Vercel
-export const config = {
-  unstable_includeFiles: [".next/static/chunks/**/*.js"],
-};
-
 export const getStaticProps = async () => {
   const random = Math.random() * 100;
   return { props: { random } };
