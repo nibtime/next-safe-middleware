@@ -1,5 +1,25 @@
 # @next-safe/middleware
 
+## 0.10.0
+
+### Minor Changes
+
+- [#64](https://github.com/nibtime/next-safe-middleware/pull/64) [`02ca36f`](https://github.com/nibtime/next-safe-middleware/commit/02ca36f3c609b4fd43871e48e5796341b313a282) Thanks [@nibtime](https://github.com/nibtime)! - feat: :sparkles: Hash-based CSP with trusted proxy loader to support Firefox and Safari (fixes [#63](https://github.com/nibtime/next-safe-middleware/issues/63))
+
+  - Avoids broken SRI validation of Firefox and Safari together with `strict-dynamic`
+
+  - an important precursor for alternative configuration methods to middleware, that can't dynamically opt-out from `strict-dynamic` by user agent
+
+* [#64](https://github.com/nibtime/next-safe-middleware/pull/64) [`02ca36f`](https://github.com/nibtime/next-safe-middleware/commit/02ca36f3c609b4fd43871e48e5796341b313a282) Thanks [@nibtime](https://github.com/nibtime)! - rebuild/refactor lib into many small modules with CSP manifest (fixes [#40](https://github.com/nibtime/next-safe-middleware/issues/40))
+
+  - writes out a single file to `.next/static/~csp/csp-manifest.json` with all information about trustable sources identified during SSR
+
+  - precursor for a multi-package approach to support alternative configuration methods (described in https://github.com/nibtime/next-safe-middleware/discussions/60#discussioncomment-3259782)
+
+  - perf: fetch CSP manifest only once on first access and cache for all subsequent middlewares
+
+- [#64](https://github.com/nibtime/next-safe-middleware/pull/64) [`02ca36f`](https://github.com/nibtime/next-safe-middleware/commit/02ca36f3c609b4fd43871e48e5796341b313a282) Thanks [@nibtime](https://github.com/nibtime)! - feat(csp): new `CspBuilder` class with fluent interface for safe and easy CSP construction + manipulation
+
 ## 0.9.0
 
 ### Minor Changes
