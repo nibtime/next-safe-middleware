@@ -1,10 +1,10 @@
 import { sortBy } from "ramda";
-import React from "react";
+import React, { Fragment } from "react";
 import { collectScriptElement } from "./manifest";
-import { isScriptElement } from "../utils";
+import { isScriptElement, isScriptPreloadLink } from "../utils";
 import { hash } from "./algorithm";
 import { IterableScript, Primitive } from "./types";
-import { deepStripIntegrity } from "./utils";
+import { deepMapStripIntegrity } from "./utils";
 
 const quoteIfString = (value: Primitive) =>
   typeof value === "string" ? `'${value}'` : value;
@@ -30,7 +30,8 @@ export const getScriptValue = (attr: string, attrs: IterableScript) =>
 
 export const createHashableScriptLoader = (
   scripts: IterableScript[],
-  id: string
+  id: string,
+  removeSelf?: boolean
 ) => {
   const element = (attrs) => {
     if (
@@ -58,6 +59,7 @@ export const createHashableScriptLoader = (
   var s = [${scripts.map((s, i) => `s${i}`).join(",")}];
   var self = document.getElementById('${id}');
   var p = self.parentNode;
+  ${removeSelf ? `p.removeChild(self);` : ``}
   s.forEach(function(si) {
     p.appendChild(si);
   });
@@ -96,7 +98,7 @@ export const withHashIfInlineScript = (s: JSX.Element) => {
 export const iterableScriptFromProps = (
   el: JSX.Element | null
 ): IterableScript | null => {
-  if (!isScriptElement(el)) return null;
+  if (!(isScriptElement(el) || isScriptPreloadLink(el))) return null;
   return Object.entries(el.props).filter(
     ([, value]) =>
       typeof value === "string" ||
@@ -111,17 +113,72 @@ export const sortIterableScriptByAttr = (s: IterableScript) => {
 
 const proxyGuid = "csp-proxy-loader-7f10ba7a15bc0318e7dd56e8c7e1cff";
 
-export const createTrustedLoadingProxy = (els: JSX.Element[]) => {
-  const iterableScripts = deepStripIntegrity(els)
+export const createTrustedLoadingProxy = (
+  els: JSX.Element[],
+  removeSelf?: boolean,
+  proxyKey?: React.Key
+) => {
+  const iterableScripts = deepMapStripIntegrity(els)
     .map(iterableScriptFromProps)
     .filter(Boolean)
     .map(sortIterableScriptByAttr);
-  const proxy = createHashableScriptLoader(iterableScripts, proxyGuid);
+  const proxy = createHashableScriptLoader(
+    iterableScripts,
+    proxyGuid,
+    removeSelf
+  );
   const id = hash(proxy).replace(/^sha\d{3}-/g, "");
   const inlineCode = proxy.replace(proxyGuid, id);
+  if (!inlineCode) {
+    return <Fragment key={proxyKey} />;
+  }
   const loader = withHashIfInlineScript(
-    <script key={id} id={id} dangerouslySetInnerHTML={{ __html: inlineCode }} />
+    <script
+      key={proxyKey || id}
+      id={id}
+      dangerouslySetInnerHTML={{ __html: inlineCode }}
+    />
   );
   collectScriptElement(loader);
   return loader;
+};
+
+export const createFragmentPaddedProxy = (
+  els: JSX.Element[]
+): JSX.Element[] => {
+  const proxy = createTrustedLoadingProxy(els, true, els[0]?.key);
+  return [proxy, ...els.slice(1).map((el) => <Fragment key={el.key} />)];
+};
+
+export const registerFragmentPaddedProxyForVariants = (els: JSX.Element[]) => {
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: true, async: false });
+    })
+  );
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: false, async: true });
+    })
+  );
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: true, async: null });
+    })
+  );
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: false, async: null });
+    })
+  );
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: null, async: true });
+    })
+  );
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: null, async: null });
+    })
+  );
 };

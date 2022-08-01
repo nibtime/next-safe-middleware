@@ -1,23 +1,22 @@
 // eslint-disable-next-line @next/next/no-document-import-in-page
 import { Head as NextHead } from "next/document";
-import { partition } from "ramda";
 import React, { Fragment } from "react";
 import { getExcludeList, isHashProxy } from "../cfg";
-import { isInlineScriptElement } from "../utils";
 import { writeManifestToFileWithLock } from "./file-io";
-import { collectStyleElem, iterableScripts, pullManifest } from "./manifest";
+import { deepExtractStyleElemHashes, deepMapExtractScripts } from "./utils";
+import { collectStyleElem, pullManifest } from "./manifest";
 import {
+  createFragmentPaddedProxy,
+  registerFragmentPaddedProxyForVariants,
+} from "./script-inlining";
+import {
+  deepEnsureScriptElementsInManifest,
+  deepMapScriptsToManifest,
   ensureNextPreloadLinksInManifest,
   ensureNextScriptsInManifest,
   loadNextByProxy,
+  preNextScriptsByProxy,
 } from "./next-scripts";
-import { createTrustedLoadingProxy } from "./script-inlining";
-import {
-  deepExtractStyleElemHashes,
-  deepEnsureScriptElementsInManifest,
-  deepExtractScripts,
-  deepMapScriptsToManifest,
-} from "./utils";
 
 export default class Head extends NextHead {
   private proxyfiedScripts: any[] = [];
@@ -29,7 +28,8 @@ export default class Head extends NextHead {
       return preloadScripts;
     }
     if (isHashProxy()) {
-      return [];
+      preloadScripts = createFragmentPaddedProxy(preloadScripts);
+      return preloadScripts;
     }
     preloadScripts = ensureNextPreloadLinksInManifest(
       preloadScripts,
@@ -44,7 +44,8 @@ export default class Head extends NextHead {
       return preloadScripts;
     }
     if (isHashProxy()) {
-      return [];
+      preloadScripts = createFragmentPaddedProxy(preloadScripts);
+      return preloadScripts;
     }
     preloadScripts = ensureNextPreloadLinksInManifest(
       preloadScripts,
@@ -59,7 +60,7 @@ export default class Head extends NextHead {
     if (getExcludeList().includes("scripts")) {
       return scripts;
     }
-    scripts = deepMapScriptsToManifest(scripts);
+    scripts = deepMapScriptsToManifest(scripts, "Head");
     return scripts;
   }
 
@@ -70,17 +71,14 @@ export default class Head extends NextHead {
       return scripts;
     }
     if (isHashProxy()) {
-      const scriptss = deepExtractScripts(scripts);
-      const polyfillProxy = createTrustedLoadingProxy(scriptss);
-      createTrustedLoadingProxy(
-        scriptss.map((s) => React.cloneElement(s, { defer: false }))
-      );
-      return [polyfillProxy];
+      const polyfillProxy = createFragmentPaddedProxy(scripts);
+      registerFragmentPaddedProxyForVariants(scripts);
+      return polyfillProxy;
     }
     return ensureNextScriptsInManifest(
       scripts,
-      "Head",
-      this.context.canonicalBase
+      this.context.canonicalBase,
+      "Head"
     );
   }
 
@@ -95,23 +93,10 @@ export default class Head extends NextHead {
     }
     const isArray = Array.isArray(scripts);
     if (isHashProxy()) {
-      let [inlineScripts, srcScripts] = partition(
-        isInlineScriptElement,
-        deepExtractScripts(scripts)
-      );
-      inlineScripts = deepMapScriptsToManifest(inlineScripts);
-      const srcProxy = createTrustedLoadingProxy(srcScripts);
-      createTrustedLoadingProxy(
-        srcScripts.map((s) => React.cloneElement(s, { defer: false }))
-      );
-      inlineScripts = deepMapScriptsToManifest(inlineScripts);
-      return isArray ? (
-        [...inlineScripts, srcProxy]
-      ) : (
-        <Fragment key={scripts.key}>{[...inlineScripts, srcProxy]}</Fragment>
-      );
+      scripts = preNextScriptsByProxy(scripts, "Head");
+      return scripts;
     }
-    scripts = deepMapScriptsToManifest(scripts);
+    scripts = deepMapScriptsToManifest(scripts, "Head");
     return isArray ? scripts : <Fragment key={scripts.key}>{scripts}</Fragment>;
   }
 
@@ -122,13 +107,13 @@ export default class Head extends NextHead {
       return scripts;
     }
     if (isHashProxy()) {
-      this.proxyfiedScripts.push(...deepExtractScripts(scripts));
+      this.proxyfiedScripts.push(...deepMapExtractScripts(scripts));
       return [];
     }
     return ensureNextScriptsInManifest(
       scripts,
-      "Head",
-      this.context.canonicalBase
+      this.context.canonicalBase,
+      "Head"
     );
   }
 
@@ -138,14 +123,17 @@ export default class Head extends NextHead {
     if (getExcludeList().includes("scripts")) {
       return scripts;
     }
+    // need to call preload links during build time to collect proxy hash
+    this.getPreloadDynamicChunks();
+    this.getPreloadMainLinks(files);
     if (isHashProxy()) {
-      this.proxyfiedScripts.push(...deepExtractScripts(scripts));
-      scripts = [loadNextByProxy(this.proxyfiedScripts, "Head")];
+      this.proxyfiedScripts.push(...deepMapExtractScripts(scripts));
+      scripts = loadNextByProxy(this.proxyfiedScripts, "Head");
     } else {
       scripts = ensureNextScriptsInManifest(
         scripts,
-        "Head",
         this.context.canonicalBase,
+        "Head",
         true
       );
     }
@@ -154,11 +142,17 @@ export default class Head extends NextHead {
   }
 
   render() {
-    deepEnsureScriptElementsInManifest(this.props.children, getExcludeList());
-    collectStyleElem(
-      ...deepExtractStyleElemHashes(this.context.styles, getExcludeList()),
-      ...deepExtractStyleElemHashes(this.props.children, getExcludeList())
-    );
+    if (!getExcludeList().includes("scripts")) {
+      deepEnsureScriptElementsInManifest(this.props.children);
+    }
+
+    if (!getExcludeList().includes("styles")) {
+      collectStyleElem(
+        ...deepExtractStyleElemHashes(this.context.styles),
+        ...deepExtractStyleElemHashes(this.props.children)
+      );
+    }
+
     return super.render();
   }
 }
