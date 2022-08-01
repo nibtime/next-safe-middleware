@@ -5,11 +5,6 @@ import Hydrated from "components/Hydrated";
 import StyleElem from "components/StyleElem";
 import StyleAttr from "components/StyleAttr";
 
-// required for Hash-based CSP to work with ISR on Vercel
-export const config = {
-  unstable_includeFiles: [".next/static/chunks/**/*.js"],
-};
-
 export const getStaticPaths = async () => {
   // as long as we build-time prerender at least one path, it will work with Hash-based strict CSP.
   const path = "gsp";

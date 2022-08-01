@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps }) {
     getInitialValueInEffect: true,
   });
 
-  // will be injected by gsspWithNonceAppliedToCsp
+  // will be injected by gsspWithNonce
   const nonce = pageProps.nonce;
 
   if (nonce) {

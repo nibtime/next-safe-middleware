@@ -4,9 +4,9 @@ import Layout from "components/Layout";
 import Hydrated from "components/Hydrated";
 import StyleElem from "components/StyleElem";
 import StyleAttr from "components/StyleAttr";
-import { gsspWithNonceAppliedToCsp } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@next-safe/middleware/dist/document";
 
-export const getServerSideProps = gsspWithNonceAppliedToCsp(async (ctx) => {
+export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return {
     props: {},
   };
