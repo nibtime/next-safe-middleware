@@ -1,12 +1,11 @@
 import { difference } from "ramda";
-
+import type { CspManifest } from "../../../types";
+import type { Nullable, IterableScript } from "./types";
 import {
   getScriptValue,
   iterableScriptFromProps,
   sortIterableScriptByAttr,
 } from "./script-inlining";
-import { CspManifest } from "../../../types";
-import { Nullable, IterableScript } from "./types";
 
 export let iterableScripts: IterableScript[] = [];
 

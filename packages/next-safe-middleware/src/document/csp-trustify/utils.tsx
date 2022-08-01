@@ -3,6 +3,9 @@ import React from "react";
 export const isJsxElement = (el: any): el is JSX.Element =>
   !!el && typeof el === "object" && "props" in el;
 
+export const isFragment = (el: any): el is JSX.Element =>
+  isJsxElement(el) && el.type === "Fragment";
+
 export const isElementWithChildren = (el: any): el is JSX.Element =>
   isJsxElement(el) && "children" in el.props;
 
@@ -17,6 +20,9 @@ export const isSrcScriptElement = (el: any): el is JSX.Element =>
 
 export const isScriptElementWithIntegrity = (el: any): el is JSX.Element =>
   isJsxElement(el) && !!el.props.integrity;
+
+  export const isScriptElementWithoutIntegrity = (el: any): el is JSX.Element =>
+  isJsxElement(el) && !el.props.integrity;
 
 export const isLinkElement = (el: any): el is JSX.Element =>
   isJsxElement(el) && el.type === "link" && !!el.props.href;

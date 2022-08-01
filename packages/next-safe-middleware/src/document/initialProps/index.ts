@@ -47,18 +47,22 @@ const trustifyInitialPropsSafeParts = (
     deepEnsureNonceInChildren(nonce, initialProps.head, exclude);
     deepEnsureNonceInChildren(nonce, initialProps.styles, exclude);
   } else {
-    deepEnsureScriptElementsInManifest(initialProps.head, exclude);
-    collectStyleElem(...deepExtractStyleElemHashes(initialProps.head, exclude));
-    collectStyleElem(
-      ...deepExtractStyleElemHashes(initialProps.styles, exclude)
-    );
-  }
-  if (!exclude.includes("styles")) {
-    collectStyleElem(hash(""));
-    collectStyleAttr(
-      // partytown iframe style
-      hash("display:block;width:0;height:0;border:0;visibility:hidden")
-    );
+    if (!exclude.includes("scripts")) {
+      deepEnsureScriptElementsInManifest(initialProps.head);
+    }
+    if (!exclude.includes("styles")) {
+      collectStyleElem(
+        ...deepExtractStyleElemHashes(initialProps.head, exclude)
+      );
+      collectStyleElem(
+        ...deepExtractStyleElemHashes(initialProps.styles, exclude)
+      );
+      collectStyleElem(hash(""));
+      collectStyleAttr(
+        // partytown iframe style
+        hash("display:block;width:0;height:0;border:0;visibility:hidden")
+      );
+    }
   }
 };
 

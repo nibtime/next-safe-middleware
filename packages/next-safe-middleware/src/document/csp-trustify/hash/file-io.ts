@@ -65,6 +65,7 @@ export const writeManifestToFileWithLock = (manifest: CspManifest) => {
   });
 };
 
+const dotNextcontentCache: Record<string, string> = {};
 export const readURIFromDotNextFolder = (
   URI: string,
   basePath?: string
@@ -73,6 +74,10 @@ export const readURIFromDotNextFolder = (
     `${basePath || ""}/_next`,
     dotNextFolder()
   );
+  let content = dotNextcontentCache[filePath];
+  if (content) {
+    return content;
+  }
   const fs = getFs();
   const assert = fs && fs.existsSync(filePath);
   console.assert(assert, "readURIFromDotNextFolder: file does not exist", {
@@ -83,5 +88,7 @@ export const readURIFromDotNextFolder = (
     return "";
   }
 
-  return fs.readFileSync(filePath, "utf8");
+  content = fs.readFileSync(filePath, "utf8");
+  dotNextcontentCache[filePath] = content;
+  return content;
 };
