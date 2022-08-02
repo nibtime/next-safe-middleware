@@ -1,0 +1,66 @@
+{
+  "name": "@strict-csp/builder",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "crypto-node"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "yarn.build": {
+    "input": [
+      "src",
+      "rollup.config.js"
+    ],
+    "output": [
+      "dist",
+      "crypto-node"
+    ]
+  },
+  "scripts": {
+    "dev": "NODE_ENV=development rollup -c rollup.config.js --watch",
+    "clean": "rm -rf .swc dist package.tgz",
+    "build:pkg": "NODE_ENV=production rollup -c rollup.config.js && yarn pack",
+    "build:e2e": "yarn build:pkg",
+    "build:docs": "yarn build:pkg",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^21.0.2",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@swc/core": "^1.2.144",
+    "@swc/helpers": "^0.3.3",
+    "@swc/jest": "^0.2.20",
+    "@types/jest": "^28.1.5",
+    "@types/node": "^17.0.18",
+    "@types/ramda": "^0.28.15",
+    "@types/react": "^18.0.15",
+    "jest": "^28.1.3",
+    "ramda": "^0.28.0",
+    "rollup": "^2.68.0",
+    "rollup-plugin-dts": "^4.1.0",
+    "rollup-plugin-swc3": "^0.2.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.5"
+  },
+  "author": "nibtime",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nibtime/next-safe-middleware"
+  },
+  "bugs": {
+    "url": "https://github.com/nibtime/next-safe-middleware/issues"
+  },
+  "homepage": "https://next-safe-middleware.vercel.app",
+  "description": "Builder with fluent interface for Content-Security-Policy (CSP) with IntelliSense",
+  "keywords": [
+    "content-security-policy",
+    "csp",
+    "security"
+  ]
+}
