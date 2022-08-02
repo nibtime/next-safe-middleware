@@ -5,7 +5,8 @@
   "repoHost": "https://github.com",
   "files": [
     "packages/next-safe-middleware/README.md",
-    "apps/docs/pages/index.mdx"
+    "apps/docs/pages/index.mdx",
+    "packages/builder/README.md"
   ],
   "imageSize": 100,
   "badgeTemplate": "<p><a href=\"#contributors\"><img src=\"https://img.shields.io/badge/all_contributors-<%= contributors.length %>-orange.svg?style=flat-square\"></img></a></p>",
