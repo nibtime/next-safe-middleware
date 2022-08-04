@@ -2,8 +2,8 @@ import React, { Fragment } from "react";
 import { NextScript as NextNextScript } from "next/document";
 import { getExcludeList, isHashProxy } from "../cfg";
 import { deepMapExtractScripts } from "./utils";
-import { createFragmentPaddedProxy } from "./script-inlining";
 import {
+  createFragmentPaddedProxy,
   ensureNextScriptsInManifest,
   loadNextByProxy,
   preNextScriptsByProxy,

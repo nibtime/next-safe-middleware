@@ -6,8 +6,8 @@ import { mergeDeepRight } from "ramda";
 import commonjs from "@rollup/plugin-commonjs";
 
 const isDev = process.env.NODE_ENV === "development";
-const minify = !isDev
-const sourcemap = !minify
+const minify = !isDev;
+const sourcemap = !minify;
 
 const swcBase = defineRollupSwcOption({
   minify,
@@ -51,6 +51,7 @@ const resolve = [
   }),
 ];
 
+const baseExternal = ["@strict-csp/builder", "next"];
 const main = [
   {
     input: "src/index.ts",
@@ -60,7 +61,7 @@ const main = [
       name: "main",
       sourcemap,
     },
-    external: ["next"],
+    external: baseExternal,
     plugins: [...resolve, swc(mainCfg)],
   },
   {
@@ -71,7 +72,7 @@ const main = [
       name: "main-mjs",
       sourcemap,
     },
-    external: ["next"],
+    external: baseExternal,
     plugins: [...resolve, swc(mainCfg)],
   },
   {
@@ -81,6 +82,7 @@ const main = [
   },
 ];
 
+const documentExternal = [...baseExternal, "querystring", "react"];
 const document = [
   {
     input: "src/document/index.ts",
@@ -90,7 +92,7 @@ const document = [
       name: "document",
       sourcemap,
     },
-    external: ["next", "react"],
+    external: documentExternal,
     plugins: [...resolve, swc(documentCfg)],
   },
   {
@@ -101,7 +103,7 @@ const document = [
       name: "document-mjs",
       sourcemap,
     },
-    external: ["next", "react"],
+    external: documentExternal,
     plugins: [...resolve, swc(documentCfg)],
   },
   {
@@ -168,7 +170,9 @@ const compose = [
   },
   {
     input: "src/middleware/compose/index.ts",
-    output: [{ file: "dist/compose/index.d.ts", format: "es", name: "compose-dts" }],
+    output: [
+      { file: "dist/compose/index.d.ts", format: "es", name: "compose-dts" },
+    ],
     plugins: [dts()],
   },
 ];

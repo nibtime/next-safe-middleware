@@ -17,12 +17,37 @@ import {
   deepMapStripIntegrity,
 } from "./utils";
 import {
-  createFragmentPaddedProxy,
-  registerFragmentPaddedProxyForVariants,
+  createTrustedLoadingProxy,
   withHashIfInlineScript,
 } from "./script-inlining";
 import { readURIFromDotNextFolder } from "./file-io";
 import { collectScriptElement } from "./manifest";
+
+export const createFragmentPaddedProxy = (
+  els: JSX.Element[]
+): JSX.Element[] => {
+  const proxy = createTrustedLoadingProxy(els, true, els[0]?.key);
+  collectScriptElement(proxy);
+  return [proxy, ...els.slice(1).map((el) => <Fragment key={el.key} />)];
+};
+
+export const registerFragmentPaddedProxyForVariants = (els: JSX.Element[]) => {
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: true, async: false });
+    })
+  );
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: false, async: true });
+    })
+  );
+  createFragmentPaddedProxy(
+    els.map((s) => {
+      return React.cloneElement(s, { defer: false, async: false });
+    })
+  );
+};
 
 export const ensureScriptsInManifest = (
   els: Nullable<JSX.Element>[],

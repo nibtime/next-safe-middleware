@@ -8,8 +8,6 @@ import { collectStyleElem, pullManifest } from "./manifest";
 import {
   createFragmentPaddedProxy,
   registerFragmentPaddedProxyForVariants,
-} from "./script-inlining";
-import {
   deepEnsureScriptElementsInManifest,
   deepMapScriptsToManifest,
   ensureNextPreloadLinksInManifest,
