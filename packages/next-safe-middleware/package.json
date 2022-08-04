@@ -23,13 +23,14 @@
     "build:pkg": "NODE_ENV=production rollup -c rollup.config.js && yarn pack",
     "build:e2e": "yarn build:pkg",
     "build:docs": "yarn build:pkg",
-    "test": "jest"
+    "test": "jest --passWithNoTests"
   },
   "peerDependencies": {
     "next": ">=12.2",
     "react": ">=17"
   },
   "dependencies": {
+    "@strict-csp/builder": "workspace:*",
     "cheerio": "^1.0.0-rc.10",
     "lockfile": "^1.0.4"
   },

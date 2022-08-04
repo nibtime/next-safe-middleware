@@ -1,6 +1,9 @@
-import { difference } from "ramda";
+import type { HashWithAlgorithm } from "@strict-csp/builder";
 import type { CspManifest } from "../../../types";
 import type { Nullable, IterableScript } from "./types";
+
+import { difference } from "ramda";
+
 import {
   getScriptValue,
   iterableScriptFromProps,
@@ -30,24 +33,24 @@ export const pullManifestScripts = () => {
       const src = getScriptValue("src", s);
       const integrity = getScriptValue("integrity", s);
       if (src && integrity) {
-        return { src: src as string, hash: integrity as string };
+        return { src: src as string, hash: integrity as HashWithAlgorithm };
       }
       if (integrity) {
-        return { hash: integrity as string };
+        return { hash: integrity as HashWithAlgorithm };
       }
       return null;
     })
     .filter(Boolean);
 };
 
-const styleElem: string[] = [];
-export const collectStyleElem = (...hashes: string[]) => {
+const styleElem: HashWithAlgorithm[] = [];
+export const collectStyleElem = (...hashes: HashWithAlgorithm[]) => {
   styleElem.push(...difference(hashes.filter(Boolean), styleElem));
 };
-export const pullStyleElem = () => styleElem;
+export const pullStyleElem = (): HashWithAlgorithm[] => styleElem;
 
-const styleAttr: string[] = [];
-export const collectStyleAttr = (...hashes: string[]) => {
+const styleAttr: HashWithAlgorithm[] = [];
+export const collectStyleAttr = (...hashes: HashWithAlgorithm[]) => {
   styleAttr.push(...difference(hashes.filter(Boolean), styleAttr));
 };
 export const pullStyleAttr = () => styleAttr;

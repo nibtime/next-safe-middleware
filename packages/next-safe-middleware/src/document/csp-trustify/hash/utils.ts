@@ -1,3 +1,4 @@
+import type { HashWithAlgorithm } from "@strict-csp/builder";
 import type { ExcludeList } from "../types";
 import React from "react";
 import {
@@ -62,7 +63,7 @@ export const deepMapStripIntegrity = (children: any) => {
 export const deepExtractStyleElemHashes = (
   children: any,
   exclude: ExcludeList = []
-): string[] => {
+): HashWithAlgorithm[] => {
   if (exclude.includes("styles")) {
     return [];
   }
