@@ -44,7 +44,7 @@
 [npmtrends]: https://www.npmtrends.com/@next-safe/middleware
 
 [version-badge]: https://img.shields.io/npm/v/@next-safe/middleware.svg?style=flat-square
-[downloads-badge]: https://img.shields.io/npm/dm/next-safe.svg?style=flat-square
+[downloads-badge]: https://img.shields.io/npm/dm/@next-safe/middleware.svg?style=flat-square
 [license]: LICENSE
 [license-badge]: https://img.shields.io/github/license/nibtime/next-safe-middleware?style=flat-square
 
