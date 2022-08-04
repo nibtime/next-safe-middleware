@@ -135,7 +135,7 @@ const tellSupported: TellSupported = (userAgent) => {
   const browserVersion = Number(userAgent.browser.version || "");
   const isSafari = browserName.includes("Safari");
   const isFirefox = browserName.includes("Firefox");
-  const isSafariWithoutStrictDynamic = isSafari && browserVersion <= 15.4;
+  const isSafariWithoutStrictDynamic = isSafari && browserVersion < 15.4;
   const supportsStrictDynamic = !isSafariWithoutStrictDynamic;
   const supportsSrcIntegrityCheck = !(isSafari || isFirefox);
 
