@@ -1,6 +1,5 @@
 import { sortBy } from "ramda";
 import React, { Fragment } from "react";
-import { collectScriptElement } from "./manifest";
 import { isScriptElement, isScriptPreloadLink } from "../utils";
 import { hash } from "./algorithm";
 import { IterableScript, Primitive } from "./types";
@@ -101,9 +100,10 @@ export const iterableScriptFromProps = (
   if (!(isScriptElement(el) || isScriptPreloadLink(el))) return null;
   return Object.entries(el.props).filter(
     ([, value]) =>
-      typeof value === "string" ||
-      typeof value === "boolean" ||
-      typeof value === "number"
+      !!value &&
+      (typeof value === "string" ||
+        typeof value === "boolean" ||
+        typeof value === "number")
   ) as IterableScript;
 };
 
@@ -139,46 +139,5 @@ export const createTrustedLoadingProxy = (
       dangerouslySetInnerHTML={{ __html: inlineCode }}
     />
   );
-  collectScriptElement(loader);
   return loader;
-};
-
-export const createFragmentPaddedProxy = (
-  els: JSX.Element[]
-): JSX.Element[] => {
-  const proxy = createTrustedLoadingProxy(els, true, els[0]?.key);
-  return [proxy, ...els.slice(1).map((el) => <Fragment key={el.key} />)];
-};
-
-export const registerFragmentPaddedProxyForVariants = (els: JSX.Element[]) => {
-  createFragmentPaddedProxy(
-    els.map((s) => {
-      return React.cloneElement(s, { defer: true, async: false });
-    })
-  );
-  createFragmentPaddedProxy(
-    els.map((s) => {
-      return React.cloneElement(s, { defer: false, async: true });
-    })
-  );
-  createFragmentPaddedProxy(
-    els.map((s) => {
-      return React.cloneElement(s, { defer: true, async: null });
-    })
-  );
-  createFragmentPaddedProxy(
-    els.map((s) => {
-      return React.cloneElement(s, { defer: false, async: null });
-    })
-  );
-  createFragmentPaddedProxy(
-    els.map((s) => {
-      return React.cloneElement(s, { defer: null, async: true });
-    })
-  );
-  createFragmentPaddedProxy(
-    els.map((s) => {
-      return React.cloneElement(s, { defer: null, async: null });
-    })
-  );
 };
