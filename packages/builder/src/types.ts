@@ -24,7 +24,9 @@ export type SchemeSource =
   | "data:"
   | "mediastream:"
   | "blob:"
-  | "filesystem:";
+  | "filesystem:"
+  | "ws:"
+  | "wss:";
 export type Source = HostSource | SchemeSource | CryptoSource | BaseSource;
 export type Sources = Source[];
 export type UriPath =
