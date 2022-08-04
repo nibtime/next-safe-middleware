@@ -1,4 +1,4 @@
-import type { CspDirectives } from "../types";
+import type { CspDirectives } from "@strict-csp/builder";
 import type { MiddlewareBuilder, NextUserAgent } from "./builder/types";
 import { chainableMiddleware } from "./compose";
 import { unpackConfig, withDefaultConfig } from "./builder";

@@ -1,7 +1,7 @@
+import type { HashWithAlgorithm } from "@strict-csp/builder";
 import type { ExcludeList } from "../csp-trustify/types";
 import type { CspDocumentInitialPropsOptions } from "./types";
 import Document from "next/document";
-import { CspBuilder } from "../../utils";
 import {
   hash,
   deepEnsureNonceInChildren,
@@ -12,9 +12,8 @@ import {
   pullStyleAttr,
   collectStyleAttr,
 } from "../csp-trustify";
-import { getCtxCsp, getCtxNonce } from "../NextPageContext";
+import { getCtxCsp, getCtxNonce, setCtxCsp } from "../NextPageContext";
 import { processHtml } from "./processHtml";
-import { setCtxHeader } from "../NextPageContext/headers";
 import { setExcludeList, setIsHashProxy } from "../csp-trustify/cfg";
 
 const collectCustomRawCss = (
@@ -23,7 +22,7 @@ const collectCustomRawCss = (
   exclude: ExcludeList = []
 ) => {
   if (!exclude.includes("styles") && initialProps && hashRawCss) {
-    const customElemHashes = hashRawCss.flatMap((el) => {
+    const customElemHashes: HashWithAlgorithm[] = hashRawCss.flatMap((el) => {
       if (typeof el === "string") {
         return [hash(el)];
       }
@@ -114,17 +113,15 @@ export const getCspInitialProps = async ({
     excludeList
   );
 
-  const builder = new CspBuilder(getCtxCsp(ctx));
+  const builder = getCtxCsp(ctx);
 
   if (!excludeList.includes("styles")) {
-    builder
-      .withStyleHashes(pullStyleElem(), pullStyleAttr())
-      .toHeaderKeyValue();
+    builder.withStyleHashes(pullStyleElem(), pullStyleAttr());
   }
   if (nonce) {
     builder.withNonceApplied(nonce);
   }
-  setCtxHeader(ctx, ...builder.toHeaderKeyValue());
+  setCtxCsp(ctx, builder);
   setExcludeList(excludeList);
   setIsHashProxy(hashBasedByProxy);
   return {

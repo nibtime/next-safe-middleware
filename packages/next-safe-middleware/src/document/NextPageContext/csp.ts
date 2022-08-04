@@ -1,29 +1,33 @@
-import type { CspDirectives } from "../../types";
+import type { CspDirectives } from "@strict-csp/builder";
 import type { CtxHeaders } from "./types";
 import { CSP_HEADER, CSP_HEADER_REPORT_ONLY } from "../../constants";
-import { fromCspContent, toCspContent } from "../../utils";
-import { deleteCtxHeader, getCtxReqHeader, getCtxResHeader, setCtxHeader } from "./headers";
+import { CspBuilder } from "@strict-csp/builder";
+import {
+  deleteCtxHeader,
+  getCtxReqHeader,
+  getCtxResHeader,
+  setCtxHeader,
+} from "./headers";
 
 const getCspFromHeader = (ctx: CtxHeaders, getter) => {
   if (ctx.req) {
     const cspContent = getter(ctx, CSP_HEADER);
     const cspContentReportOnly = getter(ctx, CSP_HEADER_REPORT_ONLY);
     if (cspContent) {
-      return {
-        directives: fromCspContent(cspContent),
+      return new CspBuilder({
+        directives: cspContent,
         reportOnly: false,
-      };
+      });
     }
     if (cspContentReportOnly) {
-      return {
-        directives: fromCspContent(cspContent),
-        reportOnly: true,
-      };
+      return new CspBuilder({
+        directives: cspContentReportOnly,
+        reportOnly: false,
+      });
     }
   }
-  return {};
+  return null;
 };
-
 const getCspFromReqHeader = (ctx: CtxHeaders) =>
   getCspFromHeader(ctx, getCtxReqHeader);
 const getCspFromResHeader = (ctx: CtxHeaders) =>
@@ -31,19 +35,14 @@ const getCspFromResHeader = (ctx: CtxHeaders) =>
 
 export const getCtxCsp = (ctx: CtxHeaders) => {
   const fromRes = getCspFromResHeader(ctx);
-  return fromRes.directives ? fromRes : getCspFromReqHeader(ctx);
+  return fromRes ? fromRes : getCspFromReqHeader(ctx) ?? new CspBuilder();
 };
 
-export const setCtxCsp = (
-  ctx: CtxHeaders,
-  directives: CspDirectives,
-  reportOnly: boolean
-) => {
-  if (reportOnly) {
-    setCtxHeader(ctx, CSP_HEADER_REPORT_ONLY, toCspContent(directives));
-    deleteCtxHeader(ctx, CSP_HEADER);
-  } else {
-    setCtxHeader(ctx, CSP_HEADER, toCspContent(directives));
-    deleteCtxHeader(ctx, CSP_HEADER_REPORT_ONLY);
+export const setCtxCsp = (ctx: CtxHeaders, builder: CspBuilder) => {
+  deleteCtxHeader(ctx, CSP_HEADER);
+  deleteCtxHeader(ctx, CSP_HEADER_REPORT_ONLY);
+  const [header, value] = builder.toHeaderKeyValue();
+  if (value) {
+    setCtxHeader(ctx, header, value);
   }
 };

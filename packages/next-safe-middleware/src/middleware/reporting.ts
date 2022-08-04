@@ -1,4 +1,4 @@
-import type { UriPath } from "../types";
+import type { UriPath } from "@strict-csp/builder";
 import type { MiddlewareBuilder } from "./builder/types";
 import { differenceWith } from "ramda";
 import { memoizeResponseHeader, chainableMiddleware } from "./compose";

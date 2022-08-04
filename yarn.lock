@@ -1323,6 +1323,7 @@ __metadata:
   dependencies:
     "@rollup/plugin-commonjs": ^21.0.2
     "@rollup/plugin-node-resolve": ^13.1.3
+    "@strict-csp/builder": "workspace:*"
     "@swc/core": ^1.2.144
     "@swc/helpers": ^0.3.3
     "@swc/jest": ^0.2.20
@@ -1763,7 +1764,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strict-csp/builder@workspace:packages/builder":
+"@strict-csp/builder@workspace:*, @strict-csp/builder@workspace:packages/builder":
   version: 0.0.0-use.local
   resolution: "@strict-csp/builder@workspace:packages/builder"
   dependencies:

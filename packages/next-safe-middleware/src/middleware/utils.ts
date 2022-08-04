@@ -1,18 +1,15 @@
 import type { NextRequest } from "next/server";
 import type { ChainFinalizer, MiddlewareChainContext } from "./compose/types";
 import pRetry from "p-retry";
+import { CspBuilder } from "@strict-csp/builder";
 import {
   CSP_HEADER,
   CSP_HEADER_REPORT_ONLY,
   CSP_LOCATION_MIDDLEWARE,
   CSP_MANIFEST_FILENAME,
 } from "../constants";
-import type {
-  CspManifest,
-} from "../types";
-import { CspBuilder } from "../utils";
+import type { CspManifest } from "../types";
 import { memoizeInChainCache, memoizeInGlobalCache } from "./compose";
-
 
 const cspBuilderFromCtx = (ctx: MiddlewareChainContext): CspBuilder => {
   const headers = ctx.res.get().headers;

@@ -1,7 +1,7 @@
+import type { CspDirectives } from "@strict-csp/builder";
 import type { MiddlewareBuilder } from "./builder/types";
 import { chainableMiddleware } from "./compose";
 import { unpackConfig, withDefaultConfig } from "./builder";
-import { CspDirectives } from "../types";
 import { cachedCspBuilder } from "./utils";
 
 export type CspCfg = {
