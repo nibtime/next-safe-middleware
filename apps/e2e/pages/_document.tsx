@@ -40,7 +40,6 @@ export default class MyDocument extends Document {
       ctx,
       trustifyStyles: true,
       hashRawCss: [
-        InlinedGoogleFontRubik,
         (initialProps) => [
           stylesServer.extractCritical(initialProps.html).css,
           ...stylesServer
