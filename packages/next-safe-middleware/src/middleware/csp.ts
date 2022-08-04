@@ -65,6 +65,7 @@ const _csp: MiddlewareBuilder<CspCfg> = (cfg) =>
         "script-src": ["self", "unsafe-eval", "unsafe-inline"],
         "style-src": ["self", "unsafe-inline"],
         "font-src": ["self", "data:"],
+        "connect-src": ["self", "ws:", "wss:"]
       });
     }
     cspBuilder.withDirectives(directives).withReportOnly(reportOnly);
