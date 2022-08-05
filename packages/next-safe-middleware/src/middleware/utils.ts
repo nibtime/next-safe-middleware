@@ -9,7 +9,8 @@ import {
   CSP_MANIFEST_FILENAME,
 } from "../constants";
 import type { CspManifest } from "../types";
-import { memoizeInChainCache, memoizeInGlobalCache } from "./compose";
+import { memoize, memoizeInChain } from "./compose";
+
 
 const cspBuilderFromCtx = (ctx: MiddlewareChainContext): CspBuilder => {
   const headers = ctx.res.get().headers;
@@ -26,22 +27,21 @@ const cspBuilderFromCtx = (ctx: MiddlewareChainContext): CspBuilder => {
   return new CspBuilder();
 };
 
-const memoizedCspBuilder = memoizeInChainCache(
-  "csp-builder",
-  cspBuilderFromCtx
-);
+const memoizedCspBuilder = memoizeInChain("csp-builder", cspBuilderFromCtx);
 
 const builderToResponse: ChainFinalizer = async (_req, _evt, ctx) => {
-  const builder = await memoizedCspBuilder(ctx)();
-  const headers = ctx.res.get().headers;
-  headers.delete(CSP_HEADER);
-  headers.delete(CSP_HEADER_REPORT_ONLY);
-  headers.set(...builder.toHeaderKeyValue());
+  const builder = ctx.cache.get("csp-builder") as CspBuilder;
+  if (!builder.isEmpty()) {
+    const headers = ctx.res.get().headers;
+    headers.delete(CSP_HEADER);
+    headers.delete(CSP_HEADER_REPORT_ONLY);
+    headers.set(...builder.toHeaderKeyValue());
+  }
 };
 
 export const cachedCspBuilder = async (ctx: MiddlewareChainContext) => {
   ctx.finalize.addCallback(builderToResponse);
-  return memoizedCspBuilder(ctx)();
+  return memoizedCspBuilder(ctx)(ctx);
 };
 
 const fetchCspManifest = async (req: NextRequest): Promise<CspManifest> => {
@@ -71,7 +71,4 @@ const fetchCspManifestWithRetry = (
     { retries }
   );
 
-export const cachedCspManifest = memoizeInGlobalCache(
-  "csp-manifest",
-  fetchCspManifestWithRetry
-);
+export const cachedCspManifest = memoize(fetchCspManifestWithRetry);

@@ -1,34 +1,30 @@
 import type { ChainFinalizer, MiddlewareChainContext } from "./types";
 
-export const memoizeInChainCache =
-  <Args extends any[], T>(
-    key: string,
-    f: (ctx: MiddlewareChainContext, ...args: Args) => T | Promise<T>
-  ) =>
-  (ctx: MiddlewareChainContext) =>
-  async (...args: Args) => {
+export const memoizeInChain =
+  <Args extends any[], T>(key: string, f: (...args: Args) => T | Promise<T>) =>
+  (...args: Args) =>
+  async (ctx: MiddlewareChainContext) => {
     const cached = ctx.cache.get(key) as T;
     if (cached) {
       return cached;
     }
-    const fetched = await f(ctx, ...args);
-    ctx.cache.set(key, fetched);
-    return fetched;
-  };
-
-const globalCache = {};
-
-export const memoizeInGlobalCache =
-  <Args extends any[], T>(key: string, f: (...args: Args) => T | Promise<T>) =>
-  async (...args: Parameters<typeof f>) => {
-    const cached = globalCache[key] as T;
-    if (cached) {
-      return cached;
-    }
     const fetched = await f(...args);
-    globalCache[key] = fetched;
-    return fetched;
+    ctx.cache.set(key, fetched);
+    return ctx.cache.get(key) as T;
   };
+
+export const memoize = <Args extends any[], T>(
+  f: (...args: Args) => T | Promise<T>
+) => {
+  let memoized: T;
+  return async (...args: Parameters<typeof f>) => {
+    if (memoized) {
+      return memoized;
+    }
+    memoized = await f(...args);
+    return memoized;
+  };
+};
 
 export const memoizeResponseHeader = <T>(
   header: string,

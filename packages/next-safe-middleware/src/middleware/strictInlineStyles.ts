@@ -7,10 +7,9 @@ export type StrictInlineStylesCfg = {};
 
 const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
   chainableMiddleware(async (req, evt, ctx) => {
-    const [cspManifest, cspBuilder] = await Promise.all([
-      cachedCspManifest(req),
-      cachedCspBuilder(ctx),
-    ]);
+    const cspManifest = await cachedCspManifest(req);
+    const cspBuilder = await cachedCspBuilder(ctx);
+
     if (!cspManifest) {
       return;
     }
