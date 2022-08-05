@@ -15,7 +15,7 @@
   [![Release][release-status-badge]][release-status]
 
   <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<p><a href="#contributors"><img src="https://img.shields.io/badge/all_contributors-8-orange.svg?style=flat-square"></img></a></p>
+<p><a href="#contributors"><img src="https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square"></img></a></p>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
   [![Star on GitHub][github-star-badge]][github-star]
@@ -309,6 +309,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/DuCanhGH"><img src="https://avatars.githubusercontent.com/u/75556609?v=4?s=100" width="100px;" alt=""/><br /><sub><b>DuCanhGH</b></sub></a><br /><a href="https://github.com/nibtime/next-safe-middleware/issues?q=author%3ADuCanhGH" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/aheimlich"><img src="https://avatars.githubusercontent.com/u/150901?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Aaron Heimlich</b></sub></a><br /><a href="#ideas-aheimlich" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 
