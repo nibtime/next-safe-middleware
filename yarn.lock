@@ -1335,7 +1335,7 @@ __metadata:
     cheerio: ^1.0.0-rc.10
     jest: ^28.1.3
     lockfile: ^1.0.4
-    next: v12.2.4-canary.8
+    next: ^12.2.4
     next-safe: ^3.2.1
     p-retry: ^5.1.1
     ramda: ^0.28.0
@@ -1358,100 +1358,100 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/env@npm:12.2.4-canary.8"
-  checksum: c71c4bc1141af630ddd2942732f7472035b3c8c4e90a898d71eaba0f6ae202c9a3732a075e9de487c2799468da82a661aac61c4efed9dafcca50628b584895b7
+"@next/env@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/env@npm:12.2.4"
+  checksum: f09ae1ddebaa2b081e13b55d3d533b281f335e8ec7d70743d935b3a1295f2f8f0510a39d5991afaeb728949d5c518dd34a0cf3003016d62042b6d0f2e6489cb8
   languageName: node
   linkType: hard
 
-"@next/swc-android-arm-eabi@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-android-arm-eabi@npm:12.2.4-canary.8"
+"@next/swc-android-arm-eabi@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-android-arm-eabi@npm:12.2.4"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@next/swc-android-arm64@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-android-arm64@npm:12.2.4-canary.8"
+"@next/swc-android-arm64@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-android-arm64@npm:12.2.4"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-darwin-arm64@npm:12.2.4-canary.8"
+"@next/swc-darwin-arm64@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-darwin-arm64@npm:12.2.4"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-darwin-x64@npm:12.2.4-canary.8"
+"@next/swc-darwin-x64@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-darwin-x64@npm:12.2.4"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-freebsd-x64@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-freebsd-x64@npm:12.2.4-canary.8"
+"@next/swc-freebsd-x64@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-freebsd-x64@npm:12.2.4"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm-gnueabihf@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-linux-arm-gnueabihf@npm:12.2.4-canary.8"
+"@next/swc-linux-arm-gnueabihf@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-linux-arm-gnueabihf@npm:12.2.4"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-linux-arm64-gnu@npm:12.2.4-canary.8"
+"@next/swc-linux-arm64-gnu@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-linux-arm64-gnu@npm:12.2.4"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-linux-arm64-musl@npm:12.2.4-canary.8"
+"@next/swc-linux-arm64-musl@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-linux-arm64-musl@npm:12.2.4"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-linux-x64-gnu@npm:12.2.4-canary.8"
+"@next/swc-linux-x64-gnu@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-linux-x64-gnu@npm:12.2.4"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-linux-x64-musl@npm:12.2.4-canary.8"
+"@next/swc-linux-x64-musl@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-linux-x64-musl@npm:12.2.4"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-win32-arm64-msvc@npm:12.2.4-canary.8"
+"@next/swc-win32-arm64-msvc@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-win32-arm64-msvc@npm:12.2.4"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-ia32-msvc@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-win32-ia32-msvc@npm:12.2.4-canary.8"
+"@next/swc-win32-ia32-msvc@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-win32-ia32-msvc@npm:12.2.4"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "@next/swc-win32-x64-msvc@npm:12.2.4-canary.8"
+"@next/swc-win32-x64-msvc@npm:12.2.4":
+  version: 12.2.4
+  resolution: "@next/swc-win32-x64-msvc@npm:12.2.4"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -3980,7 +3980,7 @@ __metadata:
     "@types/ramda": ^0.28.15
     "@types/react": ^18.0.15
     babel-plugin-macros: ^3.1.0
-    next: v12.2.4-canary.8
+    next: ^12.2.4
     next-sitemap: ^3.1.10
     nextra: beta
     nextra-theme-docs: beta
@@ -4140,7 +4140,7 @@ __metadata:
     jest-environment-jsdom: ^28.1.3
     ky: ^0.29.0
     ky-universal: ^0.10.0
-    next: v12.2.4-canary.8
+    next: ^12.2.4
     next-safe: ^3.2.1
     ramda: ^0.28.0
     react: ^18.2.0
@@ -7750,24 +7750,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:v12.2.4-canary.8":
-  version: 12.2.4-canary.8
-  resolution: "next@npm:12.2.4-canary.8"
+"next@npm:^12.2.4":
+  version: 12.2.4
+  resolution: "next@npm:12.2.4"
   dependencies:
-    "@next/env": 12.2.4-canary.8
-    "@next/swc-android-arm-eabi": 12.2.4-canary.8
-    "@next/swc-android-arm64": 12.2.4-canary.8
-    "@next/swc-darwin-arm64": 12.2.4-canary.8
-    "@next/swc-darwin-x64": 12.2.4-canary.8
-    "@next/swc-freebsd-x64": 12.2.4-canary.8
-    "@next/swc-linux-arm-gnueabihf": 12.2.4-canary.8
-    "@next/swc-linux-arm64-gnu": 12.2.4-canary.8
-    "@next/swc-linux-arm64-musl": 12.2.4-canary.8
-    "@next/swc-linux-x64-gnu": 12.2.4-canary.8
-    "@next/swc-linux-x64-musl": 12.2.4-canary.8
-    "@next/swc-win32-arm64-msvc": 12.2.4-canary.8
-    "@next/swc-win32-ia32-msvc": 12.2.4-canary.8
-    "@next/swc-win32-x64-msvc": 12.2.4-canary.8
+    "@next/env": 12.2.4
+    "@next/swc-android-arm-eabi": 12.2.4
+    "@next/swc-android-arm64": 12.2.4
+    "@next/swc-darwin-arm64": 12.2.4
+    "@next/swc-darwin-x64": 12.2.4
+    "@next/swc-freebsd-x64": 12.2.4
+    "@next/swc-linux-arm-gnueabihf": 12.2.4
+    "@next/swc-linux-arm64-gnu": 12.2.4
+    "@next/swc-linux-arm64-musl": 12.2.4
+    "@next/swc-linux-x64-gnu": 12.2.4
+    "@next/swc-linux-x64-musl": 12.2.4
+    "@next/swc-win32-arm64-msvc": 12.2.4
+    "@next/swc-win32-ia32-msvc": 12.2.4
+    "@next/swc-win32-x64-msvc": 12.2.4
     "@swc/helpers": 0.4.3
     caniuse-lite: ^1.0.30001332
     postcss: 8.4.14
@@ -7815,7 +7815,7 @@ __metadata:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: b9bb9c1d268d5ee515eab9a0be53096a17e3b9b384c218e5aced4450ac4e8ed2b10f31e57f5eaafac48e5e4d7d79ebe7d0124b3d16391575f7858874afd2ea08
+  checksum: 31da1485d3499b2d43b452378931cc04d3593dcdecb7629263d5f5dae375ae956d68963a7398b613a283d0c42c50a7ab9f5ef911d8df50f740e8438721e06457
   languageName: node
   linkType: hard
 
