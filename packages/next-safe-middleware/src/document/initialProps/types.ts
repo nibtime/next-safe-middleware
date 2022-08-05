@@ -82,6 +82,9 @@ export type CspDocumentInitialPropsOptions = {
    * }
    */
   processHtmlOptions?: ProcessHtmlOptions;
-  hashBasedByProxy?: boolean
+  hashBasedByProxy?: boolean;
 };
 
+export type CspDocumentInitialProps = DocumentInitialProps & {
+  nonce?: string;
+};
