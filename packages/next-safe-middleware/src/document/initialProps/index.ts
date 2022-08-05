@@ -1,6 +1,9 @@
 import type { HashWithAlgorithm } from "@strict-csp/builder";
 import type { ExcludeList } from "../csp-trustify/types";
-import type { CspDocumentInitialPropsOptions } from "./types";
+import type {
+  CspDocumentInitialProps,
+  CspDocumentInitialPropsOptions,
+} from "./types";
 import Document from "next/document";
 import {
   hash,
@@ -91,16 +94,19 @@ export const getCspInitialProps = async ({
   hashRawCss = [],
   processHtmlOptions,
   hashBasedByProxy = true,
-}: CspDocumentInitialPropsOptions) => {
+}: CspDocumentInitialPropsOptions): Promise<CspDocumentInitialProps> => {
   const initialProps =
     passInitialProps || (await Document.getInitialProps(ctx));
   if (process.env.NODE_ENV !== "production") {
-    return initialProps;
+    return { ...initialProps, nonce: undefined };
   }
   const excludeList = [
     ...(!trustifyScripts ? ["scripts"] : []),
     ...(!trustifyStyles ? ["styles"] : []),
   ] as ExcludeList;
+
+  setExcludeList(excludeList);
+  setIsHashProxy(hashBasedByProxy);
 
   const nonce = getCtxNonce(ctx);
 
@@ -113,24 +119,28 @@ export const getCspInitialProps = async ({
     excludeList
   );
 
+  if (!nonce) {
+    return {
+      ...initialProps,
+      nonce: undefined,
+    };
+  }
+  // for pages with getServerSideProps/getInitialProps that injected a nonce
   const builder = getCtxCsp(ctx);
-
-  if (!excludeList.includes("styles")) {
-    builder.withStyleHashes(pullStyleElem(), pullStyleAttr());
-  }
-  if (nonce) {
+  if (!builder.isEmpty()) {
+    // this will apply inline styles in dynamic page collected during SSR
+    if (!excludeList.includes("styles")) {
+      builder.withStyleHashes(pullStyleElem(), pullStyleAttr());
+    }
+    // this will consistently apply the nonce to all set directives in CSP that need it
     builder.withNonceApplied(nonce);
+    // set updated CSP back to req/res of context
+    setCtxCsp(ctx, builder);
   }
-  setCtxCsp(ctx, builder);
-  setExcludeList(excludeList);
-  setIsHashProxy(hashBasedByProxy);
   return {
     ...initialProps,
     nonce,
   };
 };
 
-type PromiseInnerType<T> = T extends Promise<infer U> ? U : never;
-export type CspInitialProps = PromiseInnerType<
-  ReturnType<typeof getCspInitialProps>
->;
+export * from "./types";
