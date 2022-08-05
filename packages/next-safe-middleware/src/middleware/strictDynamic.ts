@@ -80,11 +80,9 @@ export type StrictDynamicCfg = {
 
 const _strictDynamic: MiddlewareBuilder<StrictDynamicCfg> = (cfg) =>
   chainableMiddleware(async (req, evt, ctx) => {
-    const [cspManifest, cspBuilder, config] = await Promise.all([
-      cachedCspManifest(req),
-      cachedCspBuilder(ctx),
-      unpackConfig(cfg, req, evt, ctx),
-    ]);
+    const cspManifest = await cachedCspManifest(req)
+    const cspBuilder = await cachedCspBuilder(ctx)
+    const config = await unpackConfig(cfg, req, evt, ctx)
 
     const {
       fallbackScriptSrc,

@@ -99,7 +99,7 @@ const withBasePath = (reportTo: ReportTo[], basePath?: string) => {
 
 const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
   chainableMiddleware(async (req, evt, ctx) => {
-    const [config] = await Promise.all([unpackConfig(cfg, req, evt, ctx)]);
+    const config = await unpackConfig(cfg, req, evt, ctx);
     const { reportTo = [], csp: cspCfg } = config;
 
     const { basePath } = req.nextUrl;

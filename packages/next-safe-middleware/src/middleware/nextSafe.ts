@@ -99,10 +99,9 @@ const nextSafe = _nextSafe as unknown as typeof _nextSafe.nextSafe;
 
 const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
   chainableMiddleware(async (req, evt, ctx) => {
-    const [cspBuilder, config] = await Promise.all([
-      cachedCspBuilder(ctx),
-      unpackConfig(cfg, req, evt, ctx),
-    ]);
+    const cspBuilder = await cachedCspBuilder(ctx);
+    const config = await unpackConfig(cfg, req, evt, ctx);
+    
     const { disableCsp, userAgent, ...nextSafeCfg } = config;
     const isNoCspSecurityHeader = (header) =>
       !header.key.toLowerCase().includes(CSP_HEADER) &&
