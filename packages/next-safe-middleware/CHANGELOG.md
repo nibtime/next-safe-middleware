@@ -1,5 +1,26 @@
 # @next-safe/middleware
 
+## 0.10.1
+
+### Patch Changes
+
+- [#69](https://github.com/nibtime/next-safe-middleware/pull/69) [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5) Thanks [@nibtime](https://github.com/nibtime)! - build: require `next >=12.2.4` as peer dep
+
+  - includes important [routing bug fixes related to middleware](https://github.com/nibtime/next-safe-middleware/issues/34#issuecomment-1193511064)
+
+* [#69](https://github.com/nibtime/next-safe-middleware/pull/69) [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5) Thanks [@nibtime](https://github.com/nibtime)! - fix(document): avoid unnecessary excess script hashes with Hash-based by proxy
+
+- [#69](https://github.com/nibtime/next-safe-middleware/pull/69) [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5) Thanks [@nibtime](https://github.com/nibtime)! - fix(middleware): avoid caching bug with CSP manifest (on Vercel only)
+
+* [#69](https://github.com/nibtime/next-safe-middleware/pull/69) [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5) Thanks [@nibtime](https://github.com/nibtime)! - refactor: use new `@strict-csp/builder` package as workspace dependency
+
+- [#69](https://github.com/nibtime/next-safe-middleware/pull/69) [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5) Thanks [@nibtime](https://github.com/nibtime)! - fix(document): prevent inline style hashes from overriding CSP from middleware after on-demand ISR
+
+* [#69](https://github.com/nibtime/next-safe-middleware/pull/69) [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5) Thanks [@nibtime](https://github.com/nibtime)! - fix(middleware): add ws: and wss: as `connect-src` for `next dev` (fixes [#67](https://github.com/nibtime/next-safe-middleware/issues/67))
+
+* Updated dependencies [[`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5), [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5)]:
+  - @strict-csp/builder@0.1.0
+
 ## 0.10.0
 
 ### Minor Changes
