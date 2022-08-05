@@ -1346,7 +1346,7 @@ __metadata:
     tslib: ^2.3.1
     typescript: ^4.5.5
   peerDependencies:
-    next: ">=12.2"
+    next: ">=12.2.4"
     react: ">=17"
   languageName: unknown
   linkType: soft
