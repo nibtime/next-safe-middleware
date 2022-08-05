@@ -31,7 +31,7 @@
     "@stitches/react": "^1.2.6",
     "ky": "^0.29.0",
     "ky-universal": "^0.10.0",
-    "next": "v12.2.4-canary.8",
+    "next": "^12.2.4",
     "next-safe": "^3.2.1",
     "ramda": "^0.28.0",
     "react": "^18.2.0",
