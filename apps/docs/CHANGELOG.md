@@ -1,5 +1,12 @@
 # docs
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5), [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5), [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5), [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5), [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5), [`c407570`](https://github.com/nibtime/next-safe-middleware/commit/c4075709fd8598ff3af27bafd25e0f298509dac5)]:
+  - @next-safe/middleware@0.10.1
+
 ## 0.2.0
 
 ### Minor Changes
