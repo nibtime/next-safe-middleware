@@ -99,4 +99,10 @@ describe("CSP Builder", () => {
     const expectBuilder = new CspBuilder().withStrictDynamic(hashes);
     expect(expectBuilder.csp()).toEqual(fixtureBuilder.csp());
   });
+
+  it("can quotes script in require-trusted-types-for correctly", () => {
+    const fixtureBuilder = new CspBuilder(`require-trusted-types-for 'script';`);
+    const expectBuilder = new CspBuilder().withDirectives({"require-trusted-types-for": ["script"]});
+    expect(expectBuilder.toString()).toEqual(fixtureBuilder.toString());
+  });
 });

@@ -41,7 +41,7 @@ export class CspBuilder {
         const isCspHeader = param[0] === CSP_HEADER;
         const isCspReportOnlyHeader = param[0] === CSP_HEADER_REPORT_ONLY;
         if (!(isCspHeader || isCspReportOnlyHeader)) {
-          this._csp = empty;
+          this._csp = {...empty};
         } else {
           this._csp = {
             directives: fromCspContent(param[1]),
@@ -58,7 +58,7 @@ export class CspBuilder {
         };
       }
     } else {
-      this._csp = empty;
+      this._csp = {...empty};
     }
   }
 
@@ -212,7 +212,7 @@ export class CspBuilder {
   }
 
   public reset() {
-    this._csp = empty;
+    this._csp = {...empty};
   }
 
   public isEmpty() {
