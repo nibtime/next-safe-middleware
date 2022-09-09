@@ -19,6 +19,7 @@ const singleQuotify = (directiveValue: string) => `'${directiveValue}'`;
 
 const isLiteralDirectiveValue = (directiveValue: string) => {
   const c1 = [
+    "script",
     "strict-dynamic",
     "report-sample",
     "self",
