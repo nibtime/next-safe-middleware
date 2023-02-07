@@ -14,7 +14,7 @@ export function gsspWithNonce<
     if ("props" in gsspResult) {
       const nonce = getCreateCtxNonceIdempotent(ctx);
       const props = await gsspResult.props;
-      return { props: { ...props, nonce } };
+      return { ...gsspResult, props: { ...props, nonce } };
     }
   };
 }
