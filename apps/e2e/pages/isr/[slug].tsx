@@ -1,9 +1,9 @@
-import Link from "next/link";
-import Prose from "components/Prose";
-import Layout from "components/Layout";
-import Hydrated from "components/Hydrated";
-import StyleElem from "components/StyleElem";
-import StyleAttr from "components/StyleAttr";
+import Prose from 'components/Prose';
+import Layout from 'components/Layout';
+import Hydrated from 'components/Hydrated';
+import StyleElem from 'components/StyleElem';
+import StyleAttr from 'components/StyleAttr';
+import TestNavigation from '../../components/TestNavigation';
 
 export const getStaticPaths = async () => {
   // as long as we build-time prerender at least one path, it will work with Hash-based strict CSP.
@@ -63,15 +63,7 @@ const Page = ({ random, revalidate }) => {
           Hi, i am styled with by an inline style attribute, If I am{" "}
           <b>fuchsia</b>, I am trusted by CSP
         </StyleAttr>
-        <h2>Internal navigation to other pages:</h2>
-        <ul>
-          <li>
-            <Link href="/gsp">Page with getStaticProps</Link>
-          </li>
-          <li>
-            <Link href="/gssp">Page with getServerSideProps</Link>
-          </li>
-        </ul>
+        <TestNavigation />
       </Prose>
     </Layout>
   );

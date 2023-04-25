@@ -11,10 +11,18 @@ export function gsspWithNonce<
 ): GetServerSideProps<P & { nonce: string }, Q, D> {
   return async (ctx) => {
     const gsspResult = await getServerSideProps(ctx);
+    const nonce = getCreateCtxNonceIdempotent(ctx);
+    if ("notFound" in gsspResult) {
+      const notFound = await gsspResult.notFound;
+      return { props: { nonce }, notFound: notFound };
+    }
+    if ("redirect" in gsspResult) {
+      const redirect = await gsspResult.redirect;
+      return { props: { nonce }, redirect: redirect };
+    }
     if ("props" in gsspResult) {
-      const nonce = getCreateCtxNonceIdempotent(ctx);
       const props = await gsspResult.props;
-      return { props: { ...props, nonce } };
+      return { props: { ...props, nonce }};
     }
   };
 }
