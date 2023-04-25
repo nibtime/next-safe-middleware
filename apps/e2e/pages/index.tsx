@@ -11,10 +11,10 @@ const Page = () => {
         <h1>@next-safe/middleware e2e app</h1>
         <Hydrated />
         <p>
-          A Next.js app to test the strict CSP capabilities of the{' '}
+          A Next.js app to test the strict CSP capabilities of the{" "}
           <a href="https://www.npmjs.com/package/@next-safe/middleware">
             @next-safe/middleware
-          </a>{' '}
+          </a>{" "}
           package.
         </p>
         <h2>Prerendering strategies:</h2>
@@ -28,13 +28,13 @@ const Page = () => {
           <li>
             <a href="/mantine/gsp">
               With <code>getStaticProps</code>
-            </a>{' '}
+            </a>{" "}
             (Hash-based)
           </li>
           <li>
             <a href="/mantine/gssp">
               With <code>getServerSideProps</code>
-            </a>{' '}
+            </a>{" "}
             (Nonce-based)
           </li>
         </ul>
