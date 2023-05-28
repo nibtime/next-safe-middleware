@@ -1,5 +1,5 @@
 import Layout from 'components/Layout';
-import { gsspWithNonce } from '@next-safe/middleware/dist/document';
+import { gsspWithNonce } from '@komw/next-safe-middleware/dist/document';
 
 export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return {

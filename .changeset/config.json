@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@1.7.0/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "nibtime/next-safe-middleware" }],
+  "changelog": ["@changesets/changelog-github", { "repo": "komw/next-safe-middleware" }],
   "commit": false,
   "fixed": [],
   "linked": [],

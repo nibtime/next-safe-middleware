@@ -1,4 +1,4 @@
-import type { CspDirectives } from "@strict-csp/builder";
+import type { CspDirectives } from "@komw/next-safe-builder";
 import type { MiddlewareBuilder } from "./builder/types";
 import { chainableMiddleware } from "./compose";
 import { unpackConfig, withDefaultConfig } from "./builder";
@@ -91,7 +91,7 @@ const _csp: MiddlewareBuilder<CspCfg> = (cfg) =>
  *   nextSafe,
  *   strictDynamic,
  *   strictInlineStyles,
- * } from "@next-safe/middleware";
+ * } from "@komw/next-safe-middleware";
  *
  * const securityMiddleware = [
  *   nextSafe({ disableCsp: true }),

@@ -8,12 +8,12 @@ const Page = () => {
   return (
     <Container isCentered>
       <Prose>
-        <h1>@next-safe/middleware e2e app</h1>
+        <h1>@komw/next-safe-middleware e2e app</h1>
         <Hydrated />
         <p>
           A Next.js app to test the strict CSP capabilities of the{" "}
-          <a href="https://www.npmjs.com/package/@next-safe/middleware">
-            @next-safe/middleware
+          <a href="https://www.npmjs.com/package/@komw/next-safe-middleware">
+            @komw/next-safe-middleware
           </a>{" "}
           package.
         </p>

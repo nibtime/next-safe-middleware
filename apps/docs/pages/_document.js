@@ -1,7 +1,7 @@
 import {
   getCspInitialProps,
   provideComponents,
-} from "@next-safe/middleware/dist/document";
+} from "@komw/next-safe-middleware/dist/document";
 import Document, { Html, Main } from "next/document";
 import React from "react";
 import { lazyGetCssText } from "stitches.config";

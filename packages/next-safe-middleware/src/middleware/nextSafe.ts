@@ -137,7 +137,7 @@ const _nextSafeMiddleware: MiddlewareBuilder<NextSafeCfg> = (cfg) =>
  *   csp,
  *   nextSafe,
  *   strictDynamic,
- * } from "@next-safe/middleware";
+ * } from "@komw/next-safe-middleware";
  *
  * const securityMiddleware = [
  *   nextSafe({ disableCsp: true }),

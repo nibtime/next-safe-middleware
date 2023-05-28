@@ -2,7 +2,7 @@ import {
   getCspInitialProps,
   provideComponents,
   logCtxHeaders,
-} from "@next-safe/middleware/dist/document";
+} from "@komw/next-safe-middleware/dist/document";
 import Document, { DocumentContext, Html, Main } from "next/document";
 import React from "react";
 import { createStylesServer, ServerStyles } from "@mantine/next";

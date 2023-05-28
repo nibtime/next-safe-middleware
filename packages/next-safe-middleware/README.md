@@ -1,7 +1,7 @@
 <div align="center">
   <br />
   <img src=https://user-images.githubusercontent.com/52962482/177227813-b15198ca-2c36-4ba3-afec-efeb581a19a1.png height=75 width=75 />
-  <h1><code>@next-safe/middleware</code></h1>
+  <h1><code>@komw/next-safe-middleware</code></h1>
   <p><strong>Strict Content-Security-Policy (CSP) for Next.js with composable middleware</strong></p>
   <p>Works for hybrid apps and supports pages with any data fetching method.</p>
   <p>Always sets CSP by HTTP Response header and enables easy setup of reporting.</p>
@@ -40,11 +40,11 @@
 
 </div>
 
-[package]: https://npmjs.com/package/@next-safe/middleware
-[npmtrends]: https://www.npmtrends.com/@next-safe/middleware
+[package]: https://npmjs.com/package/@komw/next-safe-middleware
+[npmtrends]: https://www.npmtrends.com/@komw/next-safe-middleware
 
-[version-badge]: https://img.shields.io/npm/v/@next-safe/middleware.svg?style=flat-square
-[downloads-badge]: https://img.shields.io/npm/dm/@next-safe/middleware.svg?style=flat-square
+[version-badge]: https://img.shields.io/npm/v/@komw/next-safe-middleware.svg?style=flat-square
+[downloads-badge]: https://img.shields.io/npm/dm/@komw/next-safe-middleware.svg?style=flat-square
 [license]: LICENSE
 [license-badge]: https://img.shields.io/github/license/nibtime/next-safe-middleware?style=flat-square
 
@@ -100,14 +100,14 @@ This is where this package comes in: To make this setup easy, convenient and a l
 
 ## Getting started
 
-Install `@next-safe/middleware` from NPM
+Install `@komw/next-safe-middleware` from NPM
 
 ```bash
-npm -i @next-safe/middleware
+npm -i @komw/next-safe-middleware
 ```
 
 ```bash
-yarn add @next-safe/middleware
+yarn add @komw/next-safe-middleware
 ```
 
 ### Quickstart: Strict Content-Security-Policy (CSP)
@@ -121,7 +121,7 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 const securityMiddleware = [
   csp({
@@ -145,7 +145,7 @@ Create the file `pages/_document.js` in your Next.js project folder:
 import {
   getCspInitialProps,
   provideComponents,
-} from "@next-safe/middleware/dist/document";
+} from "@komw/next-safe-middleware/dist/document";
 import Document, { Html, Main } from "next/document";
 
 export default class MyDocument extends Document {
@@ -171,7 +171,7 @@ export default class MyDocument extends Document {
 For every page under `pages` that uses `getServerSideProps` for data fetching:
 
 ```js
-import { gsspWithNonce } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@komw/next-safe-middleware/dist/document";
 
 // wrap data fetching with gsspWithNonce 
 // to generate a nonce for CSP
@@ -200,7 +200,7 @@ import {
   reporting,
   strictDynamic,
   strictInlineStyles,
-} from '@next-safe/middleware';
+} from '@komw/next-safe-middleware';
 
 const securityMiddleware = [
   csp(),
@@ -215,9 +215,9 @@ Create the file `pages/api/reporting.js` to set up the reporting endpoint:
 
 ```js
 // pages/api/reporting.js
-import { reporting } from "@next-safe/middleware/dist/api";
+import { reporting } from "@komw/next-safe-middleware/dist/api";
 
-/** @type {import('@next-safe/middleware/dist/api').Reporter} */
+/** @type {import('@komw/next-safe-middleware/dist/api').Reporter} */
 const consoleLogReporter = (data) =>
   console.log(JSON.stringify(data, undefined, 2));
 
@@ -235,7 +235,7 @@ If you use [Sentry](https://sentry.io) for monitoring your app, there is a conve
 import {
   reporting,
   sentryCspReporterForEndpoint,
-} from "@next-safe/middleware/dist/api";
+} from "@komw/next-safe-middleware/dist/api";
 
 // lookup at https://docs.sentry.io/product/security-policy-reporting/
 const sentryCspEndpoint = process.env.SENTRY_CSP_ENDPOINT;
@@ -256,9 +256,9 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
-/** @type {import('@next-safe/middleware').ChainableMiddleware} */
+/** @type {import('@komw/next-safe-middleware').ChainableMiddleware} */
 const geoBlockMiddleware = (req) => {
   const BLOCKED_COUNTRY = "GB";
   const country = req.geo.country || "US";
@@ -286,7 +286,7 @@ export default chain(
 );
 ```
 
-If you only want to use the composition features from this package, there's an extra bundle `@next-safe/middleware/dist/compose` just for that.
+If you only want to use the composition features from this package, there's an extra bundle `@komw/next-safe-middleware/dist/compose` just for that.
 
 ## Contributors
 

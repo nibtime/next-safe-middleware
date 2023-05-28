@@ -1,4 +1,4 @@
-import type { HashWithAlgorithm } from "@strict-csp/builder";
+import type { HashWithAlgorithm } from "@komw/next-safe-builder";
 export type CspManifest = {
   scripts: { src?: string; hash: HashWithAlgorithm }[];
   styles: {

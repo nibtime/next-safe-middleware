@@ -7,7 +7,7 @@ import {
   strictInlineStyles,
   reporting,
   telemetry,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 const securityMiddleware = [
   nextSafe({ disableCsp: true }),

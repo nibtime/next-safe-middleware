@@ -1,5 +1,5 @@
 {
-  "name": "@strict-csp/builder",
+  "name": "@komw/next-safe-builder",
   "version": "0.0.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

@@ -1,4 +1,4 @@
-export * from "@strict-csp/builder";
+export * from "@komw/next-safe-builder";
 
 export * from "./middleware/compose/types";
 export * from "./middleware/compose";

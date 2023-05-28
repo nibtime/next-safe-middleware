@@ -6,7 +6,7 @@ In your `middleware.js` you might potentially want to do more interesting things
 
 <Callout emoji="💡">
   If you like to use this package for composing middleware only, there's a
-  bundle `@next-safe/middleware/dist/compose` for just that.
+  bundle `@komw/next-safe-middleware/dist/compose` for just that.
 </Callout>
 
 ## `chain`
@@ -116,9 +116,9 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
-/** @type {import('@next-safe/middleware').ChainableMiddleware} */
+/** @type {import('@komw/next-safe-middleware').ChainableMiddleware} */
 const geoBlockMiddleware = (req) => {
   const BLOCKED_COUNTRY = "GB";
   const country = req.geo.country || "US";
@@ -177,7 +177,7 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 // CSP in always in report-only mode for Firefox
 // and by env var for other browsers

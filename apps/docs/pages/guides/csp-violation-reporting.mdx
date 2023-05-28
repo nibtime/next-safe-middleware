@@ -15,7 +15,7 @@ import {
   reporting,
   strictDynamic,
   strictInlineStyles,
-} from '@next-safe/middleware';
+} from '@komw/next-safe-middleware';
 
 const securityMiddleware = [
   csp(),
@@ -30,9 +30,9 @@ then, set up the reporting endpoint in `pages/api/reporting.js`:
 
 ```js
 // pages/api/reporting.js
-import { reporting } from "@next-safe/middleware/dist/api";
+import { reporting } from "@komw/next-safe-middleware/dist/api";
 
-/** @type {import('@next-safe/middleware/dist/api').Reporter} */
+/** @type {import('@komw/next-safe-middleware/dist/api').Reporter} */
 const consoleLogReporter = (data) =>
   console.log(JSON.stringify(data, undefined, 2));
 
@@ -50,7 +50,7 @@ If you use [Sentry](https://sentry.io) for monitoring your app, there is a conve
 import {
   reporting,
   sentryCspReporterForEndpoint,
-} from "@next-safe/middleware/dist/api";
+} from "@komw/next-safe-middleware/dist/api";
 
 // lookup at https://docs.sentry.io/product/security-policy-reporting/
 const sentryCspEndpoint = process.env.SENTRY_CSP_ENDPOINT;

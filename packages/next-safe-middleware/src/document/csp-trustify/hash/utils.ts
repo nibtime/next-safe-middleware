@@ -1,4 +1,4 @@
-import type { HashWithAlgorithm } from "@strict-csp/builder";
+import type { HashWithAlgorithm } from "@komw/next-safe-builder";
 import type { ExcludeList } from "../types";
 import React from "react";
 import {

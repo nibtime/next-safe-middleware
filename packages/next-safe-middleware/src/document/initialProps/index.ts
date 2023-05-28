@@ -1,4 +1,4 @@
-import type { HashWithAlgorithm } from "@strict-csp/builder";
+import type { HashWithAlgorithm } from "@komw/next-safe-builder";
 import type { ExcludeList } from "../csp-trustify/types";
 import type {
   CspDocumentInitialProps,

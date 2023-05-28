@@ -14,7 +14,7 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 const securityMiddleware = [
   csp({
@@ -38,7 +38,7 @@ create a file `pages/_document.js` in your Next.js project folder:
 import {
   getCspInitialProps,
   provideComponents,
-} from "@next-safe/middleware/dist/document";
+} from "@komw/next-safe-middleware/dist/document";
 import Document, { Html, Main } from "next/document";
 
 export default class MyDocument extends Document {
@@ -64,9 +64,9 @@ export default class MyDocument extends Document {
 For every page under `pages` that uses `getServerSideProps` for data fetching:
 
 ```js
-import { gsspWithNonce } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@komw/next-safe-middleware/dist/document";
 
-// wrap data fetching with gsspWithNonce 
+// wrap data fetching with gsspWithNonce
 // to generate a nonce for CSP
 export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return { props: { message: "Hi, from getServerSideProps" } };
@@ -201,7 +201,7 @@ import {
   csp,
   nextSafe,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 const securityMiddleware = [
   nextSafe({ disableCsp: true }),
