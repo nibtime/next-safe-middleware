@@ -1,6 +1,7 @@
-import Prose from "components/Prose";
-import Container from "components/Container";
-import Hydrated from "components/Hydrated";
+import Prose from 'components/Prose';
+import Container from 'components/Container';
+import Hydrated from 'components/Hydrated';
+import InternalTestLinks from '../components/InternalTestLinks';
 
 // pages without a data fetching function are static pages and must use a Hash-based CSP.
 const Page = () => {
@@ -18,20 +19,7 @@ const Page = () => {
         </p>
         <h2>Prerendering strategies:</h2>
         <p>This page has no data fetching method</p>
-        <ul>
-          <li>
-            <a href="/gsp">Page with getStaticProps</a> (Hash-based)
-          </li>
-          <li>
-            <a href="/gssp">Page with getServerSideProps</a> (Nonce-based)
-          </li>
-          <li>
-            <a href="/isr/gsp">
-              Page with getStaticProps + <code>revalidate</code> (ISR)
-            </a>{" "}
-            (Hash-based)
-          </li>
-        </ul>
+        <InternalTestLinks />
         <h2>With Mantine:</h2>
         <ul>
           <li>

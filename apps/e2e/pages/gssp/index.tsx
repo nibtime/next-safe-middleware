@@ -5,6 +5,7 @@ import Hydrated from "components/Hydrated";
 import StyleElem from "components/StyleElem";
 import StyleAttr from "components/StyleAttr";
 import { gsspWithNonce } from "@next-safe/middleware/dist/document";
+import TestNavigation from "../../components/TestNavigation";
 
 export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return {
@@ -35,19 +36,7 @@ const Page = () => {
           Hi, i am styled with by an inline style attribute, If I am <b>blue</b>
           , I am trusted by CSP
         </StyleAttr>
-        <h2>Internal navigation to other pages</h2>
-        <ul>
-          <li>
-            <Link href="/gsp">Page with getStaticProps</Link>
-          </li>
-          <li>
-            <Link href="/isr/gsp">
-              <a>
-                Page with getStaticProps + <code>revalidate</code> (ISR)
-              </a>
-            </Link>
-          </li>
-        </ul>
+        <TestNavigation />
       </Prose>
     </Layout>
   );
