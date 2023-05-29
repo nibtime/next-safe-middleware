@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { CspBuilder } from "@next-safe/middleware";
+import { CspBuilder } from "@komw/next-safe-middleware";
 import tw, { styled } from "twin.macro";
 
 const StyledForm = styled("form", tw`my-6`);

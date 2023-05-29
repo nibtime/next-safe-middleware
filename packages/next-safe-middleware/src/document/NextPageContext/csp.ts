@@ -1,7 +1,7 @@
-import type { CspDirectives } from "@strict-csp/builder";
+import type { CspDirectives } from "@komw/next-safe-builder";
 import type { CtxHeaders } from "./types";
 import { CSP_HEADER, CSP_HEADER_REPORT_ONLY } from "../../constants";
-import { CspBuilder } from "@strict-csp/builder";
+import { CspBuilder } from "@komw/next-safe-builder";
 import {
   deleteCtxHeader,
   getCtxReqHeader,

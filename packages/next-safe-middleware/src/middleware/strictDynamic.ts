@@ -1,4 +1,4 @@
-import type { CspDirectives } from "@strict-csp/builder";
+import type { CspDirectives } from "@komw/next-safe-builder";
 import type { MiddlewareBuilder, NextUserAgent } from "./builder/types";
 import { chainableMiddleware } from "./compose";
 import { unpackConfig, withDefaultConfig } from "./builder";
@@ -152,7 +152,7 @@ const tellSupported: TellSupported = (userAgent) => {
  * a middleware that provides an augmented strict CSP. It will ensure to include hashes of scripts for static routes (`getStaticProps` - Hash-based strict CSP)
  * or a nonce for dynamic routes (`getServerSideProps` - Nonce-based strict CSP).
  *
- * @requires `@next-safe/middleware/dist/document`
+ * @requires `@komw/next-safe-middleware/dist/document`
  *
  * Must be used together with `getCspInitialProps` and `provideComponents`
  * in `pages/_document.js` to wire stuff up with Next.js page prerendering.
@@ -163,7 +163,7 @@ const tellSupported: TellSupported = (userAgent) => {
  *   isPageRequest,
  *   csp,
  *   strictDynamic,
- * } from "@next-safe/middleware";
+ * } from "@komw/next-safe-middleware";
  *
  *  const securityMiddleware = [
  *    csp(),

@@ -1,5 +1,5 @@
 import "twin.macro";
-import { gsspWithNonce } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@komw/next-safe-middleware/dist/document";
 import Prose from '../../components/Prose';
 import Hydrated from '../../components/Hydrated';
 import StyleElem from '../../components/StyleElem';

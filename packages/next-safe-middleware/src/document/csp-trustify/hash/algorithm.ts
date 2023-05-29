@@ -1,4 +1,4 @@
-import type { HashAlgorithm, HashWithAlgorithm } from "@strict-csp/builder";
+import type { HashAlgorithm, HashWithAlgorithm } from "@komw/next-safe-builder";
 import crypto from "crypto";
 
 let hashAlgorithm: HashAlgorithm = "sha256";

@@ -51,7 +51,7 @@ const resolve = [
   }),
 ];
 
-const baseExternal = ["@strict-csp/builder", "next"];
+const baseExternal = ["@komw/next-safe-builder", "next"];
 const main = [
   {
     input: "src/index.ts",

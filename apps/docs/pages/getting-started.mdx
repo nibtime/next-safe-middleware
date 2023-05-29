@@ -3,19 +3,19 @@ import Link from "next/link";
 
 # Getting started
 
-Install `@next-safe/middleware` from NPM
+Install `@komw/next-safe-middleware` from NPM
 
 ```bash
-npm -i @next-safe/middleware
+npm -i @komw/next-safe-middleware
 ```
 
 ```bash
-yarn add @next-safe/middleware
+yarn add @komw/next-safe-middleware
 ```
 
 <Callout type="warning" emoji="⚠️">
   Since version
-  [`0.9.0`](https://github.com/nibtime/next-safe-middleware/releases/tag/%40next-safe%2Fmiddleware%400.9.0),
+  [`0.9.0`](https://github.com/komw/next-safe-middleware/releases/tag/%40next-safe%2Fmiddleware%400.9.0),
   support for Beta middleware has been dropped, so your project needs to use
   Next.js `>= 12.2` with Stable root-level middleware. For migration to Stable
   middleware, have a look at the [middleware upgrade
@@ -33,7 +33,7 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 const securityMiddleware = [
   csp({
@@ -57,7 +57,7 @@ Create the file `pages/_document.js` in your Next.js project folder:
 import {
   getCspInitialProps,
   provideComponents,
-} from "@next-safe/middleware/dist/document";
+} from "@komw/next-safe-middleware/dist/document";
 import Document, { Html, Main } from "next/document";
 
 export default class MyDocument extends Document {
@@ -83,9 +83,9 @@ export default class MyDocument extends Document {
 For every page under `pages` that uses `getServerSideProps` for data fetching:
 
 ```js
-import { gsspWithNonce } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@komw/next-safe-middleware/dist/document";
 
-// wrap data fetching with gsspWithNonce 
+// wrap data fetching with gsspWithNonce
 // to generate a nonce for CSP
 export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return { props: { message: "Hi, from getServerSideProps" } };
@@ -117,7 +117,7 @@ import {
   reporting,
   strictDynamic,
   strictInlineStyles,
-} from '@next-safe/middleware';
+} from '@komw/next-safe-middleware';
 
 const securityMiddleware = [
   csp(),
@@ -132,9 +132,9 @@ Create the file `pages/api/reporting.js` to set up the reporting endpoint:
 
 ```js
 // pages/api/reporting.js
-import { reporting } from "@next-safe/middleware/dist/api";
+import { reporting } from "@komw/next-safe-middleware/dist/api";
 
-/** @type {import('@next-safe/middleware/dist/api').Reporter} */
+/** @type {import('@komw/next-safe-middleware/dist/api').Reporter} */
 const consoleLogReporter = (data) =>
   console.log(JSON.stringify(data, undefined, 2));
 
@@ -157,7 +157,7 @@ If you use [Sentry](https://sentry.io) for monitoring your app, there is a conve
 import {
   reporting,
   sentryCspReporterForEndpoint,
-} from "@next-safe/middleware/dist/api";
+} from "@komw/next-safe-middleware/dist/api";
 
 // lookup at https://docs.sentry.io/product/security-policy-reporting/
 const sentryCspEndpoint = process.env.SENTRY_CSP_ENDPOINT;
@@ -176,9 +176,9 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
-/** @type {import('@next-safe/middleware').ChainableMiddleware} */
+/** @type {import('@komw/next-safe-middleware').ChainableMiddleware} */
 const geoBlockMiddleware = (req) => {
   const BLOCKED_COUNTRY = "GB";
   const country = req.geo.country || "US";

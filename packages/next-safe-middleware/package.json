@@ -1,5 +1,5 @@
 {
-  "name": "@next-safe/middleware",
+  "name": "@komw/next-safe-middleware",
   "version": "0.10.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -30,7 +30,7 @@
     "react": ">=17"
   },
   "dependencies": {
-    "@strict-csp/builder": "workspace:*",
+    "@komw/next-safe-builder": "workspace:*",
     "cheerio": "^1.0.0-rc.10",
     "lockfile": "^1.0.4"
   },

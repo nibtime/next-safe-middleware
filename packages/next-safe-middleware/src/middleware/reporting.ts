@@ -1,4 +1,4 @@
-import type { UriPath } from "@strict-csp/builder";
+import type { UriPath } from "@komw/next-safe-builder";
 import type { MiddlewareBuilder } from "./builder/types";
 import { differenceWith } from "ramda";
 import { memoizeResponseHeader, chainableMiddleware } from "./compose";
@@ -170,7 +170,7 @@ const _reporting: MiddlewareBuilder<ReportingCfg> = (cfg) =>
  *   csp,
  *   strictDynamic,
  *   reporting,
- * } from "@next-safe/middleware";
+ * } from "@komw/next-safe-middleware";
  *
  * const securityMiddleware = [
  *   csp(),

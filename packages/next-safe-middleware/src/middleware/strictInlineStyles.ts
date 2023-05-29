@@ -23,7 +23,7 @@ const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
  * @returns a middleware that provides an augmented CSP with strict inline styles.
  * It will ensure to all style hashes (elem and attr) in the CSP that could be picked up during prerendering
  *
- * @requires `@next-safe/middleware/dist/document`
+ * @requires `@komw/next-safe-middleware/dist/document`
  *
  * Must be used together with `getCspInitialProps` and `provideComponents` in `pages/_document.js`
  * to wire stuff up with Next.js page prerendering. Additionally, you must pass
@@ -36,7 +36,7 @@ const _strictInlineStyles: MiddlewareBuilder<StrictInlineStylesCfg> = (cfg) =>
  *   csp,
  *   strictDynamic,
  *   strictInlineStyles,
- * } from "@next-safe/middleware";
+ * } from "@komw/next-safe-middleware";
  *
  * const securityMiddleware = [
  *   csp(),

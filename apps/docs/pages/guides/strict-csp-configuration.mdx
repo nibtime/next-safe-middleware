@@ -14,7 +14,7 @@ import {
   isPageRequest,
   csp,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 const securityMiddleware = [
   csp({
@@ -38,7 +38,7 @@ create a file `pages/_document.js` in your Next.js project folder:
 import {
   getCspInitialProps,
   provideComponents,
-} from "@next-safe/middleware/dist/document";
+} from "@komw/next-safe-middleware/dist/document";
 import Document, { Html, Main } from "next/document";
 
 export default class MyDocument extends Document {
@@ -64,9 +64,9 @@ export default class MyDocument extends Document {
 For every page under `pages` that uses `getServerSideProps` for data fetching:
 
 ```js
-import { gsspWithNonce } from "@next-safe/middleware/dist/document";
+import { gsspWithNonce } from "@komw/next-safe-middleware/dist/document";
 
-// wrap data fetching with gsspWithNonce 
+// wrap data fetching with gsspWithNonce
 // to generate a nonce for CSP
 export const getServerSideProps = gsspWithNonce(async (ctx) => {
   return { props: { message: "Hi, from getServerSideProps" } };
@@ -121,9 +121,9 @@ If you stick to those recommendations, all your script usage will work automatic
 
 The following files serve as examples for script usage:
 
-- [`apps/e2e/pages/_document.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx)
+- [`apps/e2e/pages/_document.tsx`](https://github.com/komw/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx)
 
-- [`apps/e2e/pages/_app.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_app.tsx)
+- [`apps/e2e/pages/_app.tsx`](https://github.com/komw/next-safe-middleware/blob/main/apps/e2e/pages/_app.tsx)
 
 <Callout type="error" emoji="🚫">
   **NEVER** add unsafe (inline) script code from dynamic data anywhere within `<Head>` of `pages/_document.js` / `next/head` or `<Script>` of `next/script`. Scripts in those places will be trustified for Strict CSP by this package during SSR.
@@ -153,7 +153,7 @@ the script will eventually receive the nonce.
 2. The script loads from `src` and doesn't have an integrity attribute: The script will be replaced by an inline proxy script that loads the script. The hash of this proxy script will be picked up for CSP. The actual script eventually becomes trusted by transitive trust propagation of `strict-dynamic`.
 
 <Callout emoji="💡">
-  The default behavior is to replace all scripts with a `src` attribute by an inline loading proxy during SSR to support Firefox and Safari (they mess up SRI validation with `strict-dynamic`, see [here](https://github.com/nibtime/next-safe-middleware/issues/5) and [here](https://github.com/nibtime/next-safe-middleware/pull/47)). To opt-out from this behavior, you can set `hashBasedByProxy: false` in `getCspInitialProps`.
+  The default behavior is to replace all scripts with a `src` attribute by an inline loading proxy during SSR to support Firefox and Safari (they mess up SRI validation with `strict-dynamic`, see [here](https://github.com/komw/next-safe-middleware/issues/5) and [here](https://github.com/komw/next-safe-middleware/pull/47)). To opt-out from this behavior, you can set `hashBasedByProxy: false` in `getCspInitialProps`.
 </Callout>
 
 3. The script is an inline script: The inline code of the script will be hashed, the hash will be set as integrity attribute of the inline script and the hash will be picked up by CSP.
@@ -164,7 +164,7 @@ This package tries to provide a best effort solution to this, with a `strictInli
 
 <Callout emoji="💡">
   For more information, [visit a discussion on
-  GitHub](https://github.com/nibtime/next-safe-middleware/issues/34) about
+  GitHub](https://github.com/komw/next-safe-middleware/issues/34) about
   problems and their solution for a setup with [Mantine](https://mantine.dev), a
   React component library that uses
   [emotion](https://emotion.sh/docs/introduction) CSS-in-JS under the hood.
@@ -172,11 +172,11 @@ This package tries to provide a best effort solution to this, with a `strictInli
 
 The following files serve as the references for such setups:
 
-- [`apps/e2e/middleware.ts`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/middleware.ts)
+- [`apps/e2e/middleware.ts`](https://github.com/komw/next-safe-middleware/blob/main/apps/e2e/middleware.ts)
 
-- [`apps/e2e/pages/_document.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx)
+- [`apps/e2e/pages/_document.tsx`](https://github.com/komw/next-safe-middleware/blob/main/apps/e2e/pages/_document.tsx)
 
-- [`apps/e2e/pages/_app.tsx`](https://github.com/nibtime/next-safe-middleware/blob/main/apps/e2e/pages/_app.tsx)
+- [`apps/e2e/pages/_app.tsx`](https://github.com/komw/next-safe-middleware/blob/main/apps/e2e/pages/_app.tsx)
 
 <Callout type="warning" emoji="⚠️">
   This package might not always be able to solve this issue, as this is highly
@@ -201,7 +201,7 @@ import {
   csp,
   nextSafe,
   strictDynamic,
-} from "@next-safe/middleware";
+} from "@komw/next-safe-middleware";
 
 const securityMiddleware = [
   nextSafe({ disableCsp: true }),

@@ -29,6 +29,17 @@
       ]
     },
     {
+      "login": "komw",
+      "name": "Szymon Gładysz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1590129?v=4",
+      "profile": "https://github.com/komw",
+      "contributions": [
+        "code",
+        "doc",
+        "infra",
+      ]
+    },
+    {
       "login": "alexturpin",
       "name": "Alex Turpin",
       "avatar_url": "https://avatars.githubusercontent.com/u/134339?v=4",

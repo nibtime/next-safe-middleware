@@ -1,7 +1,7 @@
 import {
   reporting,
   sentryCspReporterForEndpoint,
-} from "@next-safe/middleware/dist/api";
+} from "@komw/next-safe-middleware/dist/api";
 
 const sentryCspEndpoint = process.env.SENTRY_CSP_ENDPOINT;
 

@@ -24,10 +24,10 @@
   },
   "dependencies": {
     "@builder.io/partytown": "^0.6.4",
+    "@komw/next-safe-middleware": "workspace:*",
     "@mantine/core": "^4.2.12",
     "@mantine/hooks": "^4.2.12",
     "@mantine/next": "^4.2.12",
-    "@next-safe/middleware": "workspace:*",
     "@stitches/react": "^1.2.6",
     "ky": "^0.29.0",
     "ky-universal": "^0.10.0",

@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import type { ChainFinalizer, MiddlewareChainContext } from "./compose/types";
 import pRetry from "p-retry";
-import { CspBuilder } from "@strict-csp/builder";
+import { CspBuilder } from "@komw/next-safe-builder";
 import {
   CSP_HEADER,
   CSP_HEADER_REPORT_ONLY,

@@ -84,7 +84,7 @@ export const chain =
  * @returns
  * a matched chain function that will only run chained middlewares on matched requests
  * @example
- * import { csp, strictDynamic, chainMatch, isPageRequest } from `@next-safe/middleware`
+ * import { csp, strictDynamic, chainMatch, isPageRequest } from `@komw/next-safe-middleware`
  *
  * const securityMiddlewares = [csp(), strictDynamic()];
  *
